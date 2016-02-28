@@ -84,6 +84,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1434.0,49.0
 
 //Note to self:  To us the audio tool, use the bitcrusher as a 1:1 object, then replace name with bendvelope[N]
 
+#include "proto-8Hardware.h"
 
 //**Timers and stuff**************************//
 #include "timerModule32.h"
@@ -93,9 +94,7 @@ uint32_t MAXINTERVAL = 2000000;
 
 #include "timeKeeper.h"
 //**Panels and stuff**************************//
-#include "Panel.h"
-//**Seven Segment Display*********************//
-#include "Wire.h"
+#include "P8Panel.h"
 
 #include "MicroLL.h"
 
@@ -110,7 +109,7 @@ IntervalTimer myTimer;
 //    cannot exceed variable size.
 
 TimerClass32 midiRecordTimer( 1000 );
-TimerClass32 panelUpdateTimer(10000);
+TimerClass32 panelUpdateTimer(20000);
 uint8_t debugLedStates = 1;
 
 TimerClass32 ledToggleTimer( 333000 );
@@ -131,10 +130,14 @@ uint32_t usTicks = 0;
 uint8_t usTicksMutex = 1; //start locked out
 
 //**Panel State Machine***********************//
-#include "looperPanel.h"
-LooperPanel myLooperPanel;
+#include "P8Interface.h"
+P8Interface p8hid;
 
-
+//Names use in P8PanelComponents.cpp and .h
+LEDShiftRegister LEDs;
+AnalogMuxTree knobs;
+SwitchMatrix switches;
+//End used names
 
 // MIDI things
 #include <MIDI.h>
@@ -416,14 +419,18 @@ void setup()
 	bendvelope4.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope4.setAttackHold( 10 );
 	
+	LEDs.begin();
+	knobs.begin();
+	switches.begin();
+	
 	//Init panel.h stuff
-	myLooperPanel.init();
+	p8hid.init();
 	
 	// initialize IntervalTimer
 	myTimer.begin(serviceUS, 1);  // serviceMS to run every 0.001 seconds
 	
 	//Update the panel
-	myLooperPanel.update();
+	p8hid.update();
 
 	//Connect MIDI handlers
 	midiA.setHandleNoteOn(HandleNoteOn);  // Put only the name of the function
@@ -496,6 +503,7 @@ void setup()
 	
 	
 }
+uint32_t lastTime = 0;
 
 void loop()
 {
@@ -529,24 +537,24 @@ void loop()
 	//**Debounce timer****************************//  
 	if(debounceTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.timersMIncrement(5);
+		p8hid.timersMIncrement(5);
 	
 	}
 		
 	//**Process the panel and state machine***********//  
 	if(panelUpdateTimer.flagStatus() == PENDING)
 	{
+		uint32_t tempTime = usTicks;
+		Serial.print(tempTime - lastTime);
+		Serial.print(", ");
+		lastTime = tempTime;
 		//Provide inputs
-		if( rxLedFlag == 1 )
-		{
-			rxLedFlag = 0;
-			myLooperPanel.setRxLed();
-		}
 
 		//Tick the machine
-		myLooperPanel.processMachine();
+		p8hid.processMachine();
 		
 		//Deal with outputs
+		Serial.println(usTicks - tempTime);
 	}
 	
 	if(midiRecordTimer.flagStatus() == PENDING)
@@ -730,14 +738,14 @@ void loop()
 	//**Fast LED toggling of the panel class***********//  
 	if(ledToggleFastTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.toggleFastFlasherState();
+		p8hid.toggleFastFlasherState();
 		
 	}
 
 	//**LED toggling of the panel class***********//  
 	if(ledToggleTimer.flagStatus() == PENDING)
 	{
-		myLooperPanel.toggleFlasherState();
+		p8hid.toggleFlasherState();
 		
 	}
 	//**Debug timer*******************************//  
