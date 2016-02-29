@@ -171,24 +171,6 @@ void P8Panel::update( void )
 	led15.update();
 	led16.update();
 	
-	hpA.update();
-	hpB.update();
-	hpC.update();
-	hpD.update();
-	hpE.update();
-	hpF.update();
-	hpG.update();
-	hpDP.update();
-	hpD1.update();
-	hpD2.update();
-	hpD3.update();
-	hpD4.update();
-	hpD5.update();
-	hpD6.update();
-	hpD7.update();
-	hpD8.update();
-	hpD9.update();
-	
 	fixtureKnob.update();
 	
 	attackKnob.update();

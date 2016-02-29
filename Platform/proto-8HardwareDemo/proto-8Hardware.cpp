@@ -4,6 +4,7 @@
 //    2/24/2016 -- Created
 //    2/25/2016 -- Branched to demo for deployment
 //    2/28/2016 -- Moved to Proto-8 repo
+//    2/28/2016 -- Added tick() methods;
 
 #include <SPI.h>
 #include "proto-8Hardware.h"
@@ -11,6 +12,7 @@
 // -----------------------------------------------------------------------------
 LEDShiftRegister::LEDShiftRegister()
 {
+	state = 0;
 }
 
 void LEDShiftRegister::begin()
@@ -42,19 +44,32 @@ void LEDShiftRegister::send( uint8_t LEDNum, uint8_t LEDState )
 
 void LEDShiftRegister::send()
 {
-	//Send packet
-	SPI.transfer(LEDData[7]);//MSB
-	SPI.transfer(LEDData[6]);
-	SPI.transfer(LEDData[5]);
-	SPI.transfer(LEDData[4]);
-	SPI.transfer(LEDData[3]);
-	SPI.transfer(LEDData[2]);
-	SPI.transfer(LEDData[1]);
-	SPI.transfer(LEDData[0]);
-	//Fwap the clock
-	digitalWrite(LCLKPin, 0);
-	delayMicroseconds(10);
-	digitalWrite(LCLKPin, 1);  	 
+	for( int i = 0; i < 10; i++ )
+	{
+		tick();
+		delayMicroseconds(10);
+
+	}
+}
+
+void LEDShiftRegister::tick()
+{
+	if( state < 8 )
+	{
+		SPI.transfer(LEDData[7-state]);
+		state++;
+	}
+	else if( state == 8 )
+	{
+		//Fwap the clock
+		digitalWrite(LCLKPin, 0);
+		state++;
+	}
+	else if( state == 9 )
+	{
+		digitalWrite(LCLKPin, 1);		
+		state = 0;
+	}
 
 }
 
@@ -102,6 +117,7 @@ void LEDShiftRegister::clear()
 // -----------------------------------------------------------------------------
 AnalogMuxTree::AnalogMuxTree()
 {
+	state = 0;
 }
 
 void AnalogMuxTree::begin()
@@ -132,19 +148,30 @@ void AnalogMuxTree::scan()
 {
 	for( int i = 0; i < 16; i++ )
 	{
-		//Set the address
-		digitalWrite(MUXAPin, (i & 0x01) >> 0);
-		digitalWrite(MUXBPin, (i & 0x02) >> 1);
-		digitalWrite(MUXCPin, (i & 0x04) >> 2);
-		digitalWrite(MUXDPin, (i & 0x08) >> 3);
-		//Read the pins
+		tick();
 		delayMicroseconds(10);
-		KnobData[i] = analogRead(A10Pin);
-		KnobData[i+16] = analogRead(A11Pin);
-		KnobData[i+32] = analogRead(A12Pin);
-		KnobData[i+48] = analogRead(A13Pin);
+
 	}
 }
+
+void AnalogMuxTree::tick()
+{
+	//Read the pins
+	KnobData[state] = analogRead(A10Pin);
+	KnobData[state+16] = analogRead(A11Pin);
+	KnobData[state+32] = analogRead(A12Pin);
+	KnobData[state+48] = analogRead(A13Pin);
+
+	//Set the address FOR THE NEXT READ
+	state++;
+	if(state > 15) state = 0;
+	digitalWrite(MUXAPin, (state & 0x01) >> 0);
+	digitalWrite(MUXBPin, (state & 0x02) >> 1);
+	digitalWrite(MUXCPin, (state & 0x04) >> 2);
+	digitalWrite(MUXDPin, (state & 0x08) >> 3);
+
+}
+
 
 //Provide knobNumber from 1 to 64
 uint16_t AnalogMuxTree::fetch( uint8_t knobNumber )
@@ -155,6 +182,8 @@ uint16_t AnalogMuxTree::fetch( uint8_t knobNumber )
 // -----------------------------------------------------------------------------
 SwitchMatrix::SwitchMatrix()
 {
+	state = 0;
+	colCounter = 0;
 }
 
 void SwitchMatrix::begin()
@@ -179,54 +208,81 @@ void SwitchMatrix::begin()
 
 void SwitchMatrix::scan()
 {
-	uint16_t buffers[4];
-	buffers[0] = 0;
-	buffers[1] = 0;
-	buffers[2] = 0;
-	buffers[3] = 0;
-	for(int i = 0; i <= 16; i++)
+	for( int i = 0; i < 44; i++ )
+	{
+		tick();
+		delayMicroseconds(10);
+
+	}
+}
+
+void SwitchMatrix::tick()
+{
+	if( state == 0 )
+	{
+		buffers[0] = 0;
+		buffers[1] = 0;
+		buffers[2] = 0;
+		buffers[3] = 0;
+		colCounter = 0;
+		state++;
+	}
+	else if( state == 1 )
 	{
 		//pull 'chip select'
 		digitalWrite(BLATCHPin, 0);
 		
 		//Change data, drop clock
 		uint8_t data_temp = 1;
-		if(i == 0)
+		if(colCounter == 0) //One-shot generator
 		{
 			data_temp = 0;
 		}
 		digitalWrite(BSERPin, data_temp);
 		digitalWrite(BCLKPin, 0);
-		delayMicroseconds(10);
-		
+		state++;
+	}
+	else if( state == 2 )
+	{
 		//lift clock
 		digitalWrite(BCLKPin, 1);
-		delayMicroseconds(10);
-		
-		//Read row data
+		state++;
+	}	
+	else if( state == 3 )
+	{
+		//Read the rows
 		buffers[0] |= (digitalRead(ROW1Pin) ^ 0x01) << 15;
 		buffers[1] |= (digitalRead(ROW2Pin) ^ 0x01) << 15;
 		buffers[2] |= (digitalRead(ROW3Pin) ^ 0x01) << 15;
 		buffers[3] |= (digitalRead(ROW4Pin) ^ 0x01) << 15;
-		
-		if(i != 16)
+		if(colCounter != 16)
 		{
 			buffers[0] = buffers[0] >> 1;
 			buffers[1] = buffers[1] >> 1;
 			buffers[2] = buffers[2] >> 1;
 			buffers[3] = buffers[3] >> 1;
+			colCounter++;
+			state = 1;
 		}
-		
+		else
+		{
+			state++;
+		}
 		//release 'chip select'
 		digitalWrite(BLATCHPin, 1);
-
-	}
-
-	rowData[0] = buffers[0];
-	rowData[1] = buffers[1];
-	rowData[2] = buffers[2];
-	rowData[3] = buffers[3];
+	}	
+	else if( state == 4 )
+	{
+		//relax!
+		state = 0;
+		rowData[0] = buffers[0];
+		rowData[1] = buffers[1];
+		rowData[2] = buffers[2];
+		rowData[3] = buffers[3];
+	}	
 }
+
+
 
 //Numbered 1 to 64.  Knob 17 is row 2 col 1
 uint8_t SwitchMatrix::fetch( uint8_t switchNumber )

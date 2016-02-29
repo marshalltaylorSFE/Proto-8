@@ -35,6 +35,7 @@ AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 
 
 #include "proto-8Hardware.h"
+#include "VoltageMonitor.h"
 
 //**Timers and stuff**************************//
 #include "timerModule32.h"
@@ -61,6 +62,11 @@ uint32_t MAXTIMER = 60000000;
 uint32_t MAXINTERVAL = 2000000;
 
 TimerClass32 panelUpdateTimer(5000);
+TimerClass32 LEDsTimer(200);
+TimerClass32 switchesTimer(500);
+TimerClass32 knobsTimer(500);
+
+
 
 TimerClass32 ledToggleTimer( 333000 );
 uint8_t ledToggleState = 0;
@@ -83,7 +89,7 @@ int8_t loopCount = 0;
 int8_t maxLoopCount = 20;
 
 //Names use in P8PanelComponents.cpp and .h
-LEDShiftRegister LEDs;
+VoltageMonitor LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
 //End used names
@@ -113,7 +119,7 @@ void setup()
 	sine4.amplitude(1);
 	sine4.frequency(350);
 	
-	Serial.begin(9600);
+	Serial.begin(115200);
 	
 	LEDs.begin();
 	knobs.begin();
@@ -123,6 +129,7 @@ void setup()
 	p8hid.init();
 	
 	Serial.println("Program Started");
+	delay(1000);
 	// initialize IntervalTimer
 	myTimer.begin(serviceUS, 1);  // serviceMS to run every 0.001 seconds
 	
@@ -137,6 +144,9 @@ void loop()
 	panelUpdateTimer.update(usTicks);
 	debounceTimer.update(usTicks);
 	debugTimer.update(usTicks);
+	LEDsTimer.update(usTicks);
+	switchesTimer.update(usTicks);
+	knobsTimer.update(usTicks);
 	
 //**Copy to make a new timer******************//  
 	//  if(msTimerA.flagStatus() == PENDING)
@@ -150,7 +160,24 @@ void loop()
 		p8hid.timersMIncrement(5);
 	
 	}
-		
+	//**Debounce timer****************************//  
+	if(LEDsTimer.flagStatus() == PENDING)
+	{
+		LEDs.tickSeg();
+	
+	}
+	//**Debounce timer****************************//  
+	if(switchesTimer.flagStatus() == PENDING)
+	{
+		switches.tick();
+	
+	}
+	//**Debounce timer****************************//  
+	if(knobsTimer.flagStatus() == PENDING)
+	{
+		knobs.tick();
+	
+	}	
 	//**Process the panel and state machine***********//  
 	if(panelUpdateTimer.flagStatus() == PENDING)
 	{

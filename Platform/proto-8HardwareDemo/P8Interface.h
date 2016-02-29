@@ -19,34 +19,6 @@
 #include "P8Panel.h"
 #include "flagMessaging.h"
 
-const uint8_t digitsLUT [11] = 
-{
-0x7b,
-0x60,
-0x5d,
-0x75,
-0x66,
-0x37,
-0x3f,
-0x61,
-0x7f,
-0x67,
-0x00
-};
-
-class HpSeg
-{
-public:
-	HpSeg( void );
-	void update( void );
-	void setNumber1( uint16_t );
-private:
-	uint16_t number1;
-	uint8_t scanDigit;
-	uint8_t dispBuffer[9];
-	
-};
-
 
 enum PStates
 {
@@ -80,7 +52,6 @@ private:
 	//State machine stuff  
 	PStates state;
 	
-	HpSeg display1;
 
 };
 

@@ -16,15 +16,28 @@
 #include "Arduino.h"
 #include "flagMessaging.h"
 #include "proto-8Hardware.h"
+#include "effect_bendvelope.h"
 
 extern LEDShiftRegister LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
+extern AudioEffectBendvelope    bendvelope1;    //xy=584,58
+extern AudioEffectBendvelope    bendvelope2;    //xy=592,208
+extern AudioEffectBendvelope    bendvelope3;    //xy=600,358
+extern AudioEffectBendvelope    bendvelope4;    //xy=608,508
 
 P8Interface::P8Interface( void )
 {
 	//Controls
 	state = PInit;
+	lastAttack = 10;
+	lastAttackBend = 127;
+	lastAttackHold = 10;
+	lastDecay = 100;
+	lastDecayBend = 127;
+	lastSustain = 100;
+	lastRelease = 100;
+	lastReleaseBend = 127;
 	
 }
 
@@ -47,8 +60,8 @@ void P8Interface::reset( void )
 //---------------------------------------------------------------------------//
 void P8Interface::processMachine( void )
 {
-	switches.scan();
-	knobs.scan();
+	//switches.scan();
+	//knobs.scan();
 	update();
 
 	//Do small machines
@@ -125,15 +138,51 @@ void P8Interface::processMachine( void )
 	{
 		led16.toggle();
 	}
-	if( fixtureKnob.newData == 1 )
+	if( fixtureKnob.serviceChanged() )
 	{
 		//LEDs.store( fixtureKnob.getState() + 1, 1 );
 		//LEDs.store( attackBendKnob.getState() + 1, 0 );
 		display1.setNumber1( fixtureKnob.getState() );
 		//Serial.println( fixtureKnob.getState() );
 	}
+	//if( attackKnob.serviceChanged() || attackBendKnob.serviceChanged()  )
+	//{
+	//	bendvelope1.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope2.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope3.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope4.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//}
+	//if( holdKnob.serviceChanged() )
+	//{
+	//	bendvelope1.setAttackHold( holdKnob.getState() );
+	//	bendvelope2.setAttackHold( holdKnob.getState() );
+	//	bendvelope3.setAttackHold( holdKnob.getState() );
+	//	bendvelope4.setAttackHold( holdKnob.getState() );
+	//}
+	//if( decayKnob.serviceChanged() || decayBendKnob.serviceChanged() )
+	//{
+	//	bendvelope1.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope2.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope3.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope4.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//}
+	//if( sustainKnob.serviceChanged() )
+	//{
+	//	bendvelope1.sustain( sustainKnob.getState() );// 0 to 255 for level
+	//	bendvelope2.sustain( sustainKnob.getState() );// 0 to 255 for level
+	//	bendvelope3.sustain( sustainKnob.getState() );// 0 to 255 for level
+	//	bendvelope4.sustain( sustainKnob.getState() );// 0 to 255 for level
+	//}
+	//if( releaseKnob.serviceChanged() || releaseBendKnob.serviceChanged() )
+	//{
+	//	bendvelope1.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope2.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope3.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//	bendvelope4.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
+	//}
+
 	//'set' all the values
-	//display1.update();
+	display1.update();
 	
 	//Do main machine
 	tickStateMachine();
@@ -144,7 +193,7 @@ void P8Interface::processMachine( void )
 	//led10.setState(LEDON);
 	update();
 	//Panel level LEDs
-	LEDs.send();
+	//LEDs.send();
 }
 
 void P8Interface::tickStateMachine()

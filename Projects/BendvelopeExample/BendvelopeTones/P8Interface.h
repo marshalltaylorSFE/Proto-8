@@ -69,7 +69,16 @@ public:
 	//Flags coming in from the system
 	
 	//Internal - and going out to the system - Flags
-	
+	uint8_t lastAttack;
+	uint8_t lastAttackBend;
+	uint8_t lastAttackHold;
+	uint8_t lastDecay;
+	uint8_t lastDecayBend;
+	uint8_t lastSustain;
+	uint8_t lastRelease;
+	uint8_t lastReleaseBend;
+		
+		
 	//  ..and data.
 
 private:

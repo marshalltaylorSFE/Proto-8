@@ -38,13 +38,16 @@ public:
 	void update( void );
 	void init( uint8_t );
 	uint8_t getState( void );
+	uint8_t serviceChanged( void );
 	uint8_t state;
 	uint8_t lastState;
-	const uint8_t hysteresis = 3;
+	const uint8_t hysteresis = 2;
+	int8_t slope = 1;
 	uint8_t posNumber;
 	uint8_t newData;
 protected:
 private:
+
 };
 
 

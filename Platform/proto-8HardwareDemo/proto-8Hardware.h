@@ -4,6 +4,7 @@
 //    2/24/2016 -- Created
 //    2/25/2016 -- Branched to demo for deployment
 //    2/28/2016 -- Moved to Proto-8 repo
+//    2/28/2016 -- Added tick() methods;
 
 #if !defined(PROTO8_HARDWARE_H)
 #define PROTO8_HARDWARE_H
@@ -41,10 +42,12 @@ public:
 	void begin();
 	void send( uint8_t, uint8_t );
 	void send();
+	void tick();
 	void store( uint8_t, uint8_t );
 	void clear();
 //private:
 	uint8_t LEDData[8];
+	uint8_t state;
 };
 
 class AnalogMuxTree
@@ -53,10 +56,12 @@ public:
 	AnalogMuxTree();
 	void begin();
 	void scan();
+	void tick();
 	uint16_t fetch( uint8_t );
 
 private:
 	uint16_t KnobData[64];
+	uint8_t state;
 };
 
 class SwitchMatrix
@@ -65,11 +70,15 @@ public:
 	SwitchMatrix();
 	void begin();
 	void scan();
+	void tick();
 	uint8_t fetch( uint8_t );
 	void send( uint16_t );
 
 private:
 	uint16_t rowData[4];
+	uint16_t buffers[4];
+	uint8_t state;
+	uint8_t colCounter;
 };
 
 #endif

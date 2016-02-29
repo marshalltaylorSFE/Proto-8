@@ -109,8 +109,12 @@ IntervalTimer myTimer;
 //    cannot exceed variable size.
 
 TimerClass32 midiRecordTimer( 1000 );
-TimerClass32 panelUpdateTimer(20000);
+TimerClass32 panelUpdateTimer(10000);
 uint8_t debugLedStates = 1;
+
+TimerClass32 LEDsTimer(500);
+TimerClass32 switchesTimer(500);
+TimerClass32 knobsTimer(500);
 
 TimerClass32 ledToggleTimer( 333000 );
 uint8_t ledToggleState = 0;
@@ -123,7 +127,7 @@ TimerClass32 envTimer( 2000 );
 
 TimerClass32 debounceTimer(5000);
 
-TimerClass32 debugTimer(2000000);
+TimerClass32 debugTimer(500000);
 
 //tick variable for interrupt driven timer1
 uint32_t usTicks = 0;
@@ -132,6 +136,9 @@ uint8_t usTicksMutex = 1; //start locked out
 //**Panel State Machine***********************//
 #include "P8Interface.h"
 P8Interface p8hid;
+volatile uint32_t pUTStartTime = 0;
+volatile uint32_t pUTLastTime = 0;
+volatile uint32_t pUTStopTime = 0;
 
 //Names use in P8PanelComponents.cpp and .h
 LEDShiftRegister LEDs;
@@ -303,66 +310,66 @@ void HandleControlChange(byte channel, byte number, byte value)
 		waveform3D.frequency((last3) * fineTuneD * coarseTuneD);
 		waveform4D.frequency((last4) * fineTuneD * coarseTuneD);
 		break;
-		case 32:
-		lastAttack = (value << 1 ) + 1;
-		Serial.println("Start");
-		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		Serial.println("End");
-		break;
-		case 33:
-		Serial.println("Start");
-		lastAttackBend = (value << 1 ) - 128;
-		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
-		Serial.println("End");
-		break;
-		case 34:
-		//
-		bendvelope1.setAttackHold( (value << 1 ) + 1 );
-		bendvelope2.setAttackHold( (value << 1 ) + 1 );
-		bendvelope3.setAttackHold( (value << 1 ) + 1 );
-		bendvelope4.setAttackHold( (value << 1 ) + 1 );
-		break;
-		case 35:
-		lastDecay = (value << 1 ) + 1;
-		bendvelope1.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		break;
-		case 36:
-		lastDecayBend = (value << 1 ) - 128;
-		bendvelope1.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
-		break;
-		case 37:
-		//
-		bendvelope1.sustain( (value << 1 ) );// 0 to 255 for level
-		bendvelope2.sustain( (value << 1 ) );// 0 to 255 for level
-		bendvelope3.sustain( (value << 1 ) );// 0 to 255 for level
-		bendvelope4.sustain( (value << 1 ) );// 0 to 255 for level
-		break;
-		case 38:
-		lastRelease = (value << 1 ) + 1;
-		bendvelope1.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		break;
-		case 39:
-		lastReleaseBend = (value << 1 ) - 128;
-		bendvelope1.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope2.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope3.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		bendvelope4.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
-		break;
+//		case 32:
+//		lastAttack = (value << 1 ) + 1;
+//		Serial.println("Start");
+//		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		Serial.println("End");
+//		break;
+//		case 33:
+//		Serial.println("Start");
+//		lastAttackBend = (value << 1 ) - 128;
+//		bendvelope1.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.attack( lastAttack, lastAttackBend );// 0 to 255 for length, -128 to 127
+//		Serial.println("End");
+//		break;
+//		case 34:
+//		//
+//		bendvelope1.setAttackHold( (value << 1 ) + 1 );
+//		bendvelope2.setAttackHold( (value << 1 ) + 1 );
+//		bendvelope3.setAttackHold( (value << 1 ) + 1 );
+//		bendvelope4.setAttackHold( (value << 1 ) + 1 );
+//		break;
+//		case 35:
+//		lastDecay = (value << 1 ) + 1;
+//		bendvelope1.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		break;
+//		case 36:
+//		lastDecayBend = (value << 1 ) - 128;
+//		bendvelope1.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.decay( lastDecay, lastDecayBend );// 0 to 255 for length, -128 to 127
+//		break;
+//		case 37:
+//		//
+//		bendvelope1.sustain( (value << 1 ) );// 0 to 255 for level
+//		bendvelope2.sustain( (value << 1 ) );// 0 to 255 for level
+//		bendvelope3.sustain( (value << 1 ) );// 0 to 255 for level
+//		bendvelope4.sustain( (value << 1 ) );// 0 to 255 for level
+//		break;
+//		case 38:
+//		lastRelease = (value << 1 ) + 1;
+//		bendvelope1.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		break;
+//		case 39:
+//		lastReleaseBend = (value << 1 ) - 128;
+//		bendvelope1.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope2.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope3.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		bendvelope4.release( lastRelease, lastReleaseBend );// 0 to 255 for length, -128 to 127
+//		break;
 		default:
 		break;
 	}
@@ -503,7 +510,6 @@ void setup()
 	
 	
 }
-uint32_t lastTime = 0;
 
 void loop()
 {
@@ -518,13 +524,32 @@ void loop()
 	envTimer.update(usTicks);
 	
 	debugTimer.update(usTicks);
-
+	LEDsTimer.update(usTicks);
+	switchesTimer.update(usTicks);
+	knobsTimer.update(usTicks);
 	//**Copy to make a new timer******************//  
 	//  if(msTimerA.flagStatus() == PENDING)
 	//  {
 	//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
 	//  }
+	//**Debounce timer****************************//  
+	if(LEDsTimer.flagStatus() == PENDING)
+	{
+		LEDs.tick();
 	
+	}
+	//**Debounce timer****************************//  
+	if(switchesTimer.flagStatus() == PENDING)
+	{
+		switches.tick();
+	
+	}
+	//**Debounce timer****************************//  
+	if(knobsTimer.flagStatus() == PENDING)
+	{
+		knobs.tick();
+	
+	}		
 	//**Bendvelope timer**************************//  
 	if(envTimer.flagStatus() == PENDING)
 	{
@@ -544,17 +569,18 @@ void loop()
 	//**Process the panel and state machine***********//  
 	if(panelUpdateTimer.flagStatus() == PENDING)
 	{
-		uint32_t tempTime = usTicks;
-		Serial.print(tempTime - lastTime);
-		Serial.print(", ");
-		lastTime = tempTime;
+		pUTLastTime = pUTStartTime;
+		pUTStartTime = usTicks;
 		//Provide inputs
 
 		//Tick the machine
 		p8hid.processMachine();
 		
 		//Deal with outputs
-		Serial.println(usTicks - tempTime);
+
+
+		pUTStopTime = usTicks;
+
 	}
 	
 	if(midiRecordTimer.flagStatus() == PENDING)
@@ -768,6 +794,13 @@ void loop()
 		Serial.print(",   FreeRam: ");
 		Serial.print(FreeRam());
 		Serial.print("\n");
+		Serial.print("panelUpdateTimer (sTime, length): ");
+		Serial.print(pUTStartTime - pUTLastTime);
+		Serial.print(", ");
+		Serial.println(pUTStopTime - pUTStartTime);
+		//Serial.print(", ");
+		//Serial.println(usTicks - tempTime);
+
 	}
 	midiA.read();
 

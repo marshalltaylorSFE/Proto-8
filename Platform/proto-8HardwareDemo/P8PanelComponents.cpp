@@ -11,9 +11,9 @@
 #include "P8PanelComponents.h"
 //#include "timeKeeper.h"
 #include "Arduino.h"
-#include "proto-8Hardware.h"
+#include "VoltageMonitor.h"
 
-extern LEDShiftRegister LEDs;
+extern VoltageMonitor LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
 
@@ -68,7 +68,24 @@ void P8PanelKnob8Bit::update( void )
 {
 	uint16_t tempState = knobs.fetch( posNumber ) >> 2;
 	state = tempState;
-    newData = 1;
+	if( state > lastState )
+	{
+		slope = 1;
+	}
+	else
+	{
+		slope = -1;
+	}
+	if( state > lastState + hysteresis && slope == 1 )
+	{
+		newData = 1;
+		lastState = state;
+	}
+	if( state < lastState - hysteresis && slope == -1 )
+	{
+		newData = 1;
+		lastState = state;
+	}
 
 }
 
@@ -79,6 +96,10 @@ uint8_t P8PanelKnob8Bit::getState( void )
   return state;
 }
 
+uint8_t P8PanelKnob8Bit::serviceChanged( void )
+{
+	return newData;
+}
 //---Button------------------------------------------------------
 P8PanelButton::P8PanelButton( void )
 {
