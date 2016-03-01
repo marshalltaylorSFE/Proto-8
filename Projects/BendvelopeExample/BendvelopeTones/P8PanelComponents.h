@@ -6,6 +6,7 @@
 //  Changelog (YYYY/MM/DD):
 //    2015/10/08: Beta Release
 //    2016/2/24: Forked to 'P8' set
+//    2016/2/29: LEDs wrapped by VoltageMonitor + hysteresis fix
 //
 //**********************************************************************//
 #ifndef P8PANELCOMPONENTS_H
@@ -42,7 +43,7 @@ public:
 	uint8_t state;
 	uint8_t lastState;
 	const uint8_t hysteresis = 2;
-	int8_t slope = 1;
+	int8_t lastSlope = 1;
 	uint8_t posNumber;
 	uint8_t newData;
 protected:

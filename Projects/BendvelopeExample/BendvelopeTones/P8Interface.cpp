@@ -8,6 +8,7 @@
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
+//    2016/2/29: Merged with demo for segment driver
 //
 //**********************************************************************//
 #include "P8Interface.h"
@@ -17,8 +18,9 @@
 #include "flagMessaging.h"
 #include "proto-8Hardware.h"
 #include "effect_bendvelope.h"
+#include "VoltageMonitor.h"
 
-extern LEDShiftRegister LEDs;
+extern VoltageMonitor LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
 extern AudioEffectBendvelope    bendvelope1;    //xy=584,58
@@ -74,26 +76,33 @@ void P8Interface::processMachine( void )
 //	}
 //	if( quantizeSelector.serviceChanged() )
 //	{
+	int8_t group1Service = 0;
 	if( button1.serviceRisingEdge() )
 	{
-		led1.toggle();
+		group1Service = 1;
+		group1Store = 1;
 	}
 	if( button2.serviceRisingEdge() )
 	{
-		led2.toggle();
+		group1Service = 2;
+		group1Store = 2;
 	}
 	if( button3.serviceRisingEdge() )
 	{
-		led3.toggle();
+		group1Service = 3;
+		group1Store = 3;
 	}
 	if( button4.serviceRisingEdge() )
 	{
-		led4.toggle();
+		group1Service = 4;
+		group1Store = 4;
 	}
 	if( button5.serviceRisingEdge() )
 	{
-		led5.toggle();
+		group1Service = 5;
+		group1Store = 5;
 	}
+	
 	if( button6.serviceRisingEdge() )
 	{
 		led6.toggle();
@@ -130,59 +139,206 @@ void P8Interface::processMachine( void )
 	{
 		led14.toggle();
 	}
+	int8_t group3Service = 0;
 	if( button15.serviceRisingEdge() )
 	{
-		led15.toggle();
+		group3Service = 1;
 	}
 	if( button16.serviceRisingEdge() )
 	{
-		led16.toggle();
+		group3Service = 2;
 	}
+	if( group1Service )
+	{
+		group1Store = group1Service;
+		led1.setState(LEDOFF);
+		led2.setState(LEDOFF);
+		led3.setState(LEDOFF);
+		led4.setState(LEDOFF);
+		led5.setState(LEDOFF);
+		switch( group1Service )
+		{
+			case 1:
+			led1.setState(LEDON);
+			group3Service = -1;
+			break;
+			case 2:
+			led2.setState(LEDON);
+			group3Store = waveformShape1;
+			group3Service = -1;
+			break;
+			case 3:
+			led3.setState(LEDON);
+			group3Store = waveformShape2;
+			group3Service = -1;
+			break;
+			case 4:
+			led4.setState(LEDON);
+			group3Store = waveformShape3;
+			group3Service = -1;
+			break;
+			case 5:
+			led5.setState(LEDON);
+			group3Store = waveformShape4;
+			group3Service = -1;
+			break;
+			default:
+			break;
+		}
+	}
+	int8_t group2Service = 0;
+	if( button1.serviceHoldRisingEdge() )
+	{
+		group2Service = 1;
+	}
+	if( button2.serviceHoldRisingEdge() )
+	{
+		group2Service = 2;
+	}
+	if( button3.serviceHoldRisingEdge() )
+	{
+		group2Service = 3;
+	}
+	if( button4.serviceHoldRisingEdge() )
+	{
+		group2Service = 4;
+	}
+	if( button5.serviceHoldRisingEdge() )
+	{
+		group2Service = 5;
+	}
+	if( group2Service )
+	{
+		switch( group2Service )
+		{
+			case 1:
+			break;
+			case 2:
+			led2.setState(LEDFLASHING);
+			break;
+			case 3:
+			led3.setState(LEDFLASHING);
+			break;
+			case 4:
+			led4.setState(LEDFLASHING);
+			break;
+			case 5:
+			led5.setState(LEDFLASHING);
+			break;
+			default:
+			break;
+		}
+	}
+	if( group3Service )
+	{
+		if( group3Service != -1)
+		{
+			group3Store = group3Service;
+		}
+		switch( group1Store )
+		{
+			case 1:
+			group3Store = 0;
+			break;
+			case 2:
+			waveformShape1 = group3Store;
+			break;
+			case 3:
+			waveformShape2 = group3Store;
+			break;
+			case 4:
+			waveformShape3 = group3Store;
+			break;
+			case 5:
+			waveformShape4 = group3Store;
+			break;
+			default:
+			break;
+		}
+		led15.setState(LEDOFF);
+		led16.setState(LEDOFF);
+		switch( group3Store )
+		{
+			case 1:
+			led15.setState(LEDON);
+			break;
+			case 2:
+			led16.setState(LEDON);
+			break;
+			default:
+			break;
+		}
+		
+	}	
+	//Knobs
+	uint8_t temp1;
+	uint8_t temp2;
+	
+	temp1 = attackKnob.serviceChanged();
+	if( temp1 ) debugTemp = attackKnob.getState();
+	temp2 = attackBendKnob.serviceChanged();
+	if( temp2 ) debugTemp = attackBendKnob.getState();
+	if( temp1 || temp2 )
+	{
+		bendvelope1.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope2.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope3.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope4.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+	}
+	if( holdKnob.serviceChanged() )
+	{
+		debugTemp = holdKnob.getState();
+		bendvelope1.setAttackHold( holdKnob.getState() );
+		bendvelope2.setAttackHold( holdKnob.getState() );
+		bendvelope3.setAttackHold( holdKnob.getState() );
+		bendvelope4.setAttackHold( holdKnob.getState() );
+	}
+	temp1 = decayKnob.serviceChanged();
+	if( temp1 ) debugTemp = decayKnob.getState();
+	temp2 = decayBendKnob.serviceChanged();
+	if( temp2 ) debugTemp = decayBendKnob.getState();
+	if( temp1 || temp2 )
+	{
+		bendvelope1.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		bendvelope2.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		bendvelope3.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		bendvelope4.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+	}
+	if( sustainKnob.serviceChanged() )
+	{
+		debugTemp = sustainKnob.getState();
+		bendvelope1.sustain( sustainKnob.getState() );// 0 to 255 for level
+		bendvelope2.sustain( sustainKnob.getState() );// 0 to 255 for level
+		bendvelope3.sustain( sustainKnob.getState() );// 0 to 255 for level
+		bendvelope4.sustain( sustainKnob.getState() );// 0 to 255 for level
+	}
+	temp1 = releaseKnob.serviceChanged();
+	if( temp1 ) debugTemp = releaseKnob.getState();
+	temp2 = releaseBendKnob.serviceChanged();
+	if( temp2 ) debugTemp = releaseBendKnob.getState();
+	if( temp1 || temp2 )
+	{
+		bendvelope1.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope2.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope3.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope4.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+	}
+
 	if( fixtureKnob.serviceChanged() )
 	{
-		//LEDs.store( fixtureKnob.getState() + 1, 1 );
-		//LEDs.store( attackBendKnob.getState() + 1, 0 );
-		display1.setNumber1( fixtureKnob.getState() );
-		//Serial.println( fixtureKnob.getState() );
+		debugTemp = fixtureKnob.getState();
 	}
-	//if( attackKnob.serviceChanged() || attackBendKnob.serviceChanged()  )
-	//{
-	//	bendvelope1.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope2.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope3.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope4.attack( attackKnob.getState(), attackBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//}
-	//if( holdKnob.serviceChanged() )
-	//{
-	//	bendvelope1.setAttackHold( holdKnob.getState() );
-	//	bendvelope2.setAttackHold( holdKnob.getState() );
-	//	bendvelope3.setAttackHold( holdKnob.getState() );
-	//	bendvelope4.setAttackHold( holdKnob.getState() );
-	//}
-	//if( decayKnob.serviceChanged() || decayBendKnob.serviceChanged() )
-	//{
-	//	bendvelope1.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope2.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope3.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope4.decay( decayKnob.getState(), decayBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//}
-	//if( sustainKnob.serviceChanged() )
-	//{
-	//	bendvelope1.sustain( sustainKnob.getState() );// 0 to 255 for level
-	//	bendvelope2.sustain( sustainKnob.getState() );// 0 to 255 for level
-	//	bendvelope3.sustain( sustainKnob.getState() );// 0 to 255 for level
-	//	bendvelope4.sustain( sustainKnob.getState() );// 0 to 255 for level
-	//}
-	//if( releaseKnob.serviceChanged() || releaseBendKnob.serviceChanged() )
-	//{
-	//	bendvelope1.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope2.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope3.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//	bendvelope4.release( releaseKnob.getState(), releaseBendKnob.getState() );// 0 to 255 for length, -128 to 127
-	//}
-
+	LEDs.setNumber1( debugTemp );
+	float tempVoltage = 0;
+	float tempFactor = 0; // n * factor = 2.5
+	tempFactor = 2.5 / refKnob.getState();
+	tempVoltage = (float)rail18Knob.getState() * tempFactor * 2;
+	LEDs.setVoltage( tempVoltage, 0 );
+	tempVoltage = (float)rail33Knob.getState() * tempFactor * 2;
+	LEDs.setVoltage( tempVoltage, 3 );
 	//'set' all the values
-	display1.update();
+	//display1.update();
+	//update();
 	
 	//Do main machine
 	tickStateMachine();
@@ -240,98 +396,4 @@ void P8Interface::timersMIncrement( uint8_t inputValue )
 	button16.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	
 
-}
-
-extern P8Interface p8hid;
-
-HpSeg::HpSeg( void )
-{
-	scanDigit = 1;
-	number1 = 0;
-	
-}
-
-void HpSeg::update( void )
-{
-	scanDigit++;
-	if( scanDigit > 9 )
-	{
-		scanDigit = 1;
-	}
-	p8hid.hpD1.setState( LEDON );
-	p8hid.hpD2.setState( LEDON );
-	p8hid.hpD3.setState( LEDON );
-	p8hid.hpD4.setState( LEDON );
-	p8hid.hpD5.setState( LEDON );
-	p8hid.hpD6.setState( LEDON );
-	p8hid.hpD7.setState( LEDON );
-	p8hid.hpD8.setState( LEDON );
-	p8hid.hpD9.setState( LEDON );
-	p8hid.hpA.setState( LEDOFF );
-	p8hid.hpB.setState( LEDOFF );
-	p8hid.hpC.setState( LEDOFF );
-	p8hid.hpD.setState( LEDOFF );
-	p8hid.hpE.setState( LEDOFF );
-	p8hid.hpF.setState( LEDOFF );
-	p8hid.hpG.setState( LEDOFF );
-	p8hid.hpDP.setState( LEDOFF );
-	switch( scanDigit )
-	{
-		case 1:
-		p8hid.hpD1.setState( LEDOFF );
-		break;
-		case 2:
-		p8hid.hpD2.setState( LEDOFF );
-		break;
-		case 3:
-		p8hid.hpD3.setState( LEDOFF );
-		break;
-		case 4:
-		p8hid.hpD4.setState( LEDOFF );
-		break;
-		case 5:
-		p8hid.hpD5.setState( LEDOFF );
-		break;
-		case 6:
-		p8hid.hpD6.setState( LEDOFF );
-		break;
-		case 7:
-		p8hid.hpD7.setState( LEDOFF );
-		break;
-		case 8:
-		p8hid.hpD8.setState( LEDOFF );
-		break;
-		case 9:
-		p8hid.hpD9.setState( LEDOFF );
-		break;
-		default:
-		break;
-	}
-	if( dispBuffer[scanDigit - 1] & 0x01 ) p8hid.hpA.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x02 ) p8hid.hpF.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x04 ) p8hid.hpG.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x08 ) p8hid.hpE.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x10 ) p8hid.hpD.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x20 ) p8hid.hpC.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x40 ) p8hid.hpB.setState( LEDON );
-	if( dispBuffer[scanDigit - 1] & 0x80 ) p8hid.hpDP.setState( LEDON );
-}
-
-void HpSeg::setNumber1( uint16_t inputVal )
-{
-	uint16_t inputTemp = inputVal;
-	uint16_t mathTemp = 0;
-	for( int i = 0; i < 9; i++ )
-	{
-		mathTemp = inputTemp%10;
-		if(( inputTemp > 0 )||( i == 0 ))
-		{
-			dispBuffer[8 - i] = digitsLUT[mathTemp];
-		}
-		else
-		{
-			dispBuffer[8 - i] = digitsLUT[10];
-		}
-		inputTemp /= 10;
-	}
 }

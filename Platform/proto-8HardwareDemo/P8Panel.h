@@ -86,7 +86,9 @@ public:
 	P8PanelKnob8Bit releaseKnob;
 	P8PanelKnob8Bit releaseBendKnob;
 
-
+	P8PanelKnob8Bit refKnob;
+	P8PanelKnob8Bit rail18Knob;
+	P8PanelKnob8Bit rail33Knob;
 
 
 

@@ -59,6 +59,9 @@
 #define	RKPOS 52
 #define	RBKPOS 49
 
+#define	REFPOS 8
+#define	RAIL18POS 6
+#define	RAIL33POS 7
 
 P8Panel::P8Panel( void )
 {
@@ -131,6 +134,10 @@ void P8Panel::init( void )
 	releaseKnob.init(RKPOS);
 	releaseBendKnob.init(RBKPOS);
 	
+	refKnob.init(REFPOS);
+	rail18Knob.init(RAIL18POS);
+	rail33Knob.init(RAIL33POS);
+	
  	flasherState = 0;
 	fastFlasherState = 0;
 }
@@ -181,6 +188,9 @@ void P8Panel::update( void )
 	sustainKnob.update();
 	releaseKnob.update();
 	releaseBendKnob.update();
+	refKnob.update();
+	rail18Knob.update();
+	rail33Knob.update();
 	
 }
 

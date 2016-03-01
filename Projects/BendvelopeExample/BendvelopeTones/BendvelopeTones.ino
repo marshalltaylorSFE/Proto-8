@@ -85,6 +85,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1434.0,49.0
 //Note to self:  To us the audio tool, use the bitcrusher as a 1:1 object, then replace name with bendvelope[N]
 
 #include "proto-8Hardware.h"
+#include "VoltageMonitor.h"
 
 //**Timers and stuff**************************//
 #include "timerModule32.h"
@@ -112,7 +113,7 @@ TimerClass32 midiRecordTimer( 1000 );
 TimerClass32 panelUpdateTimer(10000);
 uint8_t debugLedStates = 1;
 
-TimerClass32 LEDsTimer(500);
+TimerClass32 LEDsTimer(20);
 TimerClass32 switchesTimer(500);
 TimerClass32 knobsTimer(500);
 
@@ -141,7 +142,7 @@ volatile uint32_t pUTLastTime = 0;
 volatile uint32_t pUTStopTime = 0;
 
 //Names use in P8PanelComponents.cpp and .h
-LEDShiftRegister LEDs;
+VoltageMonitor LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
 //End used names
@@ -193,7 +194,7 @@ void HandleNoteOn(byte channel, byte pitch, byte velocity)
 	tempEvent.data = velocity;
 	tempEvent.voice = -1;	
 	//Hackery
-	if( velocity = 0 )
+	if( velocity == 0 )
 	{
 		tempEvent.eventType = 0x80;
 	}
@@ -387,10 +388,7 @@ void handleSystemReset(void)
 	voicesUsed[1] = 0;
 	voicesUsed[2] = 0;
 	voicesUsed[3] = 0;
-	float last1 = 1;
-	float last2 = 1;
-	float last3 = 1;
-	float last4 = 1;
+
 	//Send note offs to all envelopes
 	bendvelope1.noteOff();
 	bendvelope2.noteOff();
@@ -535,7 +533,7 @@ void loop()
 	//**Debounce timer****************************//  
 	if(LEDsTimer.flagStatus() == PENDING)
 	{
-		LEDs.tick();
+		LEDs.tickSeg();
 	
 	}
 	//**Debounce timer****************************//  

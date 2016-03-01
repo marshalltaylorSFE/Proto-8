@@ -6,14 +6,16 @@
 //  Changelog (YYYY/MM/DD):
 //    2015/10/08: Beta Release
 //    2016/2/24: Forked to 'P8' set
+//    2016/2/29: LEDs wrapped by VoltageMonitor + hysteresis fix
 //
 //**********************************************************************//
 #include "P8PanelComponents.h"
 //#include "timeKeeper.h"
 #include "Arduino.h"
 #include "proto-8Hardware.h"
+#include "VoltageMonitor.h"
 
-extern LEDShiftRegister LEDs;
+extern VoltageMonitor LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
 
@@ -67,26 +69,35 @@ void P8PanelKnob8Bit::init( uint8_t posInput )
 void P8PanelKnob8Bit::update( void )
 {
 	uint16_t tempState = knobs.fetch( posNumber ) >> 2;
+	int8_t tempSlope = 0;
 	state = tempState;
+	int8_t histDirTemp = 0;
 	if( state > lastState )
 	{
-		slope = 1;
+		tempSlope = 1;
+		if( lastSlope == 1 ) histDirTemp = 1;
 	}
-	else
+	else if( state < lastState )
 	{
-		slope = -1;
+		tempSlope = -1;
+		if( lastSlope == -1 ) histDirTemp = -1;
 	}
-	if( state > lastState + hysteresis && slope == 1 )
+	if( tempSlope != 0 )
 	{
-		newData = 1;
-		lastState = state;
-	}
-	if( state < lastState - hysteresis && slope == -1 )
-	{
-		newData = 1;
-		lastState = state;
-	}
+		if( state > lastState + hysteresis || histDirTemp == 1)
+		{
+			newData = 1;
+			lastState = state;
+			lastSlope = tempSlope;
+		}
+		if( state < lastState - hysteresis || histDirTemp == -1 )
+		{
+			newData = 1;
+			lastState = state;
+			lastSlope = tempSlope;
+		}
 
+	}
 }
 
 uint8_t P8PanelKnob8Bit::getState( void )

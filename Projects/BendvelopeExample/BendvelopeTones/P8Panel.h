@@ -57,24 +57,6 @@ public:
 	P8PanelLed led15;
 	P8PanelLed led16;
 	
-	P8PanelLed hpA;
-	P8PanelLed hpB;
-	P8PanelLed hpC;
-	P8PanelLed hpD;
-	P8PanelLed hpE;
-	P8PanelLed hpF;
-	P8PanelLed hpG;
-	P8PanelLed hpDP;
-	P8PanelLed hpD1;
-	P8PanelLed hpD2;
-	P8PanelLed hpD3;
-	P8PanelLed hpD4;
-	P8PanelLed hpD5;
-	P8PanelLed hpD6;
-	P8PanelLed hpD7;
-	P8PanelLed hpD8;
-	P8PanelLed hpD9;
-	
 	P8PanelKnob8Bit fixtureKnob;
 
 	P8PanelKnob8Bit attackKnob;
@@ -86,14 +68,9 @@ public:
 	P8PanelKnob8Bit releaseKnob;
 	P8PanelKnob8Bit releaseBendKnob;
 
-
-
-
-
-
-
-
-
+	P8PanelKnob8Bit refKnob;
+	P8PanelKnob8Bit rail18Knob;
+	P8PanelKnob8Bit rail33Knob;
 
 	
 protected:

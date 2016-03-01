@@ -8,6 +8,7 @@
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
+//    2016/2/29: Moved seven segment stuff to voltage monitor
 //
 //**********************************************************************//
 #ifndef P8INTERFACE_H
@@ -18,34 +19,6 @@
 #include "P8PanelComponents.h"
 #include "P8Panel.h"
 #include "flagMessaging.h"
-
-const uint8_t digitsLUT [11] = 
-{
-0x7b,
-0x60,
-0x5d,
-0x75,
-0x66,
-0x37,
-0x3f,
-0x61,
-0x7f,
-0x67,
-0x00
-};
-
-class HpSeg
-{
-public:
-	HpSeg( void );
-	void update( void );
-	void setNumber1( uint16_t );
-private:
-	uint16_t number1;
-	uint8_t scanDigit;
-	uint8_t dispBuffer[9];
-	
-};
 
 
 enum PStates
@@ -85,12 +58,16 @@ private:
 	//Internal Flags
 	//MessagingFlag quantizeHoldOffFlag;
 	//  ..and data
-
+	int8_t waveformShape1 = 1;
+	int8_t waveformShape2 = 1;
+	int8_t waveformShape3 = 1;
+	int8_t waveformShape4 = 1;
+	int8_t group1Store = 0;
+	int8_t group2Store = 0;
+	int8_t group3Store = 0;
 	//State machine stuff  
 	PStates state;
-	
-	HpSeg display1;
-
+	uint8_t debugTemp = 0;
 };
 
 

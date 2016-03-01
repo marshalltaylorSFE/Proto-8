@@ -61,7 +61,7 @@ IntervalTimer myTimer;
 uint32_t MAXTIMER = 60000000;
 uint32_t MAXINTERVAL = 2000000;
 
-TimerClass32 panelUpdateTimer(5000);
+TimerClass32 panelUpdateTimer(10000);
 TimerClass32 LEDsTimer(200);
 TimerClass32 switchesTimer(500);
 TimerClass32 knobsTimer(500);

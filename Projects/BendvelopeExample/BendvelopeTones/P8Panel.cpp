@@ -59,6 +59,10 @@
 #define	RKPOS 52
 #define	RBKPOS 49
 
+#define	REFPOS 8
+#define	RAIL18POS 6
+#define	RAIL33POS 7
+
 
 P8Panel::P8Panel( void )
 {
@@ -85,41 +89,23 @@ void P8Panel::init( void )
 	button15.init(B15POS);
 	button16.init(B16POS);
 	
-	led1.init(LED1POS);
-	led2.init(LED2POS);
-	led3.init(LED3POS);
-	led4.init(LED4POS);
-	led5.init(LED5POS);
-	led6.init(LED6POS);
-	led7.init(LED7POS);
-	led8.init(LED8POS);
-	led9.init(LED9POS);
-	led10.init(LED10POS);
-	led11.init(LED11POS);
-	led12.init(LED12POS);
-	led13.init(LED13POS);
-	led14.init(LED14POS);
-	led15.init(LED15POS);
-	led16.init(LED16POS);
+	led1.init(LED1POS, &flasherState, &fastFlasherState );
+	led2.init(LED2POS, &flasherState, &fastFlasherState );
+	led3.init(LED3POS, &flasherState, &fastFlasherState );
+	led4.init(LED4POS, &flasherState, &fastFlasherState );
+	led5.init(LED5POS, &flasherState, &fastFlasherState );
+	led6.init(LED6POS, &flasherState, &fastFlasherState );
+	led7.init(LED7POS, &flasherState, &fastFlasherState );
+	led8.init(LED8POS, &flasherState, &fastFlasherState );
+	led9.init(LED9POS, &flasherState, &fastFlasherState );
+	led10.init(LED10POS, &flasherState, &fastFlasherState );
+	led11.init(LED11POS, &flasherState, &fastFlasherState );
+	led12.init(LED12POS, &flasherState, &fastFlasherState );
+	led13.init(LED13POS, &flasherState, &fastFlasherState );
+	led14.init(LED14POS, &flasherState, &fastFlasherState );
+	led15.init(LED15POS, &flasherState, &fastFlasherState );
+	led16.init(LED16POS, &flasherState, &fastFlasherState );
 
-	hpA.init(60);
-	hpB.init(52);
-	hpC.init(64);
-	hpD.init(56);
-	hpE.init(58);
-	hpF.init(50);
-	hpG.init(54);
-	hpDP.init(62);
-	hpD1.init(48);
-	hpD2.init(63);
-	hpD3.init(61);
-	hpD4.init(59);
-	hpD5.init(57);
-	hpD6.init(55);
-	hpD7.init(53);
-	hpD8.init(51);
-	hpD9.init(49);
-	
 	fixtureKnob.init(FIXTUREKNOBPOS);
 	
 	attackKnob.init(AKPOS);
@@ -130,6 +116,10 @@ void P8Panel::init( void )
 	sustainKnob.init(SKPOS);
 	releaseKnob.init(RKPOS);
 	releaseBendKnob.init(RBKPOS);
+
+	refKnob.init(REFPOS);
+	rail18Knob.init(RAIL18POS);
+	rail33Knob.init(RAIL33POS);
 	
  	flasherState = 0;
 	fastFlasherState = 0;
@@ -171,24 +161,6 @@ void P8Panel::update( void )
 	led15.update();
 	led16.update();
 	
-	hpA.update();
-	hpB.update();
-	hpC.update();
-	hpD.update();
-	hpE.update();
-	hpF.update();
-	hpG.update();
-	hpDP.update();
-	hpD1.update();
-	hpD2.update();
-	hpD3.update();
-	hpD4.update();
-	hpD5.update();
-	hpD6.update();
-	hpD7.update();
-	hpD8.update();
-	hpD9.update();
-	
 	fixtureKnob.update();
 	
 	attackKnob.update();
@@ -199,7 +171,10 @@ void P8Panel::update( void )
 	sustainKnob.update();
 	releaseKnob.update();
 	releaseBendKnob.update();
-	
+
+	refKnob.update();
+	rail18Knob.update();
+	rail33Knob.update();
 }
 
 void P8Panel::toggleFlasherState( void )

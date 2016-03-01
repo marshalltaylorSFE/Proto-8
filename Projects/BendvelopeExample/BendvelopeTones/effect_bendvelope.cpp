@@ -365,7 +365,9 @@ void AudioEffectBendvelope::noteOff(void)
 void AudioEffectBendvelope::attack( uint8_t var_attack, int8_t var_power )
 {
     //Scale 0-255 input parameters to the appropriate phase range in ms
+	if( var_attack == 0 ) var_attack++;
     attackTable.knobFactor = var_attack;
+	if( var_power == 0 ) var_power++;
     attackTable.powerScale = var_power;
     attackTable.calculate( 255, 0, 1, 1 );
     attackTable.usMaxStageLength = ( var_attack *  attackTable.maxTime ) >> 8;
@@ -374,7 +376,9 @@ void AudioEffectBendvelope::attack( uint8_t var_attack, int8_t var_power )
 
 void AudioEffectBendvelope::decay( uint8_t var_decay, int8_t var_power )
 {
+	if( var_decay == 0 ) var_decay++;
     decayTable.knobFactor = var_decay;
+	if( var_power == 0 ) var_power++;
     decayTable.powerScale = var_power;
     decayTable.calculate( 255, envSustain.level, 1, -1 );
     decayTable.usMaxStageLength = ( var_decay *  decayTable.maxTime ) >> 8;
@@ -387,6 +391,7 @@ uint32_t AudioEffectBendvelope::getDecay( void )
 
 void AudioEffectBendvelope::sustain( uint8_t var_sustain )
 {
+	if( var_sustain == 0 ) var_sustain++;
     envSustain.level = var_sustain;
     decayTable.calculate( 255, envSustain.level, 1, -1 );
     releaseTable.calculate( envSustain.level, 0, -1, 1 );
@@ -395,15 +400,18 @@ void AudioEffectBendvelope::sustain( uint8_t var_sustain )
 
 void AudioEffectBendvelope::release( uint8_t var_release, int8_t var_power )
 {
+	if( var_release == 0 ) var_release++;
     releaseTable.knobFactor = var_release;
+	if( var_power == 0 ) var_power++;
     releaseTable.powerScale = var_power;
     releaseTable.calculate( envSustain.level, 0, -1, 1 );
     releaseTable.usMaxStageLength = ( var_release *  releaseTable.maxTime ) >> 8;
-	Serial.println(releaseTable.usMaxStageLength);
+	//Serial.println(releaseTable.usMaxStageLength);
 }
 
 void AudioEffectBendvelope::setAttackHold( uint8_t var_attackHold )
 {
+	if( var_attackHold == 0 ) var_attackHold++;
     envAttackHold.timeScale = (((uint32_t)var_attackHold * maxAHold) >> 8);
 
 }

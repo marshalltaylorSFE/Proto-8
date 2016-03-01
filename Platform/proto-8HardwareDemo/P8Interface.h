@@ -8,6 +8,7 @@
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
+//    2016/2/29: Moved seven segment stuff to voltage monitor
 //
 //**********************************************************************//
 #ifndef P8INTERFACE_H

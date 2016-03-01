@@ -8,6 +8,7 @@
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
+//    2016/2/29: Moved seven segment stuff to voltage monitor
 //
 //**********************************************************************//
 #include "P8Interface.h"
@@ -133,6 +134,13 @@ void P8Interface::processMachine( void )
 		//Serial.println( fixtureKnob.getState() );
 	}
 	LEDs.setNumber1( knobs.fetch(64) );
+	float tempVoltage = 0;
+	float tempFactor = 0; // n * factor = 2.5
+	tempFactor = 2.5 / refKnob.getState();
+	tempVoltage = (float)rail18Knob.getState() * tempFactor * 2;
+	LEDs.setVoltage( tempVoltage, 0 );
+	tempVoltage = (float)rail33Knob.getState() * tempFactor * 2;
+	LEDs.setVoltage( tempVoltage, 3 );
 	//'set' all the values
 	//display1.update();
 	//update();
