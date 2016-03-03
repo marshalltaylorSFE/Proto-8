@@ -1,0 +1,13 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 74LS166
+D Teensy 3.2 symbols
+K teensy
+$ENDCMP
+#
+$CMP Teensy_3.2
+D Teensy 3.2 symbols
+K teensy
+$ENDCMP
+#
+#End Doc Library

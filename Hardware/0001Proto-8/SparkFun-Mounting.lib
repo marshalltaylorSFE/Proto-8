@@ -1,0 +1,21 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#
+# Hole
+#
+DEF Hole H 0 40 Y Y 1 F N
+F0 "H" 0 -250 60 H V C CNN
+F1 "Hole" 0 -175 60 H V C CNN
+F2 "" 0 0 60 H V C CNN
+F3 "" 0 0 60 H V C CNN
+$FPLIST
+ SF*
+$ENDFPLIST
+DRAW
+C 0 0 100 1 1 6 N
+P 2 1 1 6  0 -150  0 150 N
+P 2 1 1 6  150 0  -150 0 N
+ENDDRAW
+ENDDEF
+#
+#End Library

@@ -1,0 +1,16 @@
+(module PTH_LUG_.05 (layer F.Cu) (tedit 56A71DF7)
+  (descr "Through hole pin header")
+  (tags "pin header")
+  (fp_text reference REF** (at 0 3.1115) (layer F.SilkS) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value "PTH LUG .05" (at 0 -3.1) (layer F.Fab) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad 1 thru_hole circle (at 0 0) (size 1.905 1.905) (drill 1.27) (layers *.Cu *.Mask F.SilkS))
+  (model Pin_Headers.3dshapes/Pin_Header_Straight_1x10.wrl
+    (at (xyz 0 -0.45 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 90))
+  )
+)

@@ -1,0 +1,10 @@
+(module SF-2way-open (layer F.Cu) (tedit 56876534)
+  (fp_text reference REF** (at 0 -1.905) (layer F.SilkS)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value SF-2way-open (at 0 -3.556) (layer F.Fab) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad 1 smd rect (at -0.4064 0) (size 0.635 1.27) (layers F.Cu F.Paste F.Mask))
+  (pad 2 smd rect (at 0.4064 0) (size 0.635 1.27) (layers F.Cu F.Paste F.Mask))
+)

@@ -1,0 +1,38 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 4052
+D Dual Analog Multiplexer 4 to 1 line
+K CMOS MUX MUX4
+$ENDCMP
+#
+$CMP 74HC595
+D 8 bits serial in // out Shift Register 3 State Out
+K HCMOS SR 3State
+$ENDCMP
+#
+$CMP 74LS595
+D 8 bits serial in // out Shift Register 3 State Out
+K TTL SR 3State
+$ENDCMP
+#
+$CMP 74LS596
+D 8 bits serial in // out Shift Register Open Collect.
+K HCMOS SR OpenCol
+$ENDCMP
+#
+$CMP SF-4052
+D Dual Analog Multiplexer 4 to 1 line
+K CMOS MUX MUX4
+$ENDCMP
+#
+$CMP SF-74HC595
+D 8 bits serial in // out Shift Register 3 State Out
+K HCMOS SR 3State
+$ENDCMP
+#
+$CMP SF-74x125
+D Quad buffer 3 State out
+K TTL buffer 3State
+$ENDCMP
+#
+#End Doc Library
