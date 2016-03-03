@@ -34,6 +34,10 @@ AudioMixer4              mixer5;         //xy=994,220
 AudioFilterStateVariable filter1;        //xy=1150,228
 AudioFilterStateVariable filter3;        //xy=1286,229
 AudioOutputI2SQuad       i2s_quad2;      //xy=1476,238
+
+AudioOutputAnalog        dac1;           //xy=795,155
+AudioSynthWaveformDc     dc1;
+
 AudioConnection          patchCord1(waveform3D, 0, mixer3, 3);
 AudioConnection          patchCord2(waveform2C, 0, mixer2, 2);
 AudioConnection          patchCord3(waveform2D, 0, mixer2, 3);
@@ -64,6 +68,10 @@ AudioConnection          patchCord27(filter3, 0, i2s_quad2, 0);
 AudioConnection          patchCord28(filter3, 0, i2s_quad2, 1);
 AudioConnection          patchCord29(filter3, 0, i2s_quad2, 2);
 AudioConnection          patchCord30(filter3, 0, i2s_quad2, 3);
+
+AudioConnection          patchCord31(dc1, dac1);
+
+
 AudioControlSGTL5000     sgtl5000_2;     //xy=1430.0,93.0
 AudioControlSGTL5000     sgtl5000_1;     //xy=1434.0,49.0
 // GUItool: end automatically generated code
@@ -156,6 +164,9 @@ MicroLL noteOnInList;
 
 
 uint8_t rxLedFlag = 0;
+
+
+uint8_t const syncPin = 31;
 
 //New voice trackers
 uint8_t voicesUsed[4] = {0,0,0,0};
@@ -403,6 +414,9 @@ void setup()
 	delay(2000);
 	Serial.println("Program Started");
 	
+	pinMode(syncPin, OUTPUT);
+	digitalWrite(syncPin, 0);
+	
 	bendvelope1.attack( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope1.decay( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope1.sustain( 150 );// 0 to 255 for level
@@ -575,8 +589,22 @@ void loop()
 		p8hid.processMachine();
 		
 		//Deal with outputs
-
-
+		float ampTemp = 0;
+		ampTemp = bendvelope1.amp;
+		if( bendvelope2.amp > ampTemp )
+		{
+			ampTemp = bendvelope2.amp;
+		}		
+		if( bendvelope3.amp > ampTemp )
+		{
+			ampTemp = bendvelope2.amp;
+		}
+		if( bendvelope4.amp > ampTemp )
+		{
+			ampTemp = bendvelope2.amp;
+		}
+		dc1.amplitude((ampTemp / 128.0) - 1.0);
+		
 		pUTStopTime = usTicks;
 
 	}
@@ -650,7 +678,9 @@ void loop()
 							waveform1C.frequency(tempFrequencyC);
 							waveform1D.frequency(tempFrequencyD);
 							last1 = note_frequency[tempNote.value];
+							digitalWrite(syncPin, 1);
 							bendvelope1.noteOn();
+							digitalWrite(syncPin, 0);
 							break;
 							case 1:
 							waveform2A.frequency(tempFrequencyA);
