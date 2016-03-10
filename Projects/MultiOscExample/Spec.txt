@@ -1,0 +1,28 @@
+The mulit-oscillator
+
+Needs to have:
+
+* Waveform data shared among other instances
+* Volatile access to modulation parameters
+* The following modulation parameters:
+	* ind. osc. amplitude
+	* Master amplitude
+	* ind. osc pitch mod
+	* Pitch separate on C,D
+* 
+
+
+
+void frequency(float t_freq)
+	Set base frequency
+
+void amplitude(float n)
+	Set master baseline amplitude
+
+void amplitude(float n, uint8_ oscVar )
+	Set oscVar voice baseline amplitude
+	
+void masterAmpSrc( some pointer )
+void oscAmpSrc( some pointer, uint8_ oscVar )
+void oscPitchSrc( some pointer )
+void oscSpreadSrc( some pointer )
