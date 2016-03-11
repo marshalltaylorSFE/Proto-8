@@ -466,12 +466,14 @@ void setup()
 	sgtl5000_1.enable();
 	sgtl5000_1.volume(1.0);
 	sgtl5000_1.unmuteHeadphone();
-
+	sgtl5000_1.unmuteLineout();
+	
 	sgtl5000_2.setAddress(HIGH);
 	sgtl5000_2.enable();
 	sgtl5000_2.volume(1.0);
 	sgtl5000_2.unmuteHeadphone();
-
+	sgtl5000_2.unmuteLineout();
+	
 	filter1.frequency(8000);  
 	filter3.frequency(8000);
 	
