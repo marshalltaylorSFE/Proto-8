@@ -18,8 +18,8 @@ AudioSynthMultiOsc       multiosc4;       //xy=680.8889465332031,537.88894653320
 AudioMixer4              mixer5;         //xy=987.8888854980469,413
 AudioFilterStateVariable filter1;        //xy=1143.8888854980469,421
 AudioFilterStateVariable filter3;        //xy=1279.8888854980469,422
-//AudioOutputI2SQuad       i2s_quad2;      //xy=1469.8888854980469,431
-AudioOutputI2S           i2s_quad2;      //xy=1469.8888854980469,431
+AudioOutputI2SQuad       i2s_quad2;      //xy=1469.8888854980469,431
+//AudioOutputI2S           i2s_quad2;      //xy=1469.8888854980469,431
 AudioConnection          patchCord1(bendvelope1, multiosc1);
 AudioConnection          patchCord2(bendvelope2, multiosc2);
 AudioConnection          patchCord3(bendvelope3, multiosc3);
@@ -32,10 +32,10 @@ AudioConnection          patchCord9(mixer5, 0, filter1, 0);
 AudioConnection          patchCord10(filter1, 0, filter3, 0);
 AudioConnection          patchCord11(filter3, 0, i2s_quad2, 0);
 AudioConnection          patchCord12(filter3, 0, i2s_quad2, 1);
-//AudioConnection          patchCord13(filter3, 0, i2s_quad2, 2);
-//AudioConnection          patchCord14(filter3, 0, i2s_quad2, 3);
+AudioConnection          patchCord13(filter3, 0, i2s_quad2, 2);
+AudioConnection          patchCord14(filter3, 0, i2s_quad2, 3);
 AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
-//AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
+AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 // GUItool: end automatically generated code
 
 //**********************************************************************//
@@ -280,10 +280,10 @@ void setup()
 	midiA.turnThruOff();
 	AudioMemory(50);
 
-	//sgtl5000_1.setAddress(LOW);	
-	//sgtl5000_1.enable();
-	//sgtl5000_1.volume(1.0);
-	//sgtl5000_1.unmuteHeadphone();
+	sgtl5000_1.setAddress(LOW);	
+	sgtl5000_1.enable();
+	sgtl5000_1.volume(1.0);
+	sgtl5000_1.unmuteHeadphone();
 
 	sgtl5000_2.setAddress(HIGH);
 	sgtl5000_2.enable();

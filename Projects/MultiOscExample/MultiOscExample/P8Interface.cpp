@@ -35,7 +35,7 @@ extern AudioSynthBendvelope    bendvelope2;    //xy=592,208
 extern AudioSynthBendvelope    bendvelope3;    //xy=600,358
 extern AudioSynthBendvelope    bendvelope4;    //xy=608,508
 extern AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
-//extern AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
+extern AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 
 P8Interface::P8Interface( void )
 {
@@ -336,7 +336,7 @@ void P8Interface::processMachine( void )
 	if( fixtureKnob.serviceChanged() )
 	{
 		debugTemp = fixtureKnob.getState();
-		//sgtl5000_1.volume(((float)debugTemp / 256) * 0.8);
+		sgtl5000_1.volume(((float)debugTemp / 256) * 0.8);
 		sgtl5000_2.volume(((float)debugTemp / 256) * 0.8);
 
 	}
