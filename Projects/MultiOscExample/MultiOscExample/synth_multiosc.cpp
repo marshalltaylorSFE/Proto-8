@@ -26,6 +26,7 @@
 
 #include "synth_multiosc.h"
 #include "utility/dspinst.h"
+#include "wavegen.h"
 
 // data_waveforms.c
 extern "C" {
@@ -50,8 +51,8 @@ void AudioSynthMultiOsc::update(void)
 		inc = phase_increment;
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i++) {
 			index = ph >> 24;
-			val1 = AudioWaveformSine[index];
-			val2 = AudioWaveformSine[index+1];
+			val1 = myWaveFormPointer[index];
+			val2 = myWaveFormPointer[index+1];
 			scale = (ph >> 8) & 0xFFFF;
 			val2 *= scale;
 			val1 *= 0x10000 - scale;
@@ -69,4 +70,21 @@ void AudioSynthMultiOsc::update(void)
 	phase_accumulator += phase_increment * AUDIO_BLOCK_SAMPLES;
 }
 
+void AudioSynthMultiOsc::begin(void)
+{
+	myWaveFormPointer = new int16_t[257];  //Nothing deletes this
+	
+}
 
+void AudioSynthMultiOsc::change(void)
+{
+    WaveGenerator testWave;
+    // Parameters (all uint8_t): ( master, ramp, sine, pulseAmp, pulseDuty )
+    testWave.setParameters( 255, 255, 0, 0, 45 );
+    testWave.resetOffset();
+    for(int i = 0; i < 256; i++)
+    {
+		myWaveFormPointer[i] = testWave.getSample();
+	}
+	myWaveFormPointer[256] = myWaveFormPointer[0];
+}

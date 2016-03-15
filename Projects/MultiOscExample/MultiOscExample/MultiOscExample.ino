@@ -202,6 +202,18 @@ void HandleControlChange(byte channel, byte number, byte value)
 	Serial.print(number);
 	Serial.print(", ");
 	Serial.println(value);
+
+	switch( number )
+	{
+		case 1:
+		//Filter
+		filter1.frequency((value * value * 0.9) + 40);  
+		filter3.frequency((value * value * 0.9) + 40);  
+		break;
+		default:
+		break;
+	}
+
 	
 }
 
@@ -297,7 +309,18 @@ void setup()
 	multiosc2.amplitude(0.25);
 	multiosc3.amplitude(0.25);
 	multiosc4.amplitude(0.25);
+	
+	multiosc1.begin();
+	multiosc2.begin();
+	multiosc3.begin();
+	multiosc4.begin();
 
+	multiosc1.change();
+	multiosc2.change();
+	multiosc3.change();
+	multiosc4.change();
+
+	
 	mixer5.gain(0, 0.25);
 	mixer5.gain(1, 0.25);
 	mixer5.gain(2, 0.25);
