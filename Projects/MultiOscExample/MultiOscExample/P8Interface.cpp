@@ -111,7 +111,38 @@ void P8Interface::processMachine( void )
 		group1Service = 5;
 		group1Store = 5;
 	}
-	
+	if( oscAButton1.serviceRisingEdge() )
+	{
+		oscASelect++;
+		if(oscASelect > 2)
+		{
+			oscASelect = 0;
+		}
+	}	
+	if( oscBButton1.serviceRisingEdge() )
+	{
+		oscBSelect++;
+		if(oscBSelect > 2)
+		{
+			oscBSelect = 0;
+		}
+	}
+	if( oscAButton2.serviceRisingEdge() )
+	{
+		oscALed4.toggle();
+	}	
+	if( oscBButton2.serviceRisingEdge() )
+	{
+		oscBLed4.toggle();
+	}	
+	if( oscAButton3.serviceRisingEdge() )
+	{
+		oscALed5.toggle();
+	}	
+	if( oscBButton3.serviceRisingEdge() )
+	{
+		oscBLed5.toggle();
+	}
 	if( button6.serviceRisingEdge() )
 	{
 		led6.toggle();
@@ -279,6 +310,7 @@ void P8Interface::processMachine( void )
 		}
 		
 	}	
+
 	//Knobs
 	uint8_t temp1;
 	uint8_t temp2;
@@ -358,7 +390,40 @@ void P8Interface::processMachine( void )
 	//Do pure LED operations first
 	
 	//System level LEDs
-	//led10.setState(LEDON);
+	oscALed1.setState(LEDOFF);
+	oscALed2.setState(LEDOFF);
+	oscALed3.setState(LEDOFF);
+	oscBLed1.setState(LEDOFF);
+	oscBLed2.setState(LEDOFF);
+	oscBLed3.setState(LEDOFF);
+	switch(oscASelect)
+	{
+		case 0:
+		oscALed1.setState(LEDON);
+		break;
+		case 1:
+		oscALed2.setState(LEDON);
+		break;
+		case 2:
+		oscALed3.setState(LEDON);
+		break;
+		default:
+		break;
+	}
+	switch(oscBSelect)
+	{
+		case 0:
+		oscBLed1.setState(LEDON);
+		break;
+		case 1:
+		oscBLed2.setState(LEDON);
+		break;
+		case 2:
+		oscBLed3.setState(LEDON);
+		break;
+		default:
+		break;
+	}
 	update();
 	//Panel level LEDs
 	//LEDs.send();
@@ -406,6 +471,13 @@ void P8Interface::timersMIncrement( uint8_t inputValue )
 	button14.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	button15.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	button16.buttonDebounceTimeKeeper.mIncrement(inputValue);	
+
+	oscAButton1.buttonDebounceTimeKeeper.mIncrement(inputValue);	
+	oscAButton2.buttonDebounceTimeKeeper.mIncrement(inputValue);	
+	oscAButton3.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	
+	oscBButton1.buttonDebounceTimeKeeper.mIncrement(inputValue);	
+	oscBButton2.buttonDebounceTimeKeeper.mIncrement(inputValue);	
+	oscBButton3.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 
 }

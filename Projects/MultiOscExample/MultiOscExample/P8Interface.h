@@ -66,9 +66,14 @@ private:
 	int8_t group1Store = 0;
 	int8_t group2Store = 0;
 	int8_t group3Store = 0;
+	
+	int8_t oscASelect = 0;
+	int8_t oscBSelect = 0;
+	
 	//State machine stuff  
 	PStates state;
 	uint8_t debugTemp = 0;
+	
 };
 
 

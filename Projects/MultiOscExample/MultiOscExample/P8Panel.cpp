@@ -25,28 +25,54 @@
 #define B9POS 5,1
 #define B10POS 5,2
 #define B11POS 6,1
+//#define B6POS 1,3 //Alt
+//#define B7POS 2,3 //Alt
+//#define B8POS 3,3 //Alt
+//#define B9POS 4,3 //Alt
+//#define B10POS 5,3 //Alt
+//#define B11POS 6,3 //Alt
 #define B12POS 6,2
 #define B13POS 7,1
 #define B14POS 7,2
 #define B15POS 8,1
 #define B16POS 8,2
 
-#define LED16POS 25
-#define LED15POS 26
-#define LED14POS 27
-#define LED13POS 28
-#define LED12POS 29
-#define LED11POS 30
-#define LED10POS 31
-#define LED9POS 32
-#define LED8POS 33
-#define LED7POS 34
-#define LED6POS 35
-#define LED5POS 36
-#define LED4POS 37
-#define LED3POS 38
-#define LED2POS 39
-#define LED1POS 40
+#define OSCAB1POS 3,2
+#define OSCAB2POS 4,1
+#define OSCAB3POS 4,2
+
+#define OSCBB1POS 5,1
+#define OSCBB2POS 5,2
+#define OSCBB3POS 6,1
+
+#define OSCALED1POS 25
+#define OSCALED2POS 26
+#define OSCALED3POS 27
+#define OSCALED4POS 28
+#define OSCALED5POS 29
+
+#define OSCBLED1POS 33
+#define OSCBLED2POS 34
+#define OSCBLED3POS 35
+#define OSCBLED4POS 36
+#define OSCBLED5POS 37
+
+#define LED16POS 1
+#define LED15POS 2
+#define LED14POS 3
+#define LED13POS 4
+#define LED12POS 5
+#define LED11POS 6
+#define LED10POS 7
+#define LED9POS 8
+#define LED8POS 9
+#define LED7POS 10
+#define LED6POS 11
+#define LED5POS 12
+#define LED4POS 13
+#define LED3POS 14
+#define LED2POS 15
+#define LED1POS 16
 
 #define FIXTUREKNOBPOS 64
 
@@ -106,6 +132,26 @@ void P8Panel::init( void )
 	led15.init(LED15POS, &flasherState, &fastFlasherState );
 	led16.init(LED16POS, &flasherState, &fastFlasherState );
 
+	oscAButton1.init(OSCAB1POS);
+	oscAButton2.init(OSCAB2POS);
+	oscAButton3.init(OSCAB3POS);
+	
+	oscBButton1.init(OSCBB1POS);
+	oscBButton2.init(OSCBB2POS);
+	oscBButton3.init(OSCBB3POS);
+
+	oscALed1.init(OSCALED1POS, &flasherState, &fastFlasherState );
+	oscALed2.init(OSCALED2POS, &flasherState, &fastFlasherState );
+	oscALed3.init(OSCALED3POS, &flasherState, &fastFlasherState );
+	oscALed4.init(OSCALED4POS, &flasherState, &fastFlasherState );
+	oscALed5.init(OSCALED5POS, &flasherState, &fastFlasherState );
+	
+	oscBLed1.init(OSCBLED1POS, &flasherState, &fastFlasherState );
+	oscBLed2.init(OSCBLED2POS, &flasherState, &fastFlasherState );
+	oscBLed3.init(OSCBLED3POS, &flasherState, &fastFlasherState );
+	oscBLed4.init(OSCBLED4POS, &flasherState, &fastFlasherState );
+	oscBLed5.init(OSCBLED5POS, &flasherState, &fastFlasherState );	
+	
 	fixtureKnob.init(FIXTUREKNOBPOS);
 	
 	attackKnob.init(AKPOS);
@@ -160,6 +206,26 @@ void P8Panel::update( void )
 	led14.update();
 	led15.update();
 	led16.update();
+	
+	oscAButton1.update();
+	oscAButton2.update();
+	oscAButton3.update();
+	
+	oscBButton1.update();
+	oscBButton2.update();
+	oscBButton3.update();
+	
+	oscALed1.update();
+	oscALed2.update();
+	oscALed3.update();
+	oscALed4.update();
+	oscALed5.update();
+	
+	oscBLed1.update();
+	oscBLed2.update();
+	oscBLed3.update();
+	oscBLed4.update();
+	oscBLed5.update();
 	
 	fixtureKnob.update();
 	

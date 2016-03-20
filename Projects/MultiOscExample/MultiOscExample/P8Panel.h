@@ -56,6 +56,24 @@ public:
 	P8PanelLed led14;
 	P8PanelLed led15;
 	P8PanelLed led16;
+
+	P8PanelButton oscAButton1;
+	P8PanelButton oscAButton2;
+	P8PanelButton oscAButton3;
+	P8PanelButton oscBButton1;
+	P8PanelButton oscBButton2;
+	P8PanelButton oscBButton3;
+
+	P8PanelLed oscALed1;
+	P8PanelLed oscALed2;
+	P8PanelLed oscALed3;
+	P8PanelLed oscALed4;
+	P8PanelLed oscALed5;
+	P8PanelLed oscBLed1;
+	P8PanelLed oscBLed2;
+	P8PanelLed oscBLed3;
+	P8PanelLed oscBLed4;
+	P8PanelLed oscBLed5;
 	
 	P8PanelKnob8Bit fixtureKnob;
 
