@@ -38,8 +38,10 @@ public:
 	void tickStateMachine( void );
 
 	void timersMIncrement( uint8_t );
+	void setPointer( uint8_t, int16_t * );
 	
 	//Flags coming in from the system
+	//  ..and data.
 	
 	//Internal - and going out to the system - Flags
 	uint8_t lastAttack;
@@ -52,7 +54,6 @@ public:
 	uint8_t lastReleaseBend;
 		
 		
-	//  ..and data.
 
 private:
 	//Internal Flags
@@ -70,6 +71,10 @@ private:
 	int8_t oscASelect = 0;
 	int8_t oscBSelect = 0;
 	
+	int16_t * waveFormPointerA;
+	int16_t * waveFormPointerB;
+
+	uint8_t waveShapeParams[2][4];
 	//State machine stuff  
 	PStates state;
 	uint8_t debugTemp = 0;

@@ -11,12 +11,15 @@
 class AudioSynthMultiOsc : public AudioStream
 {
 public:
-	AudioSynthMultiOsc() : AudioStream(1, inputQueueArray), magnitude(16384){};
+	AudioSynthMultiOsc() : AudioStream(2, inputQueueArray), magnitude(16384){};
 	void begin( void );
-	void change( void );
+	int16_t * getPointer( uint8_t );
+	void setPointer( uint8_t, int16_t * );
 private:
 	audio_block_t *inputQueueArray[2];
-	int16_t *myWaveFormPointer;
+	int16_t *waveFormPointerA;
+	int16_t *waveFormPointerB;
+	
 public:
 	void frequency(float freq) {
 		if (freq < 0.0) freq = 0.0;

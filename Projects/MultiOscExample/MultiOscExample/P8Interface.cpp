@@ -19,6 +19,8 @@
 #include "proto-8Hardware.h"
 #include "VoltageMonitor.h"
 
+#include "wavegen.h"
+
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -26,6 +28,7 @@
 #include "SerialFlash.h"
 #include "synth_bendvelope.h"
 #include "synth_multiosc.h"
+#include "synth_dc_binary.h"
 
 extern VoltageMonitor LEDs;
 extern AnalogMuxTree knobs;
@@ -36,6 +39,8 @@ extern AudioSynthBendvelope    bendvelope3;    //xy=600,358
 extern AudioSynthBendvelope    bendvelope4;    //xy=608,508
 extern AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
 extern AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
+extern AudioSynthWaveformDcBinary     dc1;
+
 
 P8Interface::P8Interface( void )
 {
@@ -49,7 +54,14 @@ P8Interface::P8Interface( void )
 	lastSustain = 100;
 	lastRelease = 100;
 	lastReleaseBend = 127;
-	
+	waveShapeParams[0][0] = 255;
+	waveShapeParams[0][1] = 0;
+	waveShapeParams[0][2] = 0;
+	waveShapeParams[0][3] = 45;
+	waveShapeParams[1][0] = 0;
+	waveShapeParams[1][1] = 0;
+	waveShapeParams[1][2] = 0;
+	waveShapeParams[1][3] = 0;	
 }
 
 void P8Interface::reset( void )
@@ -118,6 +130,21 @@ void P8Interface::processMachine( void )
 		{
 			oscASelect = 0;
 		}
+//		WaveGenerator testWave;
+//		switch(oscASelect)
+//		{
+//			case 0:
+//			testWave.setParameters( 255, 255, 0, 0, 45 );
+//			break;
+//			case 1:
+//			testWave.setParameters( 255, 0, 255, 0, 45 );
+//			break;
+//			case 2:
+//			default:
+//			testWave.setParameters( 255, 0, 0, 255, 45 );
+//			break;
+//		}
+//		testWave.writeWaveU16_257( waveFormPointerA );		
 	}	
 	if( oscBButton1.serviceRisingEdge() )
 	{
@@ -175,22 +202,21 @@ void P8Interface::processMachine( void )
 	{
 		led13.toggle();
 	}
-	if( button14.serviceRisingEdge() )
-	{
-		led14.toggle();
-	}
 	int8_t group3Service = 0;
-	if( button15.serviceRisingEdge() )
+	if( button14.serviceRisingEdge() )
 	{
 		group3Service = 1;
 	}
-	if( button16.serviceRisingEdge() )
+	if( button15.serviceRisingEdge() )
 	{
 		group3Service = 2;
 	}
+	if( button16.serviceRisingEdge() )
+	{
+		group3Service = 3;
+	}
 	if( group1Service )
 	{
-		group1Store = group1Service;
 		led1.setState(LEDOFF);
 		led2.setState(LEDOFF);
 		led3.setState(LEDOFF);
@@ -204,22 +230,22 @@ void P8Interface::processMachine( void )
 			break;
 			case 2:
 			led2.setState(LEDON);
-			group3Store = waveformShape1;
+			group3Store = 1;
 			group3Service = -1;
 			break;
 			case 3:
 			led3.setState(LEDON);
-			group3Store = waveformShape2;
+			group3Store = 1;
 			group3Service = -1;
 			break;
 			case 4:
 			led4.setState(LEDON);
-			group3Store = waveformShape3;
+			group3Store = 0;
 			group3Service = -1;
 			break;
 			case 5:
 			led5.setState(LEDON);
-			group3Store = waveformShape4;
+			group3Store = 0;
 			group3Service = -1;
 			break;
 			default:
@@ -269,46 +295,32 @@ void P8Interface::processMachine( void )
 			break;
 		}
 	}
-	if( group3Service )
+	if( group3Service ) //happens on button change
 	{
-		if( group3Service != -1)
+		if( group3Service != -1 )
 		{
 			group3Store = group3Service;
 		}
-		switch( group1Store )
-		{
-			case 1:
-			group3Store = 0;
-			break;
-			case 2:
-			waveformShape1 = group3Store;
-			break;
-			case 3:
-			waveformShape2 = group3Store;
-			break;
-			case 4:
-			waveformShape3 = group3Store;
-			break;
-			case 5:
-			waveformShape4 = group3Store;
-			break;
-			default:
-			break;
-		}
+		led14.setState(LEDOFF);
 		led15.setState(LEDOFF);
 		led16.setState(LEDOFF);
-		switch( group3Store )
+		if((group1Store == 2)||(group1Store == 3))
 		{
-			case 1:
-			led15.setState(LEDON);
-			break;
-			case 2:
-			led16.setState(LEDON);
-			break;
-			default:
-			break;
+			switch( group3Store )  //switching LED, switch waveform here
+			//Note: group3Store is uesd to set fixture knob's function
+			{
+				case 1:
+				led14.setState(LEDON);
+				break;
+				case 2:
+				led15.setState(LEDON);
+				break;
+				case 3:
+				led16.setState(LEDON);
+				default:
+				break;
+			}
 		}
-		
 	}	
 
 	//Knobs
@@ -365,12 +377,41 @@ void P8Interface::processMachine( void )
 		bendvelope4.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
 	}
 
+	//example:  dc1.amplitude(0.01994666666640625);
+	
 	if( fixtureKnob.serviceChanged() )
 	{
 		debugTemp = fixtureKnob.getState();
-		sgtl5000_1.volume(((float)debugTemp / 256) * 0.8);
-		sgtl5000_2.volume(((float)debugTemp / 256) * 0.8);
-
+		if(group1Store == 1)
+		{
+			sgtl5000_1.volume(((float)debugTemp / 256) * 0.8);
+			sgtl5000_2.volume(((float)debugTemp / 256) * 0.8);
+		}
+		Serial.println(debugTemp);
+		if(group1Store == 2)
+		{
+			switch(group3Store)
+			{
+				case 1:
+				waveShapeParams[0][0] = debugTemp;
+				break;
+				case 2:
+				waveShapeParams[0][1] = debugTemp;
+				break;
+				case 3:
+				waveShapeParams[0][2] = debugTemp;
+				break;
+				default:
+				break;
+			}
+			WaveGenerator testWave;
+			testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], 45 );			
+			testWave.writeWaveU16_257( waveFormPointerA );
+		}
+		if(group1Store == 5)
+		{
+			dc1.amplitude_3_12(6.459432 - 1 + 4*((float)debugTemp / 256));
+		}
 	}
 	LEDs.setNumber1( debugTemp );
 	float tempVoltage = 0;
@@ -480,4 +521,19 @@ void P8Interface::timersMIncrement( uint8_t inputValue )
 	oscBButton2.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 	oscBButton3.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 
+}
+
+void P8Interface::setPointer( uint8_t oscNumber, int16_t * pointerVar ) //Pass number 0 = OSC A, 1 = OSC B
+{
+	switch( oscNumber )
+	{
+		case 0:
+		waveFormPointerA = pointerVar;
+		break;
+		case 1:
+		waveFormPointerB = pointerVar;
+		break;
+		default:
+		break;
+	}
 }

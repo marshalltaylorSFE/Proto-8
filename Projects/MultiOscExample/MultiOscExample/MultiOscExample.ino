@@ -5,6 +5,7 @@
 #include "SerialFlash.h"
 #include "synth_bendvelope.h"
 #include "synth_multiosc.h"
+#include "synth_dc_binary.h"
 
 // GUItool: begin automatically generated code
 AudioSynthBendvelope     bendvelope1;      //xy=506.888916015625,291.8888854980469
@@ -20,10 +21,18 @@ AudioFilterStateVariable filter1;        //xy=1143.8888854980469,421
 AudioFilterStateVariable filter3;        //xy=1279.8888854980469,422
 AudioOutputI2SQuad       i2s_quad2;      //xy=1469.8888854980469,431
 //AudioOutputI2S           i2s_quad2;      //xy=1469.8888854980469,431
-AudioConnection          patchCord1(bendvelope1, multiosc1);
-AudioConnection          patchCord2(bendvelope2, multiosc2);
-AudioConnection          patchCord3(bendvelope3, multiosc3);
-AudioConnection          patchCord4(bendvelope4, multiosc4);
+AudioSynthWaveformDcBinary     dc1;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc2;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc3;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc4;            //xy=285.8888854980469,314.8888854980469
+AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
+AudioConnection          patchCord2(bendvelope2, 0, multiosc2, 0);
+AudioConnection          patchCord3(bendvelope3, 0, multiosc3, 0);
+AudioConnection          patchCord4(bendvelope4, 0, multiosc4, 0);
+AudioConnection          patchCord15(dc1, 0, multiosc1, 1);
+AudioConnection          patchCord16(dc2, 0, multiosc2, 1);
+AudioConnection          patchCord17(dc3, 0, multiosc3, 1);
+AudioConnection          patchCord18(dc4, 0, multiosc4, 1);
 AudioConnection          patchCord5(multiosc1, 0, mixer5, 0);
 AudioConnection          patchCord6(multiosc2, 0, mixer5, 1);
 AudioConnection          patchCord7(multiosc3, 0, mixer5, 2);
@@ -290,6 +299,7 @@ void setup()
 	midiA.begin(MIDI_CHANNEL_OMNI);
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
+	
 	AudioMemory(50);
 
 	sgtl5000_1.setAddress(LOW);	
@@ -310,16 +320,14 @@ void setup()
 	multiosc3.amplitude(0.25);
 	multiosc4.amplitude(0.25);
 	
-	multiosc1.begin();
-	multiosc2.begin();
-	multiosc3.begin();
-	multiosc4.begin();
+	multiosc1.begin(); //allocates + default shape
+	int16_t * tempPointer = multiosc1.getPointer(0);
+	multiosc2.setPointer(0, tempPointer);
+	multiosc3.setPointer(0, tempPointer);
+	multiosc4.setPointer(0, tempPointer);
+	p8hid.setPointer(0, tempPointer);
 
-	multiosc1.change();
-	multiosc2.change();
-	multiosc3.change();
-	multiosc4.change();
-
+	dc1.amplitude_3_12(6.459432);
 	
 	mixer5.gain(0, 0.25);
 	mixer5.gain(1, 0.25);
@@ -373,10 +381,10 @@ void loop()
 	{
 		GPLastTime = GPStartTime;
 		GPStartTime = usTicks;
-		//bendvelope1.tick(100);
-		//bendvelope2.tick(100);
-		//bendvelope3.tick(100);
-		//bendvelope4.tick(100);
+		bendvelope1.tick(100);
+		bendvelope2.tick(100);
+		bendvelope3.tick(100);
+		bendvelope4.tick(100);
 		GPStopTime = usTicks;
 	}
 	//**Debounce timer****************************//  
@@ -443,6 +451,14 @@ void loop()
 					currentAmps[1] = bendvelope2.amp;
 					currentAmps[2] = bendvelope3.amp;
 					currentAmps[3] = bendvelope4.amp;
+					Serial.print("CurrentAmp data: ");
+					Serial.print(currentAmps[0]);
+					Serial.print(",  ");
+					Serial.print(currentAmps[1]);
+					Serial.print(", ");
+					Serial.print(currentAmps[2]);
+					Serial.print(", ");
+					Serial.println(currentAmps[3]);
 					
 					//Seek the next available with the lowest current amp.
 					for( seek = 0; seek < 4; seek++ )
@@ -474,33 +490,34 @@ void loop()
 						voicesUsed[nextAvailable] = 1;
 						//mixer5.gain(tempNote.voice, 0.25);
 						//select voice
-						float tempFrequencyA = note_frequency[tempNote.value] * fineTuneA * coarseTuneA;
-						float tempFrequencyB = note_frequency[tempNote.value] * fineTuneB * coarseTuneB;
-						float tempFrequencyC = note_frequency[tempNote.value] * fineTuneC * coarseTuneC;
-						float tempFrequencyD = note_frequency[tempNote.value] * fineTuneD * coarseTuneD;
-
+						float tempbpoA = note2bpo[tempNote.value];
+						//float tempFrequencyB = note_frequency[tempNote.value] * fineTuneB * coarseTuneB;
+						//float tempFrequencyC = note_frequency[tempNote.value] * fineTuneC * coarseTuneC;
+						//float tempFrequencyD = note_frequency[tempNote.value] * fineTuneD * coarseTuneD;
+						//last1 = note2bpo[tempNote.value];
+						//last2 = note_frequency[tempNote.value];
+						//last3 = note_frequency[tempNote.value];
+						//last4 = note_frequency[tempNote.value];
+						
 						switch( tempNote.voice )
 						{
 							case 0:
-							multiosc1.frequency(tempFrequencyA);
-							last1 = note_frequency[tempNote.value];
+							//multiosc1.frequency(tempFrequencyA);
+							dc1.amplitude_3_12(tempbpoA);
 							digitalWrite(syncPin, 1);
 							bendvelope1.noteOn();
 							digitalWrite(syncPin, 0);
 							break;
 							case 1:
-							multiosc2.frequency(tempFrequencyA);
-							last2 = note_frequency[tempNote.value];
+							dc2.amplitude_3_12(tempbpoA);
 							bendvelope2.noteOn();
 							break;
 							case 2:
-							multiosc3.frequency(tempFrequencyA);
-							last3 = note_frequency[tempNote.value];
+							dc3.amplitude_3_12(tempbpoA);
 							bendvelope3.noteOn();
 							break;
 							case 3:
-							multiosc4.frequency(tempFrequencyA);
-							last4 = note_frequency[tempNote.value];
+							dc4.amplitude_3_12(tempbpoA);
 							bendvelope4.noteOn();
 							break;
 							default:
@@ -629,6 +646,8 @@ void loop()
 		Serial.println(GPStopTime - GPStartTime);
 		//Serial.print(", ");
 		//Serial.println(usTicks - tempTime);
+		
+		Serial.println();
 
 	}
 	midiA.read();

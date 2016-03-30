@@ -22,7 +22,8 @@ public:
     int16_t getSample( void );
     void resetOffset( void );
     void setParameters( uint8_t masterAmp, uint8_t rampAmp, uint8_t sineAmp, uint8_t pulseAmp, uint8_t pulseDuty );
-
+	void writeWaveU16_257( int16_t * );
+	int16_t * allocateU16_257( void );
 
 };
 

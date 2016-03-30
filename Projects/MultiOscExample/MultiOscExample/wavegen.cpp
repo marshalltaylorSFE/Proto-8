@@ -60,7 +60,9 @@ int16_t WaveGenerator::getSample( void )
 
     sampleNumber++;
 
-
+//old way
+if(0)
+{
     //Sum all waves
 	retVal = (int32_t)tempRamp + (int32_t)tempSine + (int32_t)tempPulse;
  	//get total amp factor
@@ -68,6 +70,12 @@ int16_t WaveGenerator::getSample( void )
  	//if they're all there, / 3.  If 1 is there, * 1. if 0.5 are there, * 2
  	retVal = retVal * masterAmp / ampFactor;
  	//brin
+}
+
+    //Sum all waves
+	retVal = (int32_t)tempRamp + (int32_t)tempSine + (int32_t)tempPulse;
+	
+	//Carefull, overflow
     return retVal;
 
 }
@@ -81,4 +89,25 @@ void WaveGenerator::setParameters( uint8_t masterAmpVar, uint8_t rampAmpVar, uin
     pulseDuty = pulseDutyVar;
 }
 
+void WaveGenerator::writeWaveU16_257( int16_t * waveToWritePtr )
+{
+    resetOffset();
+    for(int i = 0; i < 256; i++)
+    {
+		waveToWritePtr[i] = getSample();
+	}
+	waveToWritePtr[256] = waveToWritePtr[0];
+}
 
+int16_t * WaveGenerator::allocateU16_257( void )
+{
+	int16_t * tempWaveformPointer = new int16_t[257];  //Nothing deletes this
+	
+	//Fill with zero
+    for(int i = 0; i < 257; i++)
+    {
+		tempWaveformPointer[i] = 0;
+	}
+	
+	return tempWaveformPointer;
+}
