@@ -52,8 +52,10 @@ public:
 	uint8_t lastSustain;
 	uint8_t lastRelease;
 	uint8_t lastReleaseBend;
-		
-		
+	
+	//Data going out to the system
+	float dcAmpOffset;
+	
 
 private:
 	//Internal Flags

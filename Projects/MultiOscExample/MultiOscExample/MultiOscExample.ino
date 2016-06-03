@@ -503,21 +503,21 @@ void loop()
 						{
 							case 0:
 							//multiosc1.frequency(tempFrequencyA);
-							dc1.amplitude_3_12(tempbpoA);
+							dc1.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
 							digitalWrite(syncPin, 1);
 							bendvelope1.noteOn();
 							digitalWrite(syncPin, 0);
 							break;
 							case 1:
-							dc2.amplitude_3_12(tempbpoA);
+							dc2.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
 							bendvelope2.noteOn();
 							break;
 							case 2:
-							dc3.amplitude_3_12(tempbpoA);
+							dc3.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
 							bendvelope3.noteOn();
 							break;
 							case 3:
-							dc4.amplitude_3_12(tempbpoA);
+							dc4.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
 							bendvelope4.noteOn();
 							break;
 							default:

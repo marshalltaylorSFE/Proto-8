@@ -410,7 +410,8 @@ void P8Interface::processMachine( void )
 		}
 		if(group1Store == 5)
 		{
-			dc1.amplitude_3_12(6.459432 - 1 + 4*((float)debugTemp / 256));
+			//dc1.amplitude_3_12(6.459432 - 1 + 4*((float)debugTemp / 256));
+			dcAmpOffset = 0.459432 + 4*((float)debugTemp / 256);
 		}
 	}
 	LEDs.setNumber1( debugTemp );
