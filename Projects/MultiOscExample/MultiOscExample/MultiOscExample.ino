@@ -68,8 +68,8 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 //**Timers and stuff**************************//
 #include "timerModule32.h"
 //Globals
-uint32_t MAXTIMER = 60000000;
-uint32_t MAXINTERVAL = 2000000;
+uint32_t maxTimer = 60000000;
+uint32_t maxInterval = 2000000;
 
 #include "timeKeeper.h"
 //**Panels and stuff**************************//
@@ -83,8 +83,8 @@ IntervalTimer myTimer;
 //HOW TO OPERATE
 //  Make TimerClass objects for each thing that needs periodic service
 //  pass the interval of the period in ticks
-//  Set MAXINTERVAL to the max foreseen interval of any TimerClass
-//  Set MAXTIMER to overflow number in the header.  MAXTIMER + MAXINTERVAL
+//  Set maxInterval to the max foreseen interval of any TimerClass
+//  Set maxTimer to overflow number in the header.  maxTimer + maxInterval
 //    cannot exceed variable size.
 
 TimerClass32 midiRecordTimer( 1000 );
@@ -674,9 +674,9 @@ void loop()
 void serviceUS(void)
 {
   uint32_t returnVar = 0;
-  if(usTicks >= ( MAXTIMER + MAXINTERVAL ))
+  if(usTicks >= ( maxTimer + maxInterval ))
   {
-    returnVar = usTicks - MAXTIMER;
+    returnVar = usTicks - maxTimer;
 
   }
   else
