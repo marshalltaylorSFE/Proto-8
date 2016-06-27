@@ -125,11 +125,12 @@ void P8Interface::processMachine( void )
 	}
 	if( oscAButton1.serviceRisingEdge() )
 	{
-		oscASelect++;
-		if(oscASelect > 2)
-		{
-			oscASelect = 0;
-		}
+		//oscASelect++;
+		//if(oscASelect > 2)
+		//{
+		//	oscASelect = 0;
+		
+		
 //		WaveGenerator testWave;
 //		switch(oscASelect)
 //		{
@@ -148,11 +149,11 @@ void P8Interface::processMachine( void )
 	}	
 	if( oscBButton1.serviceRisingEdge() )
 	{
-		oscBSelect++;
-		if(oscBSelect > 2)
-		{
-			oscBSelect = 0;
-		}
+		//oscBSelect++;
+		//if(oscBSelect > 2)
+		//{
+		//	oscBSelect = 0;
+		//}
 	}
 	if( oscAButton2.serviceRisingEdge() )
 	{
@@ -376,7 +377,16 @@ void P8Interface::processMachine( void )
 		bendvelope3.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
 		bendvelope4.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
 	}
-
+	if( oscAFreqKnob.serviceChanged() )
+	{
+		debugTemp = oscAFreqKnob.getState();
+		dcAmpOffset[0] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
+	}
+	if( oscBFreqKnob.serviceChanged() )
+	{
+		debugTemp = oscBFreqKnob.getState();
+		dcAmpOffset[1] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
+	}
 	//example:  dc1.amplitude(0.01994666666640625);
 	
 	if( fixtureKnob.serviceChanged() )
@@ -384,8 +394,8 @@ void P8Interface::processMachine( void )
 		debugTemp = fixtureKnob.getState();
 		if(group1Store == 1)
 		{
-			sgtl5000_1.volume(((float)debugTemp / 256) * 0.8);
-			sgtl5000_2.volume(((float)debugTemp / 256) * 0.8);
+			sgtl5000_1.volume(((float)debugTemp / 256) * 1.0);
+			sgtl5000_2.volume(((float)debugTemp / 256) * 1.0);
 		}
 		Serial.println(debugTemp);
 		if(group1Store == 2)
@@ -411,7 +421,8 @@ void P8Interface::processMachine( void )
 		if(group1Store == 5)
 		{
 			//dc1.amplitude_3_12(6.459432 - 1 + 4*((float)debugTemp / 256));
-			dcAmpOffset = 0.459432 + 4*((float)debugTemp / 256);
+			//0.459432 + 4*((float)debugTemp / 256);
+			dcAmpOffset[0] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
 		}
 	}
 	LEDs.setNumber1( debugTemp );

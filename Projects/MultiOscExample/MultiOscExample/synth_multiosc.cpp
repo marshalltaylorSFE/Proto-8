@@ -41,7 +41,7 @@ extern const int16_t AudioWaveformSine[257];
 
 void AudioSynthMultiOsc::update(void)
 {
-	audio_block_t *block, *ampModBlock, *pboBlock;
+	audio_block_t *block, *ampModBlock, *bpoABlock, *bpoBBlock;
 	uint32_t i, ph, inc, index, scale, input;
 	int32_t val1, val2;
 	uint16_t inputFractional, inputWhole;
@@ -51,9 +51,14 @@ void AudioSynthMultiOsc::update(void)
 		release(ampModBlock);
 		return;
 	}
-	pboBlock = receiveWritable(1);
-	if (!pboBlock) {
-		release(pboBlock);
+	bpoABlock = receiveWritable(1);
+	if (!bpoABlock) {
+		release(bpoABlock);
+		return;
+	}
+	bpoBBlock = receiveWritable(2);
+	if (!bpoBBlock) {
+		release(bpoBBlock);
 		return;
 	}
 	block = allocate();
@@ -72,10 +77,10 @@ void AudioSynthMultiOsc::update(void)
 			block->data[i] = multiply_32x32_rshift32(val1 + val2, ampModBlock->data[i] >> 1);
 			
 			//put whole in 16t and partial in 16b
-			//input = (uint32_t)(pboBlock->data[i] & 0x7FFF) << 4;
+			//input = (uint32_t)(bpoABlock->data[i] & 0x7FFF) << 4;
 			
 			//do it the old way
-			input = pboBlock->data[i];
+			input = bpoABlock->data[i];
 			inputFractional = input & 0x0FFF;
 			inputWhole = ( input & 0x7000 ) >> 12;
 			
@@ -99,8 +104,8 @@ void AudioSynthMultiOsc::update(void)
 			
 			//old way
 			//block->data[i] = multiply_32x32_rshift32(val1 + val2, ampModBlock->data[i] >> 1);
-			////inc = (uint32_t)pboBlock->data[i] << 16;
-			//input = (uint32_t)pboBlock->data[i];
+			////inc = (uint32_t)bpoABlock->data[i] << 16;
+			//input = (uint32_t)bpoABlock->data[i];
 			//inputFractional = input & 0x0FFF;
 			//inputWhole = ( input & 0x7000 ) >> 12;
 			//baseFreq = 0x76D6A;
@@ -113,7 +118,8 @@ void AudioSynthMultiOsc::update(void)
 		transmit(block);
 		release(block);
 		release(ampModBlock);
-		release(pboBlock);
+		release(bpoABlock);
+		release(bpoBBlock);
 		return;
 	}
 	

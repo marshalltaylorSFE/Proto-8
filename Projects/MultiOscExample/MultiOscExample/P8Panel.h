@@ -90,6 +90,12 @@ public:
 	P8PanelKnob8Bit rail18Knob;
 	P8PanelKnob8Bit rail33Knob;
 
+	P8PanelKnob8Bit oscAFreqKnob;
+	P8PanelKnob8Bit oscBFreqKnob;
+	P8PanelKnob8Bit oscAAmpKnob;
+	P8PanelKnob8Bit oscBAmpKnob;
+
+
 	
 protected:
 private:

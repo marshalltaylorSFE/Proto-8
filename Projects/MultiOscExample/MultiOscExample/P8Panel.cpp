@@ -89,6 +89,11 @@
 #define	RAIL18POS 6
 #define	RAIL33POS 7
 
+#define OSCAFREQPOS 44
+#define OSCBFREQPOS 41
+#define OSCAAMPPOS 46
+#define OSCBAMPPOS 43
+
 
 P8Panel::P8Panel( void )
 {
@@ -167,6 +172,11 @@ void P8Panel::init( void )
 	rail18Knob.init(RAIL18POS);
 	rail33Knob.init(RAIL33POS);
 	
+	oscAFreqKnob.init(OSCAFREQPOS);	
+	oscBFreqKnob.init(OSCBFREQPOS);	
+	oscAAmpKnob.init(OSCAAMPPOS);	
+	oscBAmpKnob.init(OSCBAMPPOS);	
+	
  	flasherState = 0;
 	fastFlasherState = 0;
 }
@@ -241,6 +251,12 @@ void P8Panel::update( void )
 	refKnob.update();
 	rail18Knob.update();
 	rail33Knob.update();
+	
+	oscAFreqKnob.update();
+	oscBFreqKnob.update();
+	oscAAmpKnob.update();
+	oscBAmpKnob.update();
+	
 }
 
 void P8Panel::toggleFlasherState( void )

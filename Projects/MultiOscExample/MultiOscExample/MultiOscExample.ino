@@ -29,10 +29,14 @@ AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
 AudioConnection          patchCord2(bendvelope2, 0, multiosc2, 0);
 AudioConnection          patchCord3(bendvelope3, 0, multiosc3, 0);
 AudioConnection          patchCord4(bendvelope4, 0, multiosc4, 0);
-AudioConnection          patchCord15(dc1, 0, multiosc1, 1);
+AudioConnection          patchCord15(dc1, 0, multiosc1, 1);//A connection
 AudioConnection          patchCord16(dc2, 0, multiosc2, 1);
 AudioConnection          patchCord17(dc3, 0, multiosc3, 1);
 AudioConnection          patchCord18(dc4, 0, multiosc4, 1);
+AudioConnection          patchCord19(dc1, 0, multiosc1, 2);//B connection
+AudioConnection          patchCord20(dc2, 0, multiosc2, 2);
+AudioConnection          patchCord21(dc3, 0, multiosc3, 2);
+AudioConnection          patchCord22(dc4, 0, multiosc4, 2);
 AudioConnection          patchCord5(multiosc1, 0, mixer5, 0);
 AudioConnection          patchCord6(multiosc2, 0, mixer5, 1);
 AudioConnection          patchCord7(multiosc3, 0, mixer5, 2);
@@ -503,21 +507,21 @@ void loop()
 						{
 							case 0:
 							//multiosc1.frequency(tempFrequencyA);
-							dc1.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
+							dc1.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
 							digitalWrite(syncPin, 1);
 							bendvelope1.noteOn();
 							digitalWrite(syncPin, 0);
 							break;
 							case 1:
-							dc2.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
+							dc2.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
 							bendvelope2.noteOn();
 							break;
 							case 2:
-							dc3.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
+							dc3.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
 							bendvelope3.noteOn();
 							break;
 							case 3:
-							dc4.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset);
+							dc4.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
 							bendvelope4.noteOn();
 							break;
 							default:

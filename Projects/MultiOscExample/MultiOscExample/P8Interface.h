@@ -54,7 +54,7 @@ public:
 	uint8_t lastReleaseBend;
 	
 	//Data going out to the system
-	float dcAmpOffset;
+	float dcAmpOffset[4]; //osc A thru D
 	
 
 private:
