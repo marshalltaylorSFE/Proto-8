@@ -41,9 +41,9 @@ extern const int16_t AudioWaveformSine[257];
 
 void AudioSynthMultiOsc::update(void)
 {
-	audio_block_t *block, *ampModBlock, *bpoABlock, *bpoBBlock;
-	uint32_t i, ph[4], inc, index, scale, input[4], ampInput;
-	int32_t val1[4], val2[4];
+	audio_block_t *block, *ampModBlock, *bpoABlock, *bpoBBlock, *bpoCBlock, *bpoDBlock, *centABlock, *centBBlock, *centCBlock, *centDBlock;
+	uint32_t i, ph[4], inc, index, scale, input[4], ampInput, centInput[4];
+	int32_t val1, val2[4];
 	uint16_t inputFractional, inputWhole;
 	uint32_t baseFreq, powerResult;
 	int32_t sampleAcumulator;
@@ -62,6 +62,36 @@ void AudioSynthMultiOsc::update(void)
 		release(bpoBBlock);
 		return;
 	}
+	bpoCBlock = receiveWritable(3);
+	if (!bpoCBlock) {
+		release(bpoCBlock);
+		//return;
+	}
+	bpoDBlock = receiveWritable(4);
+	if (!bpoDBlock) {
+		release(bpoDBlock);
+		//return;
+	}
+	centABlock = receiveWritable(5);
+	if (!centABlock) {
+		release(centABlock);
+		//return;
+	}
+	centBBlock = receiveWritable(6);
+	if (!centBBlock) {
+		release(centBBlock);
+		//return;
+	}
+	centCBlock = receiveWritable(7);
+	if (!centCBlock) {
+		release(centCBlock);
+		//return;
+	}
+	centDBlock = receiveWritable(8);
+	if (!centDBlock) {
+		release(centDBlock);
+		//return;
+	}
 	block = allocate();
 	if (block) {
 		ph[0] = phase_accumulator[0];
@@ -76,8 +106,13 @@ void AudioSynthMultiOsc::update(void)
 			sampleAcumulator = 0;
 			input[0] = bpoABlock->data[i];  //Get incomming pitch data
 			input[1] = bpoBBlock->data[i];  //Get incomming pitch data
+			input[2] = bpoCBlock->data[i];  //Get incomming pitch data
+			input[3] = bpoDBlock->data[i];  //Get incomming pitch data
 			ampInput = ampModBlock->data[i] >> 2 ;
-			
+			centInput[0] = centABlock->data[i];
+			centInput[1] = centBBlock->data[i];
+			centInput[2] = centCBlock->data[i];
+			centInput[3] = centDBlock->data[i];
 			//for( int j = 0; j < 2; j++)
 			//{
 			//	//index = ph[j] >> 24;
@@ -107,30 +142,64 @@ void AudioSynthMultiOsc::update(void)
 			//	ph[j] += inc; //Store the new phase
 			//}
 				//First
-				sampleAcumulator += multiply_32x32_rshift32(waveFormPointerA[ph[0] >> 24] << 16, ampInput);
+				index = ph[0] >> 24;
+				val1 = waveFormPointerA[index];
+				val1 = val1 * staticAmp[0] / 256;
+				sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput);
 				//do it the old way
 				inputFractional = input[0] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[0] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
-				powerResult = ((uint64_t)(baseFreq >> 8) * twoPowers12bit[inputFractional]) >> 16;
-				baseFreq = powerResult + (baseFreq >> 8);
+				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[0] >> 6);
 				inc = baseFreq << 8;
 				ph[0] += inc; //Store the new phase
 				//second
-				sampleAcumulator += multiply_32x32_rshift32(waveFormPointerA[ph[1] >> 24] << 16, ampInput);
+				index = ph[1] >> 24;
+				val1 = waveFormPointerA[index];
+				val1 = val1 * staticAmp[1] / 256;
+				sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput);
 				//do it the old way
 				inputFractional = input[1] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[1] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
-				powerResult = ((uint64_t)(baseFreq >> 8) * twoPowers12bit[inputFractional]) >> 16;
-				baseFreq = powerResult + (baseFreq >> 8);
+				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[1] >> 6);
 				inc = baseFreq << 8;
 				ph[1] += inc; //Store the new phase
+				//Third
+				index = ph[2] >> 24;
+				val1 = waveFormPointerA[index];
+				val1 = val1 * staticAmp[2] / 256;
+				sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput);
+				//do it the old way
+				inputFractional = input[2] & 0x0FFF;  //Get only the RHS
+				inputWhole = ( input[2] & 0x7000 ) >> 12;  //Get only the LHS
+				baseFreq = 0x76D6A;  //This is a 24 bit number
+				baseFreq = baseFreq << inputWhole;
+				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[2] >> 6);
+				inc = baseFreq << 8;
+				ph[2] += inc; //Store the new phase
+				//Fourth
+				index = ph[3] >> 24;
+				val1 = waveFormPointerA[index];
+				val1 = val1 * staticAmp[3] / 256;
+				sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput);
+				//do it the old way
+				inputFractional = input[3] & 0x0FFF;  //Get only the RHS
+				inputWhole = ( input[3] & 0x7000 ) >> 12;  //Get only the LHS
+				baseFreq = 0x76D6A;  //This is a 24 bit number
+				baseFreq = baseFreq << inputWhole;
+				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[3] >> 6);
+				inc = baseFreq << 8;
+				ph[3] += inc; //Store the new phase
 
-
-			block->data[i] = sampleAcumulator;
+				
+			block->data[i] = sampleAcumulator >> 2;
 		}
 		phase_accumulator[0] = ph[0];
 		phase_accumulator[1] = ph[1];
@@ -141,6 +210,12 @@ void AudioSynthMultiOsc::update(void)
 		release(ampModBlock);
 		release(bpoABlock);
 		release(bpoBBlock);
+		release(bpoCBlock);
+		release(bpoDBlock);
+		release(centABlock);
+		release(centBBlock);
+		release(centCBlock);
+		release(centDBlock);
 		return;
 	}
 	
@@ -156,7 +231,14 @@ void AudioSynthMultiOsc::begin(void)
     WaveGenerator testWave;
 	waveFormPointerA = testWave.allocateU16_257();
 	waveFormPointerB = testWave.allocateU16_257();
-	
+	Serial.println("During multiOSC.begin(),");
+	uint32_t address;
+	Serial.print("WFPA = 0x");
+	address = (uint32_t)&waveFormPointerA[0];
+	Serial.println(address, HEX);
+	Serial.print("WFPB = 0x");
+	address = (uint32_t)&waveFormPointerB[0];
+	Serial.println(address, HEX);	
     testWave.setParameters( 255, 255, 0, 0, 45 );
     testWave.writeWaveU16_257( waveFormPointerA );	
 }

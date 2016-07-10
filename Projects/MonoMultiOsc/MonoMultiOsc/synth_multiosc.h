@@ -11,12 +11,12 @@
 class AudioSynthMultiOsc : public AudioStream
 {
 public:
-	AudioSynthMultiOsc() : AudioStream(3, inputQueueArray), magnitude(16384){};
+	AudioSynthMultiOsc() : AudioStream(9, inputQueueArray), magnitude(16384){};
 	void begin( void );
 	int16_t * getPointer( uint8_t );
 	void setPointer( uint8_t, int16_t * );
 private:
-	audio_block_t *inputQueueArray[3];
+	audio_block_t *inputQueueArray[9];
 	int16_t *waveFormPointerA;
 	int16_t *waveFormPointerB;
 	
@@ -47,6 +47,8 @@ private:
 	uint32_t phase_accumulator[4];
 	uint32_t phase_increment;
 	int32_t magnitude;
+public:
+	uint32_t staticAmp[4];
 };
 
 

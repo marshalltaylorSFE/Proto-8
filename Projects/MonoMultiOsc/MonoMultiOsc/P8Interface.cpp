@@ -40,7 +40,12 @@ extern AudioSynthBendvelope    bendvelope4;    //xy=608,508
 extern AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
 extern AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 extern AudioSynthWaveformDcBinary     dc1;
-
+extern AudioSynthWaveformDcBinary     dc1CentA;
+extern AudioSynthWaveformDcBinary     dc1CentB;
+extern AudioSynthWaveformDcBinary     dc1CentC;
+extern AudioSynthWaveformDcBinary     dc1CentD;
+extern AudioSynthMultiOsc       multiosc1;
+extern AudioMixer4              effectMixer;
 
 P8Interface::P8Interface( void )
 {
@@ -173,10 +178,20 @@ void P8Interface::processMachine( void )
 	}
 	if( button6.serviceRisingEdge() )
 	{
+		pageNumber++;
+		if(pageNumber > 1)
+		{
+			pageNumber = 0;
+		}
 		led6.toggle();
 	}
 	if( button7.serviceRisingEdge() )
 	{
+		fineTune++;
+		if(fineTune > 1)
+		{
+			fineTune = 0;
+		}
 		led7.toggle();
 	}
 	if( button8.serviceRisingEdge() )
@@ -334,18 +349,26 @@ void P8Interface::processMachine( void )
 	if( temp2 ) debugTemp = attackBendKnob.getState();
 	if( temp1 || temp2 )
 	{
-		bendvelope1.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope2.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope3.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope4.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		if( pageNumber == 0 )
+		{
+			bendvelope1.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		}
+		else if( pageNumber == 1 )
+		{
+			bendvelope2.attack( attackKnob.getState(), (int16_t)attackBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		}
 	}
 	if( holdKnob.serviceChanged() )
 	{
 		debugTemp = holdKnob.getState();
-		bendvelope1.setAttackHold( holdKnob.getState() );
-		bendvelope2.setAttackHold( holdKnob.getState() );
-		bendvelope3.setAttackHold( holdKnob.getState() );
-		bendvelope4.setAttackHold( holdKnob.getState() );
+		if( pageNumber == 0 )
+		{
+			bendvelope1.setAttackHold( holdKnob.getState() );
+		}
+		else if( pageNumber == 1 )
+		{
+			bendvelope2.setAttackHold( holdKnob.getState() );
+		}
 	}
 	temp1 = decayKnob.serviceChanged();
 	if( temp1 ) debugTemp = decayKnob.getState();
@@ -353,18 +376,26 @@ void P8Interface::processMachine( void )
 	if( temp2 ) debugTemp = decayBendKnob.getState();
 	if( temp1 || temp2 )
 	{
-		bendvelope1.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
-		bendvelope2.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
-		bendvelope3.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
-		bendvelope4.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		if( pageNumber == 0 )
+		{
+			bendvelope1.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		}
+		else if( pageNumber == 1 )
+		{
+			bendvelope2.decay( decayKnob.getState(), ((int16_t)decayBendKnob.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		}
 	}
 	if( sustainKnob.serviceChanged() )
 	{
 		debugTemp = sustainKnob.getState();
-		bendvelope1.sustain( sustainKnob.getState() );// 0 to 255 for level
-		bendvelope2.sustain( sustainKnob.getState() );// 0 to 255 for level
-		bendvelope3.sustain( sustainKnob.getState() );// 0 to 255 for level
-		bendvelope4.sustain( sustainKnob.getState() );// 0 to 255 for level
+		if( pageNumber == 0 )
+		{
+			bendvelope1.sustain( sustainKnob.getState() );// 0 to 255 for level
+		}
+		else if( pageNumber == 1 )
+		{
+			bendvelope2.sustain( sustainKnob.getState() );// 0 to 255 for level
+		}
 	}
 	temp1 = releaseKnob.serviceChanged();
 	if( temp1 ) debugTemp = releaseKnob.getState();
@@ -372,58 +403,145 @@ void P8Interface::processMachine( void )
 	if( temp2 ) debugTemp = releaseBendKnob.getState();
 	if( temp1 || temp2 )
 	{
-		bendvelope1.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope2.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope3.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
-		bendvelope4.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		if( pageNumber == 0 )
+		{
+			bendvelope1.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		}
+		else if( pageNumber == 1 )
+		{
+			bendvelope2.release( releaseKnob.getState(), (int16_t)releaseBendKnob.getState() - 128 );// 0 to 255 for length, -128 to 127
+		}
 	}
 	if( oscAFreqKnob.serviceChanged() )
 	{
 		debugTemp = oscAFreqKnob.getState();
-		dcAmpOffset[0] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
+		if( pageNumber == 0 )
+		{
+			if( fineTune == 0 )
+			{
+				dcTuneOffset[0] = ((float)debugTemp - 127) / 64; //Use +- 2 octave with no range control for now
+			}
+			else
+			{
+				dc1CentA.amplitude_int(((int16_t)debugTemp - 127) << 10);
+			}
+		}
+		else if( pageNumber == 1 )
+		{
+			if( fineTune == 0 )
+			{
+				dcTuneOffset[2] = ((float)debugTemp - 127) / 64; //Use +- 2 octave with no range control for now
+			}
+			else
+			{
+				dc1CentC.amplitude_int(((int16_t)debugTemp - 127) << 10);
+			}
+		}
 	}
 	if( oscBFreqKnob.serviceChanged() )
 	{
 		debugTemp = oscBFreqKnob.getState();
-		dcAmpOffset[1] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
+		if( pageNumber == 0 )
+		{
+			if( fineTune == 0 )
+			{
+				dcTuneOffset[1] = ((float)debugTemp - 127) / 64; //Use +- 2 octave with no range control for now
+			}
+			else
+			{
+				dc1CentB.amplitude_int(((int16_t)debugTemp - 127) << 10);
+			}
+		}
+		else if( pageNumber == 1 )
+		{
+			if( fineTune == 0 )
+			{
+				dcTuneOffset[3] = ((float)debugTemp - 127) / 64; //Use +- 2 octave with no range control for now
+			}
+			else
+			{
+				dc1CentD.amplitude_int(((int16_t)debugTemp - 127) << 8);
+			}
+
+		}
+
+
+	}
+	if( oscAAmpKnob.serviceChanged() )
+	{
+		//using amp as cent input
+		debugTemp = oscAAmpKnob.getState();
+		if( pageNumber == 0 )
+		{
+			multiosc1.staticAmp[0] = debugTemp;
+		}
+		else if( pageNumber == 1 )
+		{
+			multiosc1.staticAmp[2] = debugTemp;
+		}
+
+	}
+	if( oscBAmpKnob.serviceChanged() )
+	{
+		//using amp as cent input
+		debugTemp = oscBAmpKnob.getState();
+		if( pageNumber == 0 )
+		{
+			multiosc1.staticAmp[1] = debugTemp;
+		}
+		else if( pageNumber == 1 )
+		{
+			multiosc1.staticAmp[3] = debugTemp;
+		}
+
 	}
 	//example:  dc1.amplitude(0.01994666666640625);
 	
 	if( fixtureKnob.serviceChanged() )
 	{
 		debugTemp = fixtureKnob.getState();
-		if(group1Store == 1)
+		if( pageNumber == 0 )
 		{
-			sgtl5000_1.volume(((float)debugTemp / 256) * 1);
-			sgtl5000_2.volume(((float)debugTemp / 256) * 1);
-		}
-		Serial.println(debugTemp);
-		if(group1Store == 2)
-		{
-			switch(group3Store)
+			if(group1Store == 1)
 			{
-				case 1:
-				waveShapeParams[0][0] = debugTemp;
-				break;
-				case 2:
-				waveShapeParams[0][1] = debugTemp;
-				break;
-				case 3:
-				waveShapeParams[0][2] = debugTemp;
-				break;
-				default:
-				break;
+				sgtl5000_1.volume(((float)debugTemp / 256) * 1);
+				sgtl5000_2.volume(((float)debugTemp / 256) * 1);
 			}
-			WaveGenerator testWave;
-			testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], 45 );			
-			testWave.writeWaveU16_257( waveFormPointerA );
+			Serial.println(debugTemp);
+			if(group1Store == 2)
+			{
+				switch(group3Store)
+				{
+					case 1:
+					waveShapeParams[0][0] = debugTemp;
+					break;
+					case 2:
+					waveShapeParams[0][1] = debugTemp;
+					break;
+					case 3:
+					waveShapeParams[0][2] = debugTemp;
+					break;
+					default:
+					break;
+				}
+				WaveGenerator testWave;
+				testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], 45 );			
+				Serial.println("before");
+				delay(20);
+				testWave.writeWaveU16_257( multiosc1.getPointer( 0 ) );
+				Serial.println("after");
+				delay(20);
+			}
+			if(group1Store == 5)
+			{
+			}
 		}
-		if(group1Store == 5)
+		else if( pageNumber == 1 )
 		{
-			//dc1.amplitude_3_12(6.459432 - 1 + 4*((float)debugTemp / 256));
-			//0.459432 + 4*((float)debugTemp / 256);
-			dcAmpOffset[0] = ((float)debugTemp - 128) / 128; //Use +- 1 octave with no range control for now
+			//set effect bend amp
+			effectMixer.gain(0, ((float)debugTemp - 127)/256);
 		}
+
 	}
 	LEDs.setNumber1( debugTemp );
 	float tempVoltage = 0;

@@ -9,52 +9,40 @@
 
 // GUItool: begin automatically generated code
 AudioSynthBendvelope     bendvelope1;      //xy=506.888916015625,291.8888854980469
-AudioSynthBendvelope     bendvelope2;      //xy=511.8889465332031,372.8888854980469
-AudioSynthBendvelope     bendvelope3;      //xy=517.888916015625,449.8888854980469
-AudioSynthBendvelope     bendvelope4;      //xy=522.888916015625,533.8889465332031
+AudioSynthBendvelope     bendvelope2;      //Use for pitch separation 
 AudioSynthMultiOsc       multiosc1;       //xy=653.8889465332031,291.888916015625
-AudioSynthMultiOsc       multiosc2;       //xy=661.8889465332031,371.8888854980469
-AudioSynthMultiOsc       multiosc3;       //xy=668.8889465332031,453.8888854980469
-AudioSynthMultiOsc       multiosc4;       //xy=680.8889465332031,537.8889465332031
 AudioMixer4              mixer5;         //xy=987.8888854980469,413
-//AudioFilterStateVariable filter1;        //xy=1143.8888854980469,421
-//AudioFilterStateVariable filter3;        //xy=1279.8888854980469,422
+AudioMixer4              effectMixer;    //xy=987.8888854980469,413
+AudioFilterStateVariable filter1;        //xy=1143.8888854980469,421
+AudioFilterStateVariable filter3;        //xy=1279.8888854980469,422
 AudioOutputI2SQuad       i2s_quad2;      //xy=1469.8888854980469,431
 //AudioOutputI2S           i2s_quad2;      //xy=1469.8888854980469,431
 AudioSynthWaveformDcBinary     dc1A;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc2A;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc3A;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc4A;            //xy=285.8888854980469,314.8888854980469
 AudioSynthWaveformDcBinary     dc1B;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc2B;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc3B;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc4B;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1C;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1D;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1CentA;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1CentB;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1CentC;            //xy=285.8888854980469,314.8888854980469
+AudioSynthWaveformDcBinary     dc1CentD;            //xy=285.8888854980469,314.8888854980469
 AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
-AudioConnection          patchCord2(bendvelope2, 0, multiosc2, 0);
-AudioConnection          patchCord3(bendvelope3, 0, multiosc3, 0);
-AudioConnection          patchCord4(bendvelope4, 0, multiosc4, 0);
-AudioConnection          patchCord15(dc1A, 0, multiosc1, 1);//A connection
-AudioConnection          patchCord16(dc2A, 0, multiosc2, 1);
-AudioConnection          patchCord17(dc3A, 0, multiosc3, 1);
-AudioConnection          patchCord18(dc4A, 0, multiosc4, 1);
-AudioConnection          patchCord19(dc1B, 0, multiosc1, 2);//B connection
-AudioConnection          patchCord20(dc2B, 0, multiosc2, 2);
-AudioConnection          patchCord21(dc3B, 0, multiosc3, 2);
-AudioConnection          patchCord22(dc4B, 0, multiosc4, 2);
-AudioConnection          patchCord5(multiosc1, 0, mixer5, 0);
-AudioConnection          patchCord6(multiosc2, 0, mixer5, 1);
-AudioConnection          patchCord7(multiosc3, 0, mixer5, 2);
-AudioConnection          patchCord8(multiosc4, 0, mixer5, 3);
-//AudioConnection          patchCord9(mixer5, 0, filter1, 0);
-//AudioConnection          patchCord10(filter1, 0, filter3, 0);
-//AudioConnection          patchCord11(filter3, 0, i2s_quad2, 0);
-//AudioConnection          patchCord12(filter3, 0, i2s_quad2, 1);
-//AudioConnection          patchCord13(filter3, 0, i2s_quad2, 2);
-//AudioConnection          patchCord14(filter3, 0, i2s_quad2, 3);
-AudioConnection          patchCord11(mixer5, 0, i2s_quad2, 0);
-AudioConnection          patchCord12(mixer5, 0, i2s_quad2, 1);
-AudioConnection          patchCord13(mixer5, 0, i2s_quad2, 2);
-AudioConnection          patchCord14(mixer5, 0, i2s_quad2, 3);
+AudioConnection          patchCord2(bendvelope2, 0, effectMixer, 0);
+AudioConnection          patchCord3(dc1A, 0, multiosc1, 1);//A connection
+AudioConnection          patchCord4(dc1B, 0, multiosc1, 2);//B connection
+AudioConnection          patchCord5(dc1C, 0, multiosc1, 3);//A connection
+AudioConnection          patchCord6(dc1D, 0, multiosc1, 4);//B connection
+AudioConnection          patchCord7(dc1CentA, 0, multiosc1, 5);//A connection
+AudioConnection          patchCord8(dc1CentB, 0, multiosc1, 6);//B connection
+AudioConnection          patchCord9(dc1CentC, 0, multiosc1, 7);//A connection
+AudioConnection          patchCord10(dc1CentD, 0, effectMixer, 1);//B connection
+AudioConnection          patchCord11(effectMixer, 0, multiosc1, 8);//B connection
+AudioConnection          patchCord12(multiosc1, 0, mixer5, 0);
+AudioConnection          patchCord13(mixer5, 0, filter1, 0);
+AudioConnection          patchCord14(filter1, 0, filter3, 0);
+AudioConnection          patchCord15(filter3, 0, i2s_quad2, 0);
+AudioConnection          patchCord16(filter3, 0, i2s_quad2, 1);
+AudioConnection          patchCord17(filter3, 0, i2s_quad2, 2);
+AudioConnection          patchCord18(filter3, 0, i2s_quad2, 3);
 AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
 AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 // GUItool: end automatically generated code
@@ -228,8 +216,8 @@ void HandleControlChange(byte channel, byte number, byte value)
 	{
 		case 1:
 		//Filter
-		//filter1.frequency((value * value * 0.9) + 40);  
-		//filter3.frequency((value * value * 0.9) + 40);  
+		filter1.frequency((value * value * 0.9) + 40);  
+		filter3.frequency((value * value * 0.9) + 40);  
 		break;
 		default:
 		break;
@@ -254,8 +242,6 @@ void handleSystemReset(void)
 	//Send note offs to all envelopes
 	bendvelope1.noteOff();
 	bendvelope2.noteOff();
-	bendvelope3.noteOff();
-	bendvelope4.noteOff();
 }
 // -----------------------------------------------------------------------------
 void setup() 
@@ -278,16 +264,6 @@ void setup()
 	bendvelope2.sustain( 150 );// 0 to 255 for level
 	bendvelope2.release( 10, 0 );// 0 to 255 for length, -128 to 127
 	bendvelope2.setAttackHold( 10 );
-	bendvelope3.attack( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope3.decay( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope3.sustain( 150 );// 0 to 255 for level
-	bendvelope3.release( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope3.setAttackHold( 10 );
-	bendvelope4.attack( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope4.decay( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope4.sustain( 150 );// 0 to 255 for level
-	bendvelope4.release( 10, 0 );// 0 to 255 for length, -128 to 127
-	bendvelope4.setAttackHold( 10 );
 	
 	LEDs.begin();
 	knobs.begin();
@@ -324,28 +300,28 @@ void setup()
 	sgtl5000_2.volume(1.0);
 	sgtl5000_2.unmuteHeadphone();
 
-	//filter1.frequency(8000);  
-	//filter3.frequency(8000);
+	filter1.frequency(8000);  
+	filter3.frequency(8000);
 	
-	multiosc1.amplitude(0.25);
-	multiosc2.amplitude(0.25);
-	multiosc3.amplitude(0.25);
-	multiosc4.amplitude(0.25);
+	multiosc1.amplitude(1.00);
 	
 	multiosc1.begin(); //allocates + default shape
-	int16_t * tempPointer = multiosc1.getPointer(0);
-	multiosc2.setPointer(0, tempPointer);
-	multiosc3.setPointer(0, tempPointer);
-	multiosc4.setPointer(0, tempPointer);
-	p8hid.setPointer(0, tempPointer);
+	//--This would be useful for enumerating multiple multiosc blocks
+	//int16_t * tempPointer = multiosc1.getPointer(0);
+	//multiosc2.setPointer(0, tempPointer);
 
 	//dc1A.amplitude_3_12(6.459432);
 	//dc1B.amplitude_3_12(6.459432);
 	
-	mixer5.gain(0, 0.25);
-	mixer5.gain(1, 0.25);
-	mixer5.gain(2, 0.25);
-	mixer5.gain(3, 0.25);
+	mixer5.gain(0, 1.0);
+	mixer5.gain(1, 0);
+	mixer5.gain(2, 0);
+	mixer5.gain(3, 0);
+
+	effectMixer.gain(0, 1.0);
+	effectMixer.gain(1, 1.0);
+	effectMixer.gain(2, 0);
+	effectMixer.gain(3, 0);
 	
 	
 }
@@ -396,8 +372,6 @@ void loop()
 		GPStartTime = usTicks;
 		bendvelope1.tick(100);
 		bendvelope2.tick(100);
-		bendvelope3.tick(100);
-		bendvelope4.tick(100);
 		GPStopTime = usTicks;
 	}
 	//**Debounce timer****************************//  
@@ -418,20 +392,23 @@ void loop()
 		p8hid.processMachine();
 		
 		//Deal with outputs
-		float ampTemp = 0;
-		ampTemp = bendvelope1.amp;
-		if( bendvelope2.amp > ampTemp )
-		{
-			ampTemp = bendvelope2.amp;
-		}		
-		if( bendvelope3.amp > ampTemp )
-		{
-			ampTemp = bendvelope2.amp;
-		}
-		if( bendvelope4.amp > ampTemp )
-		{
-			ampTemp = bendvelope2.amp;
-		}
+		//float ampTemp = 0;
+		//ampTemp = bendvelope1.amp;
+		
+		//--This part from poly
+		//if( bendvelope2.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}		
+		//if( bendvelope3.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}
+		//if( bendvelope4.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}
+		
 		//dc1.amplitude((ampTemp / 128.0) - 1.0);
 		//LEDs.setNumber1( ampTemp );
 		
@@ -450,108 +427,44 @@ void loop()
 			tempNote = *rxNoteList.readObject( unservicedNoteCount - 1 );
 			if( tempNote.eventType == 0x90 )//We got a new note-on
 			{
+				//For the poly synth, this part high prioritizes notes,
+				//while remembering some number of 'on' keys
+				
+				
 				//Search for the note on.  If found, do nothing, else write
 				if( noteOnInList.seekObjectbyNoteValue( tempNote ) == -1 )
 				{
-					//note not found.
-					////////This is where we might play the note
-					//Check for available voice by finding the next zero
-
-					int nextAvailable = -1;
-					int seek;
-					uint8_t currentAmps[4];
-					currentAmps[0] = bendvelope1.amp;
-					currentAmps[1] = bendvelope2.amp;
-					currentAmps[2] = bendvelope3.amp;
-					currentAmps[3] = bendvelope4.amp;
-					Serial.print("CurrentAmp data: ");
-					Serial.print(currentAmps[0]);
-					Serial.print(",  ");
-					Serial.print(currentAmps[1]);
-					Serial.print(", ");
-					Serial.print(currentAmps[2]);
-					Serial.print(", ");
-					Serial.println(currentAmps[3]);
-					
-					//Seek the next available with the lowest current amp.
-					for( seek = 0; seek < 4; seek++ )
-					{
-						if(voicesUsed[seek] == 0)
-						{
-							//the voice is free
-							if(nextAvailable == -1)
-							{
-								//no previous note to compare
-								nextAvailable = seek;
-							}
-							else
-							{
-								//compare, choose the quieter voice
-								if( currentAmps[seek] < currentAmps[nextAvailable] )
-								{
-									nextAvailable = seek;
-								}
-								
-							}
-						}
-
-					}
-					if( nextAvailable != -1 )//One is free
-					{
-						//Assign the note to this voice
-						tempNote.voice = nextAvailable;
-						voicesUsed[nextAvailable] = 1;
-						//mixer5.gain(tempNote.voice, 0.25);
-						//select voice
-						float tempbpoA = note2bpo[tempNote.value];
-						//float tempFrequencyB = note_frequency[tempNote.value] * fineTuneB * coarseTuneB;
-						//float tempFrequencyC = note_frequency[tempNote.value] * fineTuneC * coarseTuneC;
-						//float tempFrequencyD = note_frequency[tempNote.value] * fineTuneD * coarseTuneD;
-						//last1 = note2bpo[tempNote.value];
-						//last2 = note_frequency[tempNote.value];
-						//last3 = note_frequency[tempNote.value];
-						//last4 = note_frequency[tempNote.value];
-						
-						switch( tempNote.voice )
-						{
-							case 0:
-							//multiosc1.frequency(tempFrequencyA);
-							dc1A.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
-							dc1B.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[1]);
-							digitalWrite(syncPin, 1);
-							bendvelope1.noteOn();
-							digitalWrite(syncPin, 0);
-							break;
-							case 1:
-							dc2A.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
-							dc2B.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[1]);
-							bendvelope2.noteOn();
-							break;
-							case 2:
-							dc3A.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
-							dc3B.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[1]);
-							bendvelope3.noteOn();
-							break;
-							case 3:
-							dc4A.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[0]);
-							dc4B.amplitude_3_12(tempbpoA + p8hid.dcAmpOffset[1]);
-							bendvelope4.noteOn();
-							break;
-							default:
-							break;
-						}
-						Serial.print("Used voice: ");
-						Serial.println(tempNote.voice);
-						
-					}
-					else
-					{
-						//No new voices
-					}
-					//record
+					//Not found to be not playing by the internal memory of state
+					//* Record current note
 					noteOnInList.pushObject( tempNote );
 					
+					//* Play the note with the oscillators
+					float tempbpoA = note2bpo[tempNote.value];
+					dc1A.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[0]);
+					dc1B.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[1]);
+					dc1C.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[2]);
+					dc1D.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[3]);
+					digitalWrite(syncPin, 1);
+					bendvelope1.noteOn();
+					bendvelope2.noteOn();
+					digitalWrite(syncPin, 0);
 					rxNoteList.dropObject( unservicedNoteCount - 1 );
+
+					//--The old idea was to track amplitudes, and pick the quietest one to
+					//--replace
+					//
+					//int nextAvailable = -1;
+					//int seek;
+					//uint8_t currentAmps[4];
+					//currentAmps[0] = bendvelope1.amp;
+					//Serial.print("CurrentAmp data: ");
+					//Serial.print(currentAmps[0]);
+					//Serial.print("/n");
+					//
+					//Serial.print("Used voice: ");
+					//Serial.println(tempNote.voice);
+						
+					
 				}
 				else
 				{
@@ -579,31 +492,36 @@ void loop()
 					
 					/////This is where we might turn the note off -- repurpose tempNote
 					tempNote = *noteOnInList.readObject( tempSeekDepth );
-					voicesUsed[tempNote.voice] = 0;
-					//mixer5.gain(tempNote.voice, 0);
-					switch( tempNote.voice )
-						{
-							case 0:
-							bendvelope1.noteOff();
-							break;
-							case 1:
-							bendvelope2.noteOff();
-							break;
-							case 2:
-							bendvelope3.noteOff();
-							break;
-							case 3:
-							bendvelope4.noteOff();
-							break;
-							default:
-							break;
-						}
-					Serial.print("Voice silenced: ");
-					Serial.println(tempNote.voice);					
+					bendvelope1.noteOff();
+					bendvelope2.noteOff();
+
+					//--old
+					//Serial.print("Voice silenced: ");
+					//Serial.println(tempNote.voice);					
 					
 					noteOnInList.dropObject( tempSeekDepth );
 
 					rxNoteList.dropObject( unservicedNoteCount - 1 );
+					
+					//Find oldest note still on. For now, retrigger
+					int16_t listLength = noteOnInList.listLength();
+					if( listLength > 0 )
+					{
+						//Print full list
+						noteOnInList.printfMicroLL();
+
+						tempNote = *noteOnInList.readObject( listLength - 1 );
+						float tempbpoA = note2bpo[tempNote.value];
+						dc1A.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[0]);
+						dc1B.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[1]);
+						dc1C.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[2]);
+						dc1D.amplitude_3_12(tempbpoA + p8hid.dcTuneOffset[3]);
+						digitalWrite(syncPin, 1);
+						bendvelope1.noteOn();
+						bendvelope2.noteOn();
+						digitalWrite(syncPin, 0);
+					}
+					
 				}				
 			}
 			else
