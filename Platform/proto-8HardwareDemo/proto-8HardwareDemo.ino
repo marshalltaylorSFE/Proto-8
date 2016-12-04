@@ -54,12 +54,12 @@ IntervalTimer myTimer;
 //HOW TO OPERATE
 //  Make TimerClass objects for each thing that needs periodic service
 //  pass the interval of the period in ticks
-//  Set MAXINTERVAL to the max foreseen interval of any TimerClass
-//  Set MAXTIMER to overflow number in the header.  MAXTIMER + MAXINTERVAL
+//  Set maxInterval to the max foreseen interval of any TimerClass
+//  Set maxTimer to overflow number in the header.  maxTimer + maxInterval
 //    cannot exceed variable size.
 //Globals
-uint32_t MAXTIMER = 60000000;
-uint32_t MAXINTERVAL = 2000000;
+uint32_t maxTimer = 60000000;
+uint32_t maxInterval = 2000000;
 
 TimerClass32 panelUpdateTimer(10000);
 TimerClass32 LEDsTimer(200);
@@ -251,9 +251,9 @@ void loop()
 void serviceUS(void)
 {
   uint32_t returnVar = 0;
-  if(usTicks >= ( MAXTIMER + MAXINTERVAL ))
+  if(usTicks >= ( maxTimer + maxInterval ))
   {
-    returnVar = usTicks - MAXTIMER;
+    returnVar = usTicks - maxTimer;
 
   }
   else

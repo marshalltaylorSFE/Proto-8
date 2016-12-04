@@ -82,6 +82,82 @@ void loop()
 		{
 			Serial.read();
 		}
+		Serial.println("\nLED INTERFACE");
+		pinMode (nOEPin, OUTPUT);
+		pinMode (LCLKPin, OUTPUT);
+		pinMode (nRSTPin, OUTPUT);
+		pinMode (SPI_CLK, OUTPUT);
+		pinMode (SPI_MOSI, OUTPUT);
+		Serial.println("Test pin driven high");
+		Serial.println("  Test SPI_MOSI");
+		digitalWrite(SPI_MOSI, 1);
+		digitalWrite(nOEPin, 0);
+		digitalWrite(nRSTPin, 0);
+		digitalWrite(SPI_CLK, 0);
+		digitalWrite(LCLKPin, 0);
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}		
+		Serial.println("  Test nOEPin");
+		digitalWrite(SPI_MOSI, 0);
+		digitalWrite(nOEPin, 1);
+		digitalWrite(nRSTPin, 0);
+		digitalWrite(SPI_CLK, 0);
+		digitalWrite(LCLKPin, 0);
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}		
+		Serial.println("  Test nRSTPin");
+		digitalWrite(SPI_MOSI, 0);
+		digitalWrite(nOEPin, 0);
+		digitalWrite(nRSTPin, 1);
+		digitalWrite(SPI_CLK, 0);
+		digitalWrite(LCLKPin, 0);
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}		
+		Serial.println("  Test SPI_CLK");
+		digitalWrite(SPI_MOSI, 0);
+		digitalWrite(nOEPin, 0);
+		digitalWrite(nRSTPin, 0);
+		digitalWrite(SPI_CLK, 1);
+		digitalWrite(LCLKPin, 0);
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}		
+		Serial.println("  Test LCLKPin");
+		digitalWrite(SPI_MOSI, 0);
+		digitalWrite(nOEPin, 0);
+		digitalWrite(nRSTPin, 0);
+		digitalWrite(SPI_CLK, 0);
+		digitalWrite(LCLKPin, 1);
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}		
+		//Countdown*********************************************//
+		Serial.println("Push return to start countdown.");
+		while(Serial.available() == 0);
+		while(Serial.available())
+		{
+			Serial.read();
+		}
+		Serial.print("2.. ");
+		delay(1000);
+		Serial.print("1.. ");
+		delay(1000);
+		Serial.println("GO!");
+		//End Countdown*****************************************//
+		
 		Serial.println("\nMUX SELECT PINS");
 		Serial.println("  Walks through ABCD");
 		
