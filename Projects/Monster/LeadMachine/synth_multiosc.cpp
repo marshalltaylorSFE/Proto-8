@@ -152,7 +152,7 @@ void AudioSynthMultiOsc::update(void)
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[0] >> 6);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[0] >> 4);
 				inc = baseFreq << 8;
 				ph[0] += inc; //Store the new phase
 				//second
@@ -166,7 +166,7 @@ void AudioSynthMultiOsc::update(void)
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[1] >> 6);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[1] >> 4);
 				inc = baseFreq << 8;
 				ph[1] += inc; //Store the new phase
 				//Third
@@ -180,7 +180,7 @@ void AudioSynthMultiOsc::update(void)
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[2] >> 6);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[2] >> 4);
 				inc = baseFreq << 8;
 				ph[2] += inc; //Store the new phase
 				//Fourth
@@ -194,7 +194,7 @@ void AudioSynthMultiOsc::update(void)
 				baseFreq = 0x76D6A;  //This is a 24 bit number
 				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[3] >> 6);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[3] >> 4);
 				inc = baseFreq << 8;
 				ph[3] += inc; //Store the new phase
 

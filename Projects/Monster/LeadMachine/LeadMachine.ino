@@ -7,45 +7,55 @@
 #include "synth_multiosc.h"
 #include "synth_dc_binary.h"
 
+
 // GUItool: begin automatically generated code
-AudioSynthBendvelope     bendvelope1;      //xy=506.888916015625,291.8888854980469
-AudioSynthBendvelope     bendvelope2;      //Use for pitch separation 
-AudioSynthMultiOsc       multiosc1;       //xy=653.8889465332031,291.888916015625
-AudioMixer4              mixer5;         //xy=987.8888854980469,413
-AudioMixer4              effectMixer;    //xy=987.8888854980469,413
-AudioFilterStateVariable filter1;        //xy=1143.8888854980469,421
-AudioFilterStateVariable filter3;        //xy=1279.8888854980469,422
-AudioOutputI2SQuad       i2s_quad2;      //xy=1469.8888854980469,431
-//AudioOutputI2S           i2s_quad2;      //xy=1469.8888854980469,431
-AudioSynthWaveformDcBinary     dc1A;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1B;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1C;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1D;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1CentA;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1CentB;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1CentC;            //xy=285.8888854980469,314.8888854980469
-AudioSynthWaveformDcBinary     dc1CentD;            //xy=285.8888854980469,314.8888854980469
-AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
-AudioConnection          patchCord2(bendvelope2, 0, effectMixer, 0);
-AudioConnection          patchCord3(dc1A, 0, multiosc1, 1);//A connection
-AudioConnection          patchCord4(dc1B, 0, multiosc1, 2);//B connection
-AudioConnection          patchCord5(dc1C, 0, multiosc1, 3);//A connection
-AudioConnection          patchCord6(dc1D, 0, multiosc1, 4);//B connection
-AudioConnection          patchCord7(dc1CentA, 0, multiosc1, 5);//A connection
-AudioConnection          patchCord8(dc1CentB, 0, multiosc1, 6);//B connection
-AudioConnection          patchCord9(dc1CentC, 0, multiosc1, 7);//A connection
-AudioConnection          patchCord10(dc1CentD, 0, effectMixer, 1);//B connection
-AudioConnection          patchCord11(effectMixer, 0, multiosc1, 8);//B connection
-AudioConnection          patchCord12(multiosc1, 0, mixer5, 0);
-AudioConnection          patchCord13(mixer5, 0, filter1, 0);
-AudioConnection          patchCord14(filter1, 0, filter3, 0);
-AudioConnection          patchCord15(filter3, 0, i2s_quad2, 0);
-AudioConnection          patchCord16(filter3, 0, i2s_quad2, 1);
-AudioConnection          patchCord17(filter3, 0, i2s_quad2, 2);
-AudioConnection          patchCord18(filter3, 0, i2s_quad2, 3);
-AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
-AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
+AudioSynthBendvelope     bendvelope2;    //xy=227.66667938232422,657.1666526794434
+AudioSynthWaveformDcBinary dc_binary2;     //xy=251.26300811767578,809.5963401794434
+AudioSynthWaveformDcBinary dc_binary1;     //xy=252.096435546875,848.7629547119141
+AudioSynthBendvelope     bendvelope1;    //xy=327.16670989990234,379.49999046325684
+AudioEffectMultiply      multiply1;      //xy=411.2630271911621,805.4297199249268
+AudioSynthWaveformDcBinary dc1CentD;       //xy=417.83335876464844,655.6666917800903
+AudioSynthWaveformDcBinary dc1A;           //xy=516.3333435058594,462.1666603088379
+AudioSynthWaveformDcBinary dc1CentA;       //xy=520.1666831970215,592.8333320617676
+AudioSynthWaveformDcBinary dc1B;           //xy=577.0000534057617,499.99999141693115
+AudioMixer4              effectMixer;    //xy=578.0001831054688,827.1666374206543
+AudioSynthWaveformDcBinary dc1CentB;       //xy=583.8333740234375,629.1666498184204
+AudioSynthWaveformDcBinary dc1C;           //xy=640.8333702087402,537.1666679382324
+AudioSynthWaveformDcBinary dc1CentC;       //xy=653.1667327880859,664.6666488647461
+AudioSynthWaveformDcBinary dc1D;           //xy=705.5000991821289,573.1666641235352
+AudioSynthMultiOsc       multiosc1;      //xy=942.3333892822266,582.8333206176758
+AudioMixer4              mixer5;         //xy=1128,603
+AudioFilterStateVariable filter1;        //xy=1284,611
+AudioFilterStateVariable filter3;        //xy=1420,612
+AudioOutputI2SQuad       i2s_quad2;      //xy=1610,621
+AudioConnection          patchCord1(bendvelope2, 0, multiply1, 0);
+AudioConnection          patchCord2(dc_binary2, 0, multiply1, 1);
+AudioConnection          patchCord3(dc_binary1, 0, effectMixer, 3);
+AudioConnection          patchCord4(bendvelope1, 0, multiosc1, 0);
+AudioConnection          patchCord5(multiply1, 0, effectMixer, 0);
+AudioConnection          patchCord6(dc1CentD, 0, multiosc1, 8);
+AudioConnection          patchCord7(dc1A, 0, multiosc1, 1);
+AudioConnection          patchCord8(dc1CentA, 0, multiosc1, 5);
+AudioConnection          patchCord9(dc1B, 0, multiosc1, 2);
+AudioConnection          patchCord10(effectMixer, 0, filter1, 1);
+AudioConnection          patchCord11(effectMixer, 0, filter3, 1);
+AudioConnection          patchCord12(dc1CentB, 0, multiosc1, 6);
+AudioConnection          patchCord13(dc1C, 0, multiosc1, 3);
+AudioConnection          patchCord14(dc1CentC, 0, multiosc1, 7);
+AudioConnection          patchCord15(dc1D, 0, multiosc1, 4);
+AudioConnection          patchCord16(multiosc1, 0, mixer5, 0);
+AudioConnection          patchCord17(mixer5, 0, filter1, 0);
+AudioConnection          patchCord18(filter1, 0, filter3, 0);
+AudioConnection          patchCord19(filter3, 0, i2s_quad2, 0);
+AudioConnection          patchCord20(filter3, 0, i2s_quad2, 1);
+AudioConnection          patchCord21(filter3, 0, i2s_quad2, 2);
+AudioConnection          patchCord22(filter3, 0, i2s_quad2, 3);
+AudioControlSGTL5000     sgtl5000_2;     //xy=1564,476
+AudioControlSGTL5000     sgtl5000_1;     //xy=1568,432
 // GUItool: end automatically generated code
+
+
+
 
 //**********************************************************************//
 //  BEERWARE LICENSE
@@ -63,7 +73,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
 //Note to self:  To us the audio tool, use the bitcrusher as a 1:1 object, then replace name with bendvelope[N]
 
 #include "proto-8Hardware.h"
-#include "VoltageMonitor.h"
 
 //**Timers and stuff**************************//
 #include "timerModule32.h"
@@ -124,7 +133,7 @@ volatile uint32_t GPStopTime = 0;
 
 
 //Names use in P8PanelComponents.cpp and .h
-VoltageMonitor LEDs;
+LEDShiftRegister LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
 //End used names
@@ -243,6 +252,8 @@ void handleSystemReset(void)
 	bendvelope1.noteOff();
 	bendvelope2.noteOff();
 }
+
+
 // -----------------------------------------------------------------------------
 void setup() 
 {
@@ -321,7 +332,7 @@ void setup()
 	effectMixer.gain(0, 1.0);
 	effectMixer.gain(1, 1.0);
 	effectMixer.gain(2, 0);
-	effectMixer.gain(3, 0);
+	effectMixer.gain(3, 1.0);
 	
 	
 }
@@ -332,39 +343,38 @@ void loop()
 //   msTimerA.update(usTicks);
 
 	midiRecordTimer.update(usTicks);
+
+	debounceTimer.update(usTicks);
+	envTimer.update(usTicks);
+
 	ledToggleTimer.update(usTicks);
 	ledToggleFastTimer.update(usTicks);
 	panelUpdateTimer.update(usTicks);
-	debounceTimer.update(usTicks);
-	envTimer.update(usTicks);
-	
-	debugTimer.update(usTicks);
-	LEDsTimer.update(usTicks);
 	switchesTimer.update(usTicks);
 	knobsTimer.update(usTicks);
+	LEDsTimer.update(usTicks);
+
+	debugTimer.update(usTicks);
 	//**Copy to make a new timer******************//  
 	//  if(msTimerA.flagStatus() == PENDING)
 	//  {
 	//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
 	//  }
 	//**Debounce timer****************************//  
-	if(LEDsTimer.flagStatus() == PENDING)
-	{
-		LEDs.tickSeg();
-	
-	}
-	//**Debounce timer****************************//  
 	if(switchesTimer.flagStatus() == PENDING)
 	{
 		switches.tick();
-	
 	}
 	//**Debounce timer****************************//  
 	if(knobsTimer.flagStatus() == PENDING)
 	{
 		knobs.tick();
-	
 	}		
+	//**Debounce timer****************************//  
+	if(LEDsTimer.flagStatus() == PENDING)
+	{
+		LEDs.tick();
+	}
 	//**Bendvelope timer**************************//  
 	if(envTimer.flagStatus() == PENDING)
 	{
@@ -575,10 +585,6 @@ void loop()
 		Serial.print(pUTStartTime - pUTLastTime);
 		Serial.print(", ");
 		Serial.println(pUTStopTime - pUTStartTime);
-		Serial.print("Gen Prps, bvtick (sTime, length): ");
-		Serial.print(GPStartTime - GPLastTime);
-		Serial.print(", ");
-		Serial.println(GPStopTime - GPStartTime);
 		//Serial.print(", ");
 		//Serial.println(usTicks - tempTime);
 		
