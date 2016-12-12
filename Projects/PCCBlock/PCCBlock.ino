@@ -2,23 +2,23 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
-#include "SerialFlash.h"
+#include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveform       waveform1;     //xy=240,7
-AudioSynthWaveform       waveform2;     //xy=248,157
-AudioSynthWaveform       waveform3;     //xy=256,307
-AudioSynthWaveform       waveform4;     //xy=264,457
-AudioOutputI2SQuad       i2s_quad2;      //xy=1476,238
-
-AudioConnection          patchCord1(waveform1, 0, i2s_quad2, 0);
-//AudioConnection          patchCord2(waveform2, 0, i2s_quad2, 1);
-//AudioConnection          patchCord3(waveform3, 0, i2s_quad2, 2);
-//AudioConnection          patchCord4(waveform4, 0, i2s_quad2, 3);
-
-AudioControlSGTL5000     sgtl5000_2;     //xy=1430.0,93.0
-AudioControlSGTL5000     sgtl5000_1;     //xy=1434.0,49.0
+AudioSynthWaveform       waveform1;      //xy=1035,630
+AudioFilterStateVariable filter3;        //xy=1217.4999694824219,650.3333415985107
+AudioOutputI2SQuad       i2s_quad2;      //xy=1459.6666259765625,698.5
+AudioConnection          patchCord1(waveform1, 0, filter3, 0);
+AudioConnection          patchCord2(filter3, 0, i2s_quad2, 0);
+AudioConnection          patchCord3(filter3, 0, i2s_quad2, 1);
+AudioConnection          patchCord4(filter3, 0, i2s_quad2, 2);
+AudioConnection          patchCord5(filter3, 0, i2s_quad2, 3);
+AudioControlSGTL5000     sgtl5000_2;     //xy=1564,476
+AudioControlSGTL5000     sgtl5000_1;     //xy=1568,432
 // GUItool: end automatically generated code
+
+
+
 
 
 //**********************************************************************//
@@ -37,7 +37,6 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1434.0,49.0
 //Note to self:  To us the audio tool, use the bitcrusher as a 1:1 object, then replace name with bendvelope[N]
 
 #include "proto-8Hardware.h"
-#include "VoltageMonitor.h"
 
 //**Timers and stuff**************************//
 #include "timerModule32.h"
@@ -48,8 +47,6 @@ uint32_t maxInterval = 2000000;
 #include "timeKeeper.h"
 //**Panels and stuff**************************//
 #include "P8Panel.h"
-
-#include "MicroLL.h"
 
 //**Timers and stuff**************************//
 IntervalTimer myTimer;
@@ -89,16 +86,10 @@ volatile uint32_t pUTLastTime = 0;
 volatile uint32_t pUTStopTime = 0;
 
 //Names use in P8PanelComponents.cpp and .h
-VoltageMonitor LEDs;
+LEDShiftRegister LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
 //End used names
-
-// MIDI things
-#include <MIDI.h>
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, midiA);
-
-uint8_t rxLedFlag = 0;
 
 // -----------------------------------------------------------------------------
 void setup() 
@@ -135,15 +126,12 @@ void setup()
 	sgtl5000_2.unmuteHeadphone();
 	sgtl5000_2.unmuteLineout();
 	
+	waveform1.begin(WAVEFORM_SAWTOOTH);
+	waveform1.amplitude(1);
+	waveform1.frequency(220);
 	
-	waveform1.begin(0.1, 100, WAVEFORM_SINE);
-	waveform2.begin(0.1, 100, WAVEFORM_SINE);
-	waveform3.begin(0.1, 100, WAVEFORM_SINE);
-	waveform4.begin(0.1, 100, WAVEFORM_SINE);
-	waveform1.frequency(200);
-	waveform2.frequency(400);
-	waveform3.frequency(800);
-	waveform4.frequency(1600);
+	filter3.frequency(1500);
+	
 }
 
 void loop()
@@ -168,7 +156,7 @@ void loop()
 	//**Debounce timer****************************//  
 	if(LEDsTimer.flagStatus() == PENDING)
 	{
-		LEDs.tickSeg();
+		LEDs.tick();
 	
 	}
 	//**Debounce timer****************************//  
@@ -249,6 +237,23 @@ void loop()
 	}
 	
 }
+
+uint32_t FreeRam(){ // for Teensy 3.0
+    uint32_t stackTop;
+    uint32_t heapTop;
+
+    // current position of the stack.
+    stackTop = (uint32_t) &stackTop;
+
+    // current position of heap.
+    void* hTop = malloc(1);
+    heapTop = (uint32_t) hTop;
+    free(hTop);
+
+    // The difference is the free, available ram.
+    return stackTop - heapTop;
+}
+
 
 void serviceUS(void)
 {

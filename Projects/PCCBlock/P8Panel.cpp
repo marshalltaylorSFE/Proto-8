@@ -23,31 +23,11 @@ P8Panel::P8Panel( void )
 
 void P8Panel::init( void )
 {
-	//Bendvelope1
-	bv1Attack.init(25);
-	bv1AttackBend.init(24);
-	bv1Hold.init(26);
-	bv1Decay.init(28);
-	bv1DecayBend.init(27);
-	bv1Sustain.init(29);
-	bv1Release.init(30);
-	bv1ReleaseBend.init(31);
-	//bv1Select.init(32, 255, 0 ); //With max and min ranges
-	bv1Select.init(32);
-	bv1Trigger.init(41, &flasherState, &fastFlasherState);
 	
-	//Bendvelope2
-	bv2Attack.init(16);
-	bv2AttackBend.init(15);
-	bv2Hold.init(17);
-	bv2Decay.init(19);
-	bv2DecayBend.init(18);
-	bv2Sustain.init(20);
-	bv2Release.init(21);
-	bv2ReleaseBend.init(22);
-	//bv2Select.init(23, 255, 0 ); //With max and min ranges
-	bv2Select.init(23);
-	bv2Trigger.init(42, &flasherState, &fastFlasherState);
+	//Master
+	masterCoarseTune.init(62);
+	masterFineTune.init(63);
+	masterVolume.init(64);
 	
 	//Bus
 	bus1Amp.init(13);
@@ -116,83 +96,7 @@ void P8Panel::init( void )
 	modDestLed12.init(38, &flasherState, &fastFlasherState);
 	modDestLed13.init(39, &flasherState, &fastFlasherState);
 	modDestLed14.init(40, &flasherState, &fastFlasherState);
-	
-	//Master
-	masterCoarseTune.init(62);
-	masterFineTune.init(63);
-	masterVolume.init(64);
-	
-	//LFO1
-	lfo1Freq.init(61);
-	lfo1Shape.init(1,3);
-	lfo1Led1.init(62, &flasherState, &fastFlasherState);
-	lfo1Led2.init(63, &flasherState, &fastFlasherState);
-	lfo1Led3.init(64, &flasherState, &fastFlasherState);
-	
-	//LFO2
-	lfo2Freq.init(60);
-	lfo2Shape.init(1,4);
-	lfo2Led1.init(59, &flasherState, &fastFlasherState);
-	lfo2Led2.init(60, &flasherState, &fastFlasherState);
-	lfo2Led3.init(61, &flasherState, &fastFlasherState);	
-	
-	//OSCA
-	oscAPitch.init(56);
-	oscAOctave.init(57, 185, 71, 4); //With max, min, points
-	//oscASyncLed.init(, &flasherState, &fastFlasherState);
-	oscASync.init(3,1);
-	oscACent.init(58);
-	oscAShape.init(2,1);
-	oscALed1.init(56, &flasherState, &fastFlasherState);
-	oscALed2.init(57, &flasherState, &fastFlasherState);
-	oscALed3.init(58, &flasherState, &fastFlasherState);
-	oscAPreAmp.init(59);
-	
-	//OSCB
-	oscBPitch.init(52);
-	oscBOctave.init(53, 185, 71, 4); //With max, min, points
-	oscBSyncLed.init(46, &flasherState, &fastFlasherState);
-	oscBSync.init(3,2);
-	oscBCent.init(54);
-	oscBShape.init(2,2);
-	oscBLed1.init(53, &flasherState, &fastFlasherState);
-	oscBLed2.init(54, &flasherState, &fastFlasherState);
-	oscBLed3.init(55, &flasherState, &fastFlasherState);
-	oscBPreAmp.init(55);
 
-	//OSCC
-	oscCPitch.init(48);
-	oscCOctave.init(49, 185, 71, 4); //With max, min, points
-	oscCSyncLed.init(45, &flasherState, &fastFlasherState);
-	oscCSync.init(3,3);
-	oscCCent.init(50);
-	oscCShape.init(2,3);
-	oscCLed1.init(50, &flasherState, &fastFlasherState);
-	oscCLed2.init(51, &flasherState, &fastFlasherState);
-	oscCLed3.init(52, &flasherState, &fastFlasherState);
-	oscCPreAmp.init(51);
-
-	//OSCD
-	oscDPitch.init(44);
-	oscDOctave.init(45, 185, 71, 4); //With max, min, points
-	oscDSyncLed.init(44, &flasherState, &fastFlasherState);
-	oscDSync.init(3,4);
-	oscDCent.init(46);
-	oscDShape.init(2,4);
-	oscDLed1.init(47, &flasherState, &fastFlasherState);
-	oscDLed2.init(48, &flasherState, &fastFlasherState);
-	oscDLed3.init(49, &flasherState, &fastFlasherState);
-	oscDPreAmp.init(47);
-	
-	//Wave Shape
-	wave1Ramp.init(39);
-	wave1Sine.init(36);
-	wave1Pulse.init(33);
-	wave2Ramp.init(40);
-	wave2Sine.init(37);
-	wave2Pulse.init(34);
-	wave3Width.init(38);
-	wave3Pulse.init(35);
 	
 	//General
 	Select.init(43);
@@ -203,30 +107,6 @@ void P8Panel::init( void )
 
 void P8Panel::update( void )
 {
-	//Bendvelope1
-	bv1Attack.update();
-	bv1AttackBend.update();
-	bv1Hold.update();
-	bv1Decay.update();
-	bv1DecayBend.update();
-	bv1Sustain.update();
-	bv1Release.update();
-	bv1ReleaseBend.update();
-	bv1Select.update();
-	bv1Trigger.update();
-	
-	//Bendvelope2
-	bv2Attack.update();
-	bv2AttackBend.update();
-	bv2Hold.update();
-	bv2Decay.update();
-	bv2DecayBend.update();
-	bv2Sustain.update();
-	bv2Release.update();
-	bv2ReleaseBend.update();
-	bv2Select.update();
-	bv2Trigger.update();
-	
 	//Bus
 	bus1Amp.update();
 	bus1Offset.update();
@@ -299,78 +179,6 @@ void P8Panel::update( void )
 	masterCoarseTune.update();
 	masterFineTune.update();
 	masterVolume.update();
-	
-	//LFO1
-	lfo1Freq.update();
-	lfo1Shape.update();
-	lfo1Led1.update();
-	lfo1Led2.update();
-	lfo1Led3.update();
-	
-	//LFO2
-	lfo2Freq.update();
-	lfo2Shape.update();
-	lfo2Led1.update();
-	lfo2Led2.update();
-	lfo2Led3.update();	
-	
-	//OSCA
-	oscAPitch.update();
-	oscAOctave.update();
-	//oscASyncLed.update();
-	oscASync.update();
-	oscACent.update();
-	oscAShape.update();
-	oscALed1.update();
-	oscALed2.update();
-	oscALed3.update();
-	oscAPreAmp.update();
-	
-	//OSCB
-	oscBPitch.update();
-	oscBOctave.update();
-	oscBSyncLed.update();
-	oscBSync.update();
-	oscBCent.update();
-	oscBShape.update();
-	oscBLed1.update();
-	oscBLed2.update();
-	oscBLed3.update();
-	oscBPreAmp.update();
-
-	//OSCC
-	oscCPitch.update();
-	oscCOctave.update();
-	oscCSyncLed.update();
-	oscCSync.update();
-	oscCCent.update();
-	oscCShape.update();
-	oscCLed1.update();
-	oscCLed2.update();
-	oscCLed3.update();
-	oscCPreAmp.update();
-
-	//OSCD
-	oscDPitch.update();
-	oscDOctave.update();
-	oscDSyncLed.update();
-	oscDSync.update();
-	oscDCent.update();
-	oscDShape.update();
-	oscDLed1.update();
-	oscDLed2.update();
-	oscDLed3.update();
-	oscDPreAmp.update();
-	
-	//Wave Shape
-	wave1Ramp.update();
-	wave1Sine.update();
-	wave1Pulse.update();
-	wave2Ramp.update();
-	wave2Sine.update();
-	wave2Pulse.update();
-	wave3Width.update();
-	wave3Pulse.update();
 	
 	//General
 	Select.update();

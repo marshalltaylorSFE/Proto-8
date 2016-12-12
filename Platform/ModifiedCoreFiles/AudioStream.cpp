@@ -190,74 +190,58 @@ void AudioConnection::connect(void)
 	__enable_irq();
 }
 
-void AudioConnection::disconnect(AudioStream &source, unsigned char sourceOutput, AudioStream &destination, unsigned char destinationInput)
+void AudioConnection::disconnect(void)
 {
+	AudioConnection *p;
+	AudioConnection *save;
+	
 	__disable_irq();
-	//Remove cord from src.destination_list
-	source.destination_list = NULL;
-	//Set this to nave no next destination
+	//Remove cord from src.destination_list --
+	//  Find the reference to this object in the src's destination_list
+	p = src->destination_list;
+	//  If found, remove and adjust pointers
+	if (p == this)
+	{
+		if(p->next_dest == NULL)
+		{
+			src->destination_list = NULL; //Nullify destination_list of src (now empty)
+		}
+		else
+		{
+			//Find the ref
+			while ((p->next_dest != this)&&(p->next_dest != NULL)) //go seek something
+			{
+				p = p->next_dest;
+			}
+			//Now, the ref is either null or this
+			if(p->next_dest == this)
+			{
+				save = p->next_dest->next_dest;
+				p->next_dest = save;
+			}
+			else
+			{//was null
+				//No reference found!!
+			}
+		}
+	}
+
+	src->destination_list = NULL;
 	next_dest = NULL;
 	src->active = false;
 	dst->active = false;
+
 	__enable_irq();	
 }
 
 void AudioConnection::reconnect(AudioStream &source, unsigned char sourceOutput, AudioStream &destination, unsigned char destinationInput)
 {
-	//Print address
-	uint32_t address = (uint32_t)&source;
-	Serial.print("passed src adr: ");
-	Serial.println(address, HEX);
-	////Print address
-	//address = (uint32_t)source.destination_list;
-	//Serial.print("src. dst list adr: ");
-	//Serial.println(address, HEX);
-	////Print address
-	//address = (uint32_t)this;
-	//Serial.print("'this' adr: ");
-	//Serial.println(address, HEX);
-	
 	src = &source;
 	dst = &destination;
-	src_index = 0;//sourceOutput;
-	dest_index = 0;//destinationInput;
-
-	//Print address
-	address = (uint32_t)src;
-	Serial.print("target src adr: ");
-	Serial.println(address, HEX);
-	
-	AudioConnection *p;
-
-	if (dest_index > dst->num_inputs) return;
-	__disable_irq();
-	p = src->destination_list;
-	if (p == NULL) {
-		src->destination_list = this;
-		Serial.println("Hit this");
-	} else {
-		while (p->next_dest) p = p->next_dest;
-		p->next_dest = this;
-	}
-	//Print address
-	address = (uint32_t)src->destination_list;
-	Serial.print("src. dst list adr: ");
-	Serial.println(address, HEX);
-	//Print address
-	address = (uint32_t)dst;
-	Serial.print("dest adr: ");
-	Serial.println(address, HEX);
-	
-	src->active = true;
-	dst->active = true;
-	__enable_irq();
-
-	//src.destination_list = destination;
-	//src.destination_list->destination_list = NULL;
-	//src_index = sourceOutput;
-	//dest_index = destinationInput;
-	//next_dest = NULL;
-	//connect();
+	src_index = sourceOutput;
+	dest_index = destinationInput;
+	next_dest = NULL;
+	connect();
 }
 
 

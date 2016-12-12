@@ -68,7 +68,7 @@ public:
 		src_index(sourceOutput), dest_index(destinationInput),
 		next_dest(NULL)
 		{ connect(); }
-	void disconnect(AudioStream &source, unsigned char sourceOutput, AudioStream &destination, unsigned char destinationInput);
+	void disconnect(void);
 	void reconnect(AudioStream &source, unsigned char sourceOutput,	AudioStream &destination, unsigned char destinationInput);
 	friend class AudioStream;
 protected:

@@ -45,54 +45,13 @@ public:
 	//  ..and data.
 	
 	//Internal - and going out to the system - Flags
-	uint8_t lastAttack;
-	uint8_t lastAttackBend;
-	uint8_t lastAttackHold;
-	uint8_t lastDecay;
-	uint8_t lastDecayBend;
-	uint8_t lastSustain;
-	uint8_t lastRelease;
-	uint8_t lastReleaseBend;
-	
-	//Data going out to the system
-	float dcTuneOffset[4]; //osc A thru D
+	uint8_t filterOutputState;
+	uint8_t audioChanState;
 
 
 private:
 	//Internal Flags
-	MessagingFlag changeVolume;
 
-	//  ..and data
-	int8_t waveformShape1 = 1;
-	int8_t waveformShape2 = 1;
-	int8_t waveformShape3 = 1;
-	int8_t waveformShape4 = 1;
-	int8_t group1Store = 0;
-	int8_t group2Store = 0;
-	int8_t group3Store = 0;
-	
-	int8_t oscASelect = 0;
-	int8_t oscBSelect = 0;
-	
-	int16_t * waveFormPointerA;
-	int16_t * waveFormPointerB;
-
-	uint8_t waveShapeParams[2][4];
-
-	uint8_t lfo1WaveSrc;
-	uint8_t lfo2WaveSrc;
-	uint8_t oscAWaveSrc;
-	uint8_t oscBWaveSrc;
-	uint8_t oscCWaveSrc;
-	uint8_t oscDWaveSrc;
-
-	uint8_t oscAOctaveState;
-	uint8_t oscBOctaveState;
-	uint8_t oscCOctaveState;
-	uint8_t oscDOctaveState;
-	uint8_t bv1SelectorState;
-	uint8_t bv2SelectorState;
-	
 	//State machine stuff  
 	PStates state;
 

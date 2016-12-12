@@ -23,29 +23,6 @@ public:
 	void toggleFlasherState( void );
 	void toggleFastFlasherState( void );
 	
-	//Bendvelope1
-	P8PanelKnob8Bit bv1Attack;
-	P8PanelKnob8Bit bv1AttackBend;
-	P8PanelKnob8Bit bv1Hold;
-	P8PanelKnob8Bit bv1Decay;
-	P8PanelKnob8Bit bv1DecayBend;
-	P8PanelKnob8Bit bv1Sustain;
-	P8PanelKnob8Bit bv1Release;
-	P8PanelKnob8Bit bv1ReleaseBend;
-	P8PanelKnob8Bit bv1Select;
-	P8PanelLed bv1Trigger;
-	
-	//Bendvelope2
-	P8PanelKnob8Bit bv2Attack;
-	P8PanelKnob8Bit bv2AttackBend;
-	P8PanelKnob8Bit bv2Hold;
-	P8PanelKnob8Bit bv2Decay;
-	P8PanelKnob8Bit bv2DecayBend;
-	P8PanelKnob8Bit bv2Sustain;
-	P8PanelKnob8Bit bv2Release;
-	P8PanelKnob8Bit bv2ReleaseBend;
-	P8PanelKnob8Bit bv2Select;
-	P8PanelLed bv2Trigger;
 	
 	//Bus
 	P8PanelKnob8Bit bus1Amp;
@@ -119,78 +96,6 @@ public:
 	P8PanelKnob8Bit masterCoarseTune;
 	P8PanelKnob8Bit masterFineTune;
 	P8PanelKnob8Bit masterVolume;
-	
-	//LFO1
-	P8PanelKnob8Bit lfo1Freq;
-	P8PanelButton lfo1Shape;
-	P8PanelLed lfo1Led1;
-	P8PanelLed lfo1Led2;
-	P8PanelLed lfo1Led3;
-	
-	//LFO2
-	P8PanelKnob8Bit lfo2Freq;
-	P8PanelButton lfo2Shape;
-	P8PanelLed lfo2Led1;
-	P8PanelLed lfo2Led2;
-	P8PanelLed lfo2Led3;	
-	
-	//OSCA
-	P8PanelKnob8Bit oscAPitch;
-	P8PanelSelector oscAOctave;
-	//P8PanelLed oscASyncLed;
-	P8PanelButton oscASync;
-	P8PanelKnob8Bit oscACent;
-	P8PanelButton oscAShape;
-	P8PanelLed oscALed1;
-	P8PanelLed oscALed2;
-	P8PanelLed oscALed3;
-	P8PanelKnob8Bit oscAPreAmp;
-	
-	//OSCB
-	P8PanelKnob8Bit oscBPitch;
-	P8PanelSelector oscBOctave;
-	P8PanelLed oscBSyncLed;
-	P8PanelButton oscBSync;
-	P8PanelKnob8Bit oscBCent;
-	P8PanelButton oscBShape;
-	P8PanelLed oscBLed1;
-	P8PanelLed oscBLed2;
-	P8PanelLed oscBLed3;
-	P8PanelKnob8Bit oscBPreAmp;
-
-	//OSCC
-	P8PanelKnob8Bit oscCPitch;
-	P8PanelSelector oscCOctave;
-	P8PanelLed oscCSyncLed;
-	P8PanelButton oscCSync;
-	P8PanelKnob8Bit oscCCent;
-	P8PanelButton oscCShape;
-	P8PanelLed oscCLed1;
-	P8PanelLed oscCLed2;
-	P8PanelLed oscCLed3;
-	P8PanelKnob8Bit oscCPreAmp;
-
-	//OSCD
-	P8PanelKnob8Bit oscDPitch;
-	P8PanelSelector oscDOctave;
-	P8PanelLed oscDSyncLed;
-	P8PanelButton oscDSync;
-	P8PanelKnob8Bit oscDCent;
-	P8PanelButton oscDShape;
-	P8PanelLed oscDLed1;
-	P8PanelLed oscDLed2;
-	P8PanelLed oscDLed3;
-	P8PanelKnob8Bit oscDPreAmp;
-	
-	//Wave Shape
-	P8PanelKnob8Bit wave1Ramp;
-	P8PanelKnob8Bit wave1Sine;
-	P8PanelKnob8Bit wave1Pulse;
-	P8PanelKnob8Bit wave2Ramp;
-	P8PanelKnob8Bit wave2Sine;
-	P8PanelKnob8Bit wave2Pulse;
-	P8PanelKnob8Bit wave3Width;
-	P8PanelKnob8Bit wave3Pulse;
 	
 	//General
 	P8PanelKnob8Bit Select;
