@@ -195,8 +195,7 @@ void P8Panel::init( void )
 	wave3Pulse.init(35);
 	
 	//General
-	Select.init(43);
-
+	Select.init(43, 245, 10, 16); //With max, min, points
  	flasherState = 0;
 	fastFlasherState = 0;
 }

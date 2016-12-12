@@ -58,6 +58,10 @@ typedef struct audio_block_struct {
 class AudioConnection
 {
 public:
+	AudioConnection() :
+		src(NULL), dst(NULL), src_index(0), dest_index(0),
+		next_dest(NULL)
+		{}
 	AudioConnection(AudioStream &source, AudioStream &destination) :
 		src(&source), dst(&destination), src_index(0), dest_index(0),
 		next_dest(NULL)

@@ -193,43 +193,54 @@ void AudioConnection::connect(void)
 void AudioConnection::disconnect(void)
 {
 	AudioConnection *p;
-	AudioConnection *save;
 	
 	__disable_irq();
 	//Remove cord from src.destination_list --
 	//  Find the reference to this object in the src's destination_list
 	p = src->destination_list;
 	//  If found, remove and adjust pointers
-	if (p == this)
+	if (p == NULL) return; //No items in list!
+	if (p == this)//This object is the head
 	{
-		if(p->next_dest == NULL)
+Serial.println("A");
+		if(this->next_dest == NULL) //The is the last object in the list
 		{
 			src->destination_list = NULL; //Nullify destination_list of src (now empty)
+			src->active = false;
+			dst->active = false;
+Serial.println("B");
+		}
+		else //There are objects after this one
+		{
+Serial.println("C");
+			src->destination_list = this->next_dest; //it can't be null so save it
+			src->active = true;
+		}
+	}
+	else
+	{
+Serial.println("G");
+		//We're in the list, but are not the head
+		while ((p->next_dest != this)&&(p->next_dest != NULL)) //go seek something
+		{
+Serial.println("H");
+			p = p->next_dest;
+		}
+		//Now, the ref is either null or this
+		if(p->next_dest == this)
+		{
+Serial.println("I");
+			p->next_dest = this->next_dest;
+			dst->active = true;
 		}
 		else
 		{
-			//Find the ref
-			while ((p->next_dest != this)&&(p->next_dest != NULL)) //go seek something
-			{
-				p = p->next_dest;
-			}
-			//Now, the ref is either null or this
-			if(p->next_dest == this)
-			{
-				save = p->next_dest->next_dest;
-				p->next_dest = save;
-			}
-			else
-			{//was null
-				//No reference found!!
-			}
+Serial.println("J");
+			//null -- must not have been connected
 		}
 	}
 
-	src->destination_list = NULL;
 	next_dest = NULL;
-	src->active = false;
-	dst->active = false;
 
 	__enable_irq();	
 }
@@ -241,7 +252,24 @@ void AudioConnection::reconnect(AudioStream &source, unsigned char sourceOutput,
 	src_index = sourceOutput;
 	dest_index = destinationInput;
 	next_dest = NULL;
-	connect();
+	//connect();
+
+	AudioConnection *p;
+Serial.println("a");
+	if (dest_index > dst->num_inputs) return;
+	__disable_irq();
+	p = src->destination_list;
+	if (p == NULL) {
+Serial.println("b");
+		src->destination_list = this;
+	} else {
+Serial.println("c");
+		while (p->next_dest) p = p->next_dest;
+		p->next_dest = this;
+	}
+	src->active = true;
+	dst->active = true;
+	__enable_irq();
 }
 
 

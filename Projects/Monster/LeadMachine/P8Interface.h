@@ -28,6 +28,21 @@ enum PStates
 
 };
 
+enum BusSrcStates
+{
+	BusSrcInit,
+	BusSrcShowAll,
+	BusSrcSelect,
+};
+
+enum BusDestStates
+{
+	BusDestInit,
+	BusDestShowAll,
+	BusDestSelect,
+};
+
+
 class P8Interface : public P8Panel
 {
 public:
@@ -36,7 +51,10 @@ public:
 	//State machine stuff  
 	void processMachine( void );
 	void tickStateMachine( void );
-
+	void tickBusSrcStateMachine( void );
+	void tickBusDestStateMachine( void );
+	void displayBusMapping( void );
+	
 	void timersMIncrement( uint8_t );
 
 	void setPointer( uint8_t, int16_t * );
@@ -95,6 +113,16 @@ private:
 	
 	//State machine stuff  
 	PStates state;
+	BusSrcStates busSrcState;
+	BusDestStates busDestState;
+	
+	uint8_t srcBus;
+	uint8_t srcSelect;
+	uint8_t destBus;
+	uint8_t destSelect;
+	
+	uint8_t srcSelected[6];
+	uint8_t srcCursor;
 
 
 };

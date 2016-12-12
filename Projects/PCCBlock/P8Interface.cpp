@@ -41,7 +41,7 @@ P8Interface::P8Interface( void )
 	state = PInit;
 	
 	filterOutputState = 0;
-	audioChanState = 0;
+	audioChanState = 3;
 	
 }
 
@@ -179,6 +179,10 @@ void P8Interface::tickStateMachine()
 		modSrcLed0.setState(LEDOFF);
 		modSrcLed1.setState(LEDOFF);
 		modSrcLed2.setState(LEDOFF);
+
+		modDestLed0.setState(LEDON);
+		modDestLed1.setState(LEDON);
+
 		switch(filterOutputState)
 		{
 			case 0:

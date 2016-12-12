@@ -193,7 +193,7 @@ public:
 	P8PanelKnob8Bit wave3Pulse;
 	
 	//General
-	P8PanelKnob8Bit Select;
+	P8PanelSelector Select;
 	
 protected:
 private:

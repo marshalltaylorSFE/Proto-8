@@ -53,6 +53,8 @@ P8Interface::P8Interface( void )
 {
 	//Controls
 	state = PInit;
+	busSrcState = BusSrcInit;
+	busDestState = BusDestInit;
 	
 	lfo1WaveSrc = 1;
 	lfo2WaveSrc = 1;
@@ -76,7 +78,12 @@ P8Interface::P8Interface( void )
 	waveShapeParams[1][0] = 0;
 	waveShapeParams[1][1] = 0;
 	waveShapeParams[1][2] = 0;
-	waveShapeParams[1][3] = 0;	
+	waveShapeParams[1][3] = 0;
+	
+	srcSelected[1] = 1;
+	srcSelected[2] = 2;
+	srcSelected[3] = 3;
+	srcSelected[4] = 4;
 	
 }
 
@@ -419,13 +426,15 @@ void P8Interface::processMachine( void )
 		sgtl5000_1.volume(((float)masterVolume.getState() / 256) * 1);
 		sgtl5000_2.volume(((float)masterVolume.getState() / 256) * 1);
 	}
-	if( Select.serviceChanged() )
-	{
-		effectMixer.gain(0, ((float)Select.getState() - 127)/256);
-	}
+	//if( Select.serviceChanged() )
+	//{
+	//	effectMixer.gain(0, ((float)Select.getState() - 127)/256);
+	//}
 	
 	//Do main machine
 	tickStateMachine();
+	tickBusSrcStateMachine();
+	tickBusDestStateMachine();
 	
 	//Do something afterwards?
 	
@@ -468,6 +477,241 @@ void P8Interface::tickStateMachine()
     state = nextState;
 
 }
+
+void P8Interface::tickBusSrcStateMachine( void )
+{
+
+	uint8_t srcPick[6];
+	srcPick[0] = 0;
+	srcPick[1] = bus1SrcPick.serviceRisingEdge();
+	srcPick[2] = bus2SrcPick.serviceRisingEdge();
+	srcPick[3] = bus3SrcPick.serviceRisingEdge();
+	srcPick[4] = bus4SrcPick.serviceRisingEdge();
+	srcPick[5] = 0;
+
+	int busBtn = 0;
+	for( int i = 1; i < 5; i++)
+	{
+		if( srcPick[i] )
+		{
+			busBtn = i; // low priority
+			i = 10;//break;
+		}
+		//else busBtn remains 0
+	}
+
+	uint8_t srcPickHold[6];
+	srcPickHold[0] = 0;
+	srcPickHold[1] = bus1SrcPick.serviceHoldRisingEdge();
+	srcPickHold[2] = bus2SrcPick.serviceHoldRisingEdge();
+	srcPickHold[3] = bus3SrcPick.serviceHoldRisingEdge();
+	srcPickHold[4] = bus4SrcPick.serviceHoldRisingEdge();
+	srcPickHold[5] = 0;
+
+    //Detect held conditions
+	int busHoldBtn = 0;
+	for( int i = 1; i < 5; i++)
+	{
+		if( srcPickHold[i] )
+		{
+			busHoldBtn = i; // low priority
+			i = 10;//break;
+		}
+		//else busHoldBtn remains 0
+	}
+
+	BusSrcStates nextState = busSrcState;
+	
+    switch( busSrcState )
+    {
+    case BusSrcInit:
+		srcBus = 0;
+		srcSelect = 0;
+		destBus = 0;
+		destSelect = 0;
+
+		displayBusMapping();
+		
+		nextState = BusSrcShowAll;
+		break;
+	case BusSrcShowAll:
+		if( busBtn )
+		{
+			if( srcBus != busBtn )
+			{
+				//new button
+				srcBus = busBtn;
+				displayBusMapping();
+			}
+			else //Must be same as current selection
+			{
+				srcBus = 0;
+				srcSelect = 0;
+				displayBusMapping();
+			}
+		}
+		if( busHoldBtn )
+		{
+			//Assume button is last selected
+			srcBus = busHoldBtn;
+			srcSelect = 1;
+			displayBusMapping();
+			nextState = BusSrcSelect;
+		}
+		break;
+	case BusSrcSelect:
+		if( busBtn ) //button detected
+		{
+			if( srcBus == busBtn )//save the cursor
+			{
+				if( srcCursor > 0 )
+				{
+					srcSelected[ srcBus ] = 15 - srcCursor;
+				}
+				else
+				{
+				}
+			}
+			else
+			{
+				srcBus = busBtn;
+			}
+			srcSelect = 0;
+			displayBusMapping();
+			nextState = BusSrcShowAll;
+		}
+        break;
+    default:
+        nextState = BusSrcInit;
+        break;
+    }
+
+    busSrcState = nextState;
+
+	//Check cursor movement
+	if( Select.serviceChanged() )
+	{
+		srcCursor = Select.getState(); // 16 points
+		displayBusMapping();
+		Serial.println(Select.getState());
+		Serial.println(srcBus);
+		Serial.println(srcSelect);
+	}
+	
+}
+
+void P8Interface::tickBusDestStateMachine( void )
+{
+}
+
+void P8Interface::displayBusMapping( void )
+{
+	//Turn everything off
+	bus1SrcLed.setState(LEDOFF);
+	bus1DestLed.setState(LEDOFF);
+	bus2SrcLed.setState(LEDOFF);
+	bus2DestLed.setState(LEDOFF);
+	bus3SrcLed.setState(LEDOFF);
+	bus3DestLed.setState(LEDOFF);
+	bus4SrcLed.setState(LEDOFF);
+	bus4DestLed.setState(LEDOFF);
+	bus5SrcLed.setState(LEDOFF);
+	bus5DestLed.setState(LEDOFF);
+
+	modDestLed0.setState(LEDOFF);
+	modDestLed1.setState(LEDOFF);
+	modDestLed2.setState(LEDOFF);
+	modDestLed3.setState(LEDOFF);
+	modDestLed4.setState(LEDOFF);
+	modDestLed5.setState(LEDOFF);
+	modDestLed6.setState(LEDOFF);
+	modDestLed7.setState(LEDOFF);
+	modDestLed8.setState(LEDOFF);
+	modDestLed9.setState(LEDOFF);
+	modDestLed10.setState(LEDOFF);
+	modDestLed11.setState(LEDOFF);
+	modDestLed12.setState(LEDOFF);
+	modDestLed13.setState(LEDOFF);
+	modDestLed14.setState(LEDOFF);
+	
+	
+	
+	ledState_t srcLEDTable[15];
+	for( int i = 0; i < 15; i++ ) srcLEDTable[i] = LEDOFF;
+	
+	//Show Source Column by state machine variables
+	ledState_t ledType = LEDON;//LEDFLASHING
+	if( srcSelect ) ledType = LEDFLASHING;
+	switch( srcBus )
+	{
+		case 0: //None selected, OR
+		srcLEDTable[srcSelected[1]] = LEDON;
+		srcLEDTable[srcSelected[2]] = LEDON;
+		srcLEDTable[srcSelected[3]] = LEDON;
+		srcLEDTable[srcSelected[4]] = LEDON;
+		
+		break;
+		case 1:
+		srcLEDTable[srcSelected[1]] = LEDON;
+		bus1SrcLed.setState(ledType);
+		break;
+		case 2:
+		srcLEDTable[srcSelected[2]] = LEDON;
+		bus2SrcLed.setState(ledType);
+		break;
+		case 3:
+		srcLEDTable[srcSelected[3]] = LEDON;
+		bus3SrcLed.setState(ledType);
+		break;
+		case 4:
+		srcLEDTable[srcSelected[4]] = LEDON;
+		bus4SrcLed.setState(ledType);
+		break;
+		case 5:
+		bus5SrcLed.setState(ledType);
+		break;
+		default:
+		break;
+	}
+	
+	//Show Destination Column by state machine variables
+	//switch( srcBus )
+	//{
+	//	case 0:
+	//	break;
+	//	case :
+	//	break;
+	//	default:
+	//	break;
+	//}
+
+	//Draw cursor
+	if( ( srcCursor > 0 ) && srcSelect )
+	{
+		srcLEDTable[ 15 - srcCursor ] = LEDFLASHING;
+	}
+	
+	modSrcLed0.setState(srcLEDTable[0]);
+	modSrcLed1.setState(srcLEDTable[1]);
+	modSrcLed2.setState(srcLEDTable[2]);
+	modSrcLed3.setState(srcLEDTable[3]);
+	modSrcLed4.setState(srcLEDTable[4]);
+	modSrcLed5.setState(srcLEDTable[5]);
+	modSrcLed6.setState(srcLEDTable[6]);
+	modSrcLed7.setState(srcLEDTable[7]);
+	modSrcLed8.setState(srcLEDTable[8]);
+	modSrcLed9.setState(srcLEDTable[9]);
+	modSrcLed10.setState(srcLEDTable[10]);
+	modSrcLed11.setState(srcLEDTable[11]);
+	modSrcLed12.setState(srcLEDTable[12]);
+	modSrcLed13.setState(srcLEDTable[13]);
+	modSrcLed14.setState(srcLEDTable[14]);
+	
+	
+	
+	
+}
+
 
 void P8Interface::timersMIncrement( uint8_t inputValue )
 {
