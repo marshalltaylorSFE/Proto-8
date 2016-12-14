@@ -33,21 +33,59 @@ extern LEDShiftRegister LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
 
-extern AudioSynthBendvelope    bendvelope1;    //xy=584,58
-extern AudioSynthBendvelope    bendvelope2;    //xy=592,208
-extern AudioSynthBendvelope    bendvelope3;    //xy=600,358
-extern AudioSynthBendvelope    bendvelope4;    //xy=608,508
-extern AudioControlSGTL5000     sgtl5000_2;     //xy=1423.8888854980469,286
-extern AudioControlSGTL5000     sgtl5000_1;     //xy=1427.8888854980469,242
-extern AudioSynthWaveformDcBinary     dc1;
-extern AudioSynthWaveformDcBinary     dc1CentA;
-extern AudioSynthWaveformDcBinary     dc1CentB;
-extern AudioSynthWaveformDcBinary     dc1CentC;
-extern AudioSynthWaveformDcBinary     dc1CentD;
-extern AudioSynthMultiOsc       multiosc1;
-extern AudioMixer4              effectMixer;
-extern AudioSynthWaveformDcBinary dc_binary1;
-extern AudioSynthWaveformDcBinary dc_binary2;
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+
+// GUItool: begin automatically generated code
+extern AudioSynthBendvelope     bendvelope1;    //xy=71,800
+extern AudioSynthBendvelope     bendvelope2;    //xy=103,1183
+extern AudioSynthWaveformDcBinary dc1A;           //xy=260,883
+extern AudioSynthWaveformDcBinary dc1CentA;       //xy=264,1013
+extern AudioSynthWaveformDcBinary dc1B;           //xy=321,920
+extern AudioSynthWaveformDcBinary dc1CentB;       //xy=331,1049
+extern AudioSynthWaveformDcBinary dc1C;           //xy=384,958
+extern AudioSynthWaveformDcBinary dc1CentC;       //xy=396,1084
+extern AudioSynthWaveformDcBinary dc1D;           //xy=449,994
+extern AudioSynthWaveformDcBinary dc1CentD;       //xy=457,1123
+extern AudioSynthMultiOsc       multiosc1;      //xy=696,1014
+extern AudioMixer4              mixer5;         //xy=872,1024
+extern AudioFilterStateVariable filter1;        //xy=1018,1034
+extern AudioFilterStateVariable filter2;        //xy=1164,1033
+extern AudioOutputI2SQuad       is_quad23;      //xy=1354,1042
+extern AudioConnection          patchCord1;
+extern AudioConnection          patchCord2;
+extern AudioConnection          patchCord3;
+extern AudioConnection          patchCord4;
+extern AudioConnection          patchCord5;
+extern AudioConnection          patchCord6;
+extern AudioConnection          patchCord7;
+extern AudioConnection          patchCord8;
+extern AudioConnection          patchCord9;
+extern AudioConnection          patchCord10;
+extern AudioConnection          patchCord11;
+extern AudioConnection          patchCord12;
+extern AudioConnection          patchCord13;
+extern AudioConnection          patchCord14;
+extern AudioConnection          patchCord15;
+extern AudioConnection          patchCord16;
+extern AudioControlSGTL5000     sgtl5000_1;     //xy=1308,897
+extern AudioControlSGTL5000     sgtl5000_2;     //xy=1312,853
+// GUItool: end automatically generated code
+
+
+#define CordDCPA patchCord2
+#define CordDCCA patchCord3
+#define CordDCPB patchCord4
+#define CordDCCB patchCord5
+#define CordDCPC patchCord6
+#define CordDCCC patchCord7
+#define CordDCPD patchCord8
+#define CordDCCD patchCord9
+
+extern ModulatorBlock modulator;
 
 P8Interface::P8Interface( void )
 {
@@ -84,7 +122,7 @@ P8Interface::P8Interface( void )
 	srcSelected[2] = 2;
 	srcSelected[3] = 3;
 	srcSelected[4] = 4;
-	
+
 }
 
 void P8Interface::reset( void )
@@ -92,6 +130,16 @@ void P8Interface::reset( void )
 	//Set explicit states
 	//Set all LED off
 	LEDs.clear();
+	modSources[0].set( &bendvelope2, 0 );
+	
+	effectPaths[0].set(&CordDCPA);
+	effectPaths[1].set(&CordDCCA);
+	effectPaths[2].set(&CordDCPB);
+	effectPaths[3].set(&CordDCCB);
+	effectPaths[4].set(&CordDCPC);
+	effectPaths[5].set(&CordDCCC);
+	effectPaths[6].set(&CordDCPD);
+	effectPaths[7].set(&CordDCCD);	
 	
 }
 
@@ -416,8 +464,8 @@ void P8Interface::processMachine( void )
 		Serial.print(ampCalc);
 		Serial.print("  Offset1: ");
 		Serial.println(offsetCalc);
-		dc_binary2.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		dc_binary1.amplitude_int( offsetCalc );
+		modulator.modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
+		modulator.modOffset.amplitude_int( offsetCalc );
 	}	
 	
 	//Misc knobs
@@ -477,9 +525,23 @@ void P8Interface::tickStateMachine()
     state = nextState;
 
 }
-
+uint8_t tempOscAState = 0;
 void P8Interface::tickBusSrcStateMachine( void )
 {
+	if( oscASync.serviceRisingEdge() )
+	{
+		if(tempOscAState == 0)
+		{
+			tempOscAState = 1;
+			modulator.insert(&effectPaths[6], &bendvelope2, 0);
+		}
+		else
+		{
+			tempOscAState = 0;
+			modulator.remove(&effectPaths[6]);
+		}
+
+	}
 
 	uint8_t srcPick[6];
 	srcPick[0] = 0;
@@ -525,6 +587,8 @@ void P8Interface::tickBusSrcStateMachine( void )
     switch( busSrcState )
     {
     case BusSrcInit:
+		modulator.init();
+
 		srcBus = 0;
 		srcSelect = 0;
 		destBus = 0;

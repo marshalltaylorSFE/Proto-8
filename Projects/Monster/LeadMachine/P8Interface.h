@@ -20,6 +20,8 @@
 #include "P8Panel.h"
 #include "flagMessaging.h"
 
+#include "Audio.h"
+#include "synth_dc_binary.h"
 
 enum PStates
 {
@@ -42,6 +44,104 @@ enum BusDestStates
 	BusDestSelect,
 };
 
+class ModSourceItem
+{
+public:
+	ModSourceItem( void ) : src(NULL), src_index(0) {}
+	void set(AudioStream * source, unsigned char sourceOutput)
+	{
+		src = source;
+		src_index = sourceOutput;
+	}
+	AudioStream* src;
+	unsigned char src_index;
+	
+private:
+
+};
+
+class EffectPathItem
+{
+public:
+	EffectPathItem( void ) : src(NULL), dst(NULL), src_index(0), dest_index(0) {}
+	void set(AudioConnection * audioPath) //copy passed cord
+	{
+		associatedPatchCord = audioPath;
+		src = audioPath->getSrc();
+		dst = audioPath->getDst();
+		src_index = audioPath->getSrc_Index();
+		dest_index = audioPath->getDest_Index();
+	}
+	AudioStream* src;
+	AudioStream* dst;
+	unsigned char src_index;
+	unsigned char dest_index;
+	AudioConnection * associatedPatchCord = NULL;
+	friend class AudioConnection;
+private:
+
+};
+
+class ModulatorBlock
+{
+public:
+	ModulatorBlock( void ) : connected(0)
+	{
+		effectMixer.gain(0, 1.0);
+		effectMixer.gain(1, 1.0);
+		effectMixer.gain(2, 1.0);
+		effectMixer.gain(3, 1.0);
+	}
+	void init( void )
+	{
+		patchCord1.reconnect(&modGain, 0, &modAmp, 1);
+		patchCord2.reconnect(&modAmp, 0, &effectMixer, 2);
+		patchCord3.reconnect(&modOffset, 0, &effectMixer, 3);
+	}
+	void insert( EffectPathItem * path, AudioStream * modSourceObject, uint8_t modSourceIndex)
+	{
+		if(( path->associatedPatchCord != NULL )&&(connected == 0))
+		{
+			connected = 1;
+			modSourcePatchCord.reconnect(modSourceObject, modSourceIndex, &modAmp, 0);
+			path->associatedPatchCord->disconnect();
+			modulatedOutputPatchCord.reconnect(path->src, path->src_index, &effectMixer, 1);
+			path->associatedPatchCord->reconnect(&effectMixer, 0, path->dst, path->dest_index);
+		}
+	}
+	void remove( EffectPathItem * path )
+	{
+		if(( path->associatedPatchCord != NULL )&&(connected == 1))
+		{
+			connected = 0;
+			modulatedOutputPatchCord.disconnect();
+			path->associatedPatchCord->disconnect();
+			path->associatedPatchCord->reconnect(path->src, path->src_index, path->dst, path->dest_index);
+			modSourcePatchCord.disconnect();
+		}
+	}
+	// GUItool: begin automatically generated code
+	AudioSynthWaveformDcBinary modGain;     //xy=514,982
+	AudioEffectMultiply      modAmp;      //xy=655,976
+	AudioSynthWaveformDcBinary modOffset;     //xy=662,1021
+	AudioMixer4              effectMixer;    //xy=828,954
+	AudioConnection          patchCord1;
+	AudioConnection          patchCord2;
+	AudioConnection          patchCord3;
+	// GUItool: end automatically generated code
+	AudioConnection modSourcePatchCord;
+	AudioConnection modulatedOutputPatchCord;
+	uint8_t connected;
+};
+//// GUItool: begin automatically generated code
+//AudioSynthWaveformDcBinary modGain;        //xy=397,1203
+//AudioEffectMultiply      modAmp;         //xy=538,1197
+//AudioSynthWaveformDcBinary modOffset;      //xy=545,1242
+//AudioMixer4              effectMixer;    //xy=711,1175
+//AudioConnection          patchCord1(modGain, 0, modAmp, 1);
+//AudioConnection          patchCord2(modAmp, 0, effectMixer, 2);
+//AudioConnection          patchCord3(modOffset, 0, effectMixer, 3);
+//// GUItool: end automatically generated code
 
 class P8Interface : public P8Panel
 {
@@ -123,7 +223,9 @@ private:
 	
 	uint8_t srcSelected[6];
 	uint8_t srcCursor;
-
+	//AudioConnection tables
+	ModSourceItem modSources[15];
+	EffectPathItem effectPaths[15];
 
 };
 

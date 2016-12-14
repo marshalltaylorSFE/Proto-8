@@ -6,55 +6,53 @@
 #include "synth_bendvelope.h"
 #include "synth_multiosc.h"
 #include "synth_dc_binary.h"
+#include "P8Interface.h"
 
+
+
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthBendvelope     bendvelope2;    //xy=227.66667938232422,657.1666526794434
-AudioSynthWaveformDcBinary dc_binary2;     //xy=251.26300811767578,809.5963401794434
-AudioSynthWaveformDcBinary dc_binary1;     //xy=252.096435546875,848.7629547119141
-AudioSynthBendvelope     bendvelope1;    //xy=327.16670989990234,379.49999046325684
-AudioEffectMultiply      multiply1;      //xy=411.2630271911621,805.4297199249268
-AudioSynthWaveformDcBinary dc1CentD;       //xy=417.83335876464844,655.6666917800903
-AudioSynthWaveformDcBinary dc1A;           //xy=516.3333435058594,462.1666603088379
-AudioSynthWaveformDcBinary dc1CentA;       //xy=520.1666831970215,592.8333320617676
-AudioSynthWaveformDcBinary dc1B;           //xy=577.0000534057617,499.99999141693115
-AudioMixer4              effectMixer;    //xy=578.0001831054688,827.1666374206543
-AudioSynthWaveformDcBinary dc1CentB;       //xy=583.8333740234375,629.1666498184204
-AudioSynthWaveformDcBinary dc1C;           //xy=640.8333702087402,537.1666679382324
-AudioSynthWaveformDcBinary dc1CentC;       //xy=653.1667327880859,664.6666488647461
-AudioSynthWaveformDcBinary dc1D;           //xy=705.5000991821289,573.1666641235352
-AudioSynthMultiOsc       multiosc1;      //xy=942.3333892822266,582.8333206176758
-AudioMixer4              mixer5;         //xy=1128,603
-AudioFilterStateVariable filter1;        //xy=1284,611
-AudioFilterStateVariable filter3;        //xy=1420,612
-AudioOutputI2SQuad       i2s_quad2;      //xy=1610,621
-AudioConnection          patchCord1(bendvelope2, 0, multiply1, 0);
-AudioConnection          patchCord2(dc_binary2, 0, multiply1, 1);
-AudioConnection          patchCord3(dc_binary1, 0, effectMixer, 3);
-AudioConnection          patchCord4(bendvelope1, 0, multiosc1, 0);
-AudioConnection          patchCord5(multiply1, 0, effectMixer, 0);
-AudioConnection          patchCord6(dc1CentD, 0, multiosc1, 8);
-AudioConnection          patchCord7(dc1A, 0, multiosc1, 1);
-AudioConnection          patchCord8(dc1CentA, 0, multiosc1, 5);
-AudioConnection          patchCord9(dc1B, 0, multiosc1, 2);
-AudioConnection          patchCord10(effectMixer, 0, filter1, 1);
-AudioConnection          patchCord11(effectMixer, 0, filter3, 1);
-AudioConnection          patchCord12(dc1CentB, 0, multiosc1, 6);
-AudioConnection          patchCord13(dc1C, 0, multiosc1, 3);
-AudioConnection          patchCord14(dc1CentC, 0, multiosc1, 7);
-AudioConnection          patchCord15(dc1D, 0, multiosc1, 4);
-AudioConnection          patchCord16(multiosc1, 0, mixer5, 0);
-AudioConnection          patchCord17(mixer5, 0, filter1, 0);
-AudioConnection          patchCord18(filter1, 0, filter3, 0);
-AudioConnection          patchCord19(filter3, 0, i2s_quad2, 0);
-AudioConnection          patchCord20(filter3, 0, i2s_quad2, 1);
-AudioConnection          patchCord21(filter3, 0, i2s_quad2, 2);
-AudioConnection          patchCord22(filter3, 0, i2s_quad2, 3);
-AudioControlSGTL5000     sgtl5000_2;     //xy=1564,476
-AudioControlSGTL5000     sgtl5000_1;     //xy=1568,432
+AudioSynthBendvelope     bendvelope1;    //xy=71,800
+AudioSynthBendvelope     bendvelope2;    //xy=103,1183
+AudioSynthWaveformDcBinary dc1A;           //xy=260,883
+AudioSynthWaveformDcBinary dc1CentA;       //xy=264,1013
+AudioSynthWaveformDcBinary dc1B;           //xy=321,920
+AudioSynthWaveformDcBinary dc1CentB;       //xy=331,1049
+AudioSynthWaveformDcBinary dc1C;           //xy=384,958
+AudioSynthWaveformDcBinary dc1CentC;       //xy=396,1084
+AudioSynthWaveformDcBinary dc1D;           //xy=449,994
+AudioSynthWaveformDcBinary dc1CentD;       //xy=457,1123
+AudioSynthMultiOsc       multiosc1;      //xy=696,1014
+AudioMixer4              mixer5;         //xy=872,1024
+AudioFilterStateVariable filter1;        //xy=1018,1034
+AudioFilterStateVariable filter2;        //xy=1164,1033
+AudioOutputI2SQuad       is_quad23;      //xy=1354,1042
+AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
+AudioConnection          patchCord2(dc1A, 0, multiosc1, 1);
+AudioConnection          patchCord3(dc1CentA, 0, multiosc1, 5);
+AudioConnection          patchCord4(dc1B, 0, multiosc1, 2);
+AudioConnection          patchCord5(dc1CentB, 0, multiosc1, 6);
+AudioConnection          patchCord6(dc1C, 0, multiosc1, 3);
+AudioConnection          patchCord7(dc1CentC, 0, multiosc1, 7);
+AudioConnection          patchCord8(dc1D, 0, multiosc1, 4);
+AudioConnection          patchCord9(dc1CentD, 0, multiosc1, 8);
+AudioConnection          patchCord10(multiosc1, 0, mixer5, 0);
+AudioConnection          patchCord11(mixer5, 0, filter1, 0);
+AudioConnection          patchCord12(filter1, 0, filter2, 0);
+AudioConnection          patchCord13(filter2, 0, is_quad23, 0);
+AudioConnection          patchCord14(filter2, 0, is_quad23, 1);
+AudioConnection          patchCord15(filter2, 0, is_quad23, 2);
+AudioConnection          patchCord16(filter2, 0, is_quad23, 3);
+AudioControlSGTL5000     sgtl5000_1;     //xy=1308,897
+AudioControlSGTL5000     sgtl5000_2;     //xy=1312,853
 // GUItool: end automatically generated code
 
-
+ModulatorBlock modulator;
 
 
 //**********************************************************************//
@@ -122,7 +120,6 @@ uint32_t usTicks = 0;
 uint8_t usTicksMutex = 1; //start locked out
 
 //**Panel State Machine***********************//
-#include "P8Interface.h"
 P8Interface p8hid;
 volatile uint32_t pUTStartTime = 0;
 volatile uint32_t pUTLastTime = 0;
@@ -226,7 +223,7 @@ void HandleControlChange(byte channel, byte number, byte value)
 		case 1:
 		//Filter
 		filter1.frequency((value * value * 0.9) + 40);  
-		filter3.frequency((value * value * 0.9) + 40);  
+		filter2.frequency((value * value * 0.9) + 40);  
 		break;
 		default:
 		break;
@@ -288,7 +285,8 @@ void setup()
 	
 	//Update the panel
 	p8hid.update();
-
+	p8hid.reset();
+	
 	//Connect MIDI handlers
 	midiA.setHandleNoteOn(HandleNoteOn);  // Put only the name of the function
 	midiA.setHandleNoteOff(HandleNoteOff);
@@ -312,7 +310,7 @@ void setup()
 	sgtl5000_2.unmuteHeadphone();
 
 	filter1.frequency(8000);  
-	filter3.frequency(8000);
+	filter2.frequency(8000);
 	
 	multiosc1.amplitude(1.00);
 	
@@ -329,12 +327,6 @@ void setup()
 	mixer5.gain(2, 0);
 	mixer5.gain(3, 0);
 
-	effectMixer.gain(0, 1.0);
-	effectMixer.gain(1, 1.0);
-	effectMixer.gain(2, 0);
-	effectMixer.gain(3, 1.0);
-	
-	
 }
 
 void loop()
