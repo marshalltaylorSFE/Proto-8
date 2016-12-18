@@ -30,19 +30,20 @@ enum PStates
 
 };
 
-enum BusSrcStates
+enum BusStates
 {
-	BusSrcInit,
-	BusSrcShowAll,
-	BusSrcSelect,
+	BInit,
+	BShowAll,
+	BPickSrc,
+	BPickDest,
 };
 
-enum BusDestStates
-{
-	BusDestInit,
-	BusDestShowAll,
-	BusDestSelect,
-};
+//enum BusDestStates
+//{
+//	BusDestInit,
+//	BusDestShowAll,
+//	BusDestSelect,
+//};
 
 class ModSourceItem
 {
@@ -143,6 +144,7 @@ public:
 //AudioConnection          patchCord3(modOffset, 0, effectMixer, 3);
 //// GUItool: end automatically generated code
 
+
 class P8Interface : public P8Panel
 {
 public:
@@ -150,8 +152,9 @@ public:
 	void reset( void );
 	//State machine stuff  
 	void processMachine( void );
+	void printDebugInfo( void );
 	void tickStateMachine( void );
-	void tickBusSrcStateMachine( void );
+	void tickBusStateMachine( void );
 	void tickBusDestStateMachine( void );
 	void displayBusMapping( void );
 	
@@ -213,16 +216,17 @@ private:
 	
 	//State machine stuff  
 	PStates state;
-	BusSrcStates busSrcState;
-	BusDestStates busDestState;
+	BusStates busState;
 	
-	uint8_t srcBus;
-	uint8_t srcSelect;
-	uint8_t destBus;
-	uint8_t destSelect;
+	uint8_t srcBusSelected;
+	uint8_t srcCursorOn;
+	uint8_t destBusSelected;
+	uint8_t destCursorOn;
 	
-	uint8_t srcSelected[6];
+	uint8_t srcMapping[6];
+	uint8_t destMapping[6];
 	uint8_t srcCursor;
+	uint8_t destCursor;
 	//AudioConnection tables
 	ModSourceItem modSources[15];
 	EffectPathItem effectPaths[15];

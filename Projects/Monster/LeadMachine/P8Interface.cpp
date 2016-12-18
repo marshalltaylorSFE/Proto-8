@@ -85,14 +85,13 @@ extern AudioControlSGTL5000     sgtl5000_2;     //xy=1312,853
 #define CordDCPD patchCord8
 #define CordDCCD patchCord9
 
-extern ModulatorBlock modulator;
+extern ModulatorBlock modulator[4];
 
 P8Interface::P8Interface( void )
 {
 	//Controls
 	state = PInit;
-	busSrcState = BusSrcInit;
-	busDestState = BusDestInit;
+	busState = BInit;
 	
 	lfo1WaveSrc = 1;
 	lfo2WaveSrc = 1;
@@ -118,10 +117,15 @@ P8Interface::P8Interface( void )
 	waveShapeParams[1][2] = 0;
 	waveShapeParams[1][3] = 0;
 	
-	srcSelected[1] = 1;
-	srcSelected[2] = 2;
-	srcSelected[3] = 3;
-	srcSelected[4] = 4;
+	srcMapping[1] = 1;
+	srcMapping[2] = 2;
+	srcMapping[3] = 3;
+	srcMapping[4] = 4;
+
+	destMapping[1] = 5;
+	destMapping[2] = 6;
+	destMapping[3] = 7;
+	destMapping[4] = 8;
 
 }
 
@@ -131,7 +135,7 @@ void P8Interface::reset( void )
 	//Set all LED off
 	LEDs.clear();
 	modSources[0].set( &bendvelope2, 0 );
-	
+
 	effectPaths[0].set(&CordDCPA);
 	effectPaths[1].set(&CordDCCA);
 	effectPaths[2].set(&CordDCPB);
@@ -464,8 +468,8 @@ void P8Interface::processMachine( void )
 		Serial.print(ampCalc);
 		Serial.print("  Offset1: ");
 		Serial.println(offsetCalc);
-		modulator.modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		modulator.modOffset.amplitude_int( offsetCalc );
+		modulator[0].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
+		modulator[0].modOffset.amplitude_int( offsetCalc );
 	}	
 	
 	//Misc knobs
@@ -481,7 +485,7 @@ void P8Interface::processMachine( void )
 	
 	//Do main machine
 	tickStateMachine();
-	tickBusSrcStateMachine();
+	tickBusStateMachine();
 	tickBusDestStateMachine();
 	
 	//Do something afterwards?
@@ -526,22 +530,22 @@ void P8Interface::tickStateMachine()
 
 }
 uint8_t tempOscAState = 0;
-void P8Interface::tickBusSrcStateMachine( void )
+void P8Interface::tickBusStateMachine( void )
 {
-	if( oscASync.serviceRisingEdge() )
-	{
-		if(tempOscAState == 0)
-		{
-			tempOscAState = 1;
-			modulator.insert(&effectPaths[6], &bendvelope2, 0);
-		}
-		else
-		{
-			tempOscAState = 0;
-			modulator.remove(&effectPaths[6]);
-		}
-
-	}
+//	if( oscASync.serviceRisingEdge() )
+//	{
+//		if(tempOscAState == 0)
+//		{
+//			tempOscAState = 1;
+//			modulator.insert(&effectPaths[6], &bendvelope2, 0);
+//		}
+//		else
+//		{
+//			tempOscAState = 0;
+//			modulator.remove(&effectPaths[6]);
+//		}
+//
+//	}
 
 	uint8_t srcPick[6];
 	srcPick[0] = 0;
@@ -551,119 +555,326 @@ void P8Interface::tickBusSrcStateMachine( void )
 	srcPick[4] = bus4SrcPick.serviceRisingEdge();
 	srcPick[5] = 0;
 
-	int busBtn = 0;
+	int srcBtn = 0;
 	for( int i = 1; i < 5; i++)
 	{
 		if( srcPick[i] )
 		{
-			busBtn = i; // low priority
+			srcBtn = i; // low priority
 			i = 10;//break;
 		}
-		//else busBtn remains 0
+		//else srcBtn remains 0
 	}
 
-	uint8_t srcPickHold[6];
-	srcPickHold[0] = 0;
-	srcPickHold[1] = bus1SrcPick.serviceHoldRisingEdge();
-	srcPickHold[2] = bus2SrcPick.serviceHoldRisingEdge();
-	srcPickHold[3] = bus3SrcPick.serviceHoldRisingEdge();
-	srcPickHold[4] = bus4SrcPick.serviceHoldRisingEdge();
-	srcPickHold[5] = 0;
+	uint8_t destPick[6];
+	destPick[0] = 0;
+	destPick[1] = bus1DestPick.serviceRisingEdge();
+	destPick[2] = bus2DestPick.serviceRisingEdge();
+	destPick[3] = bus3DestPick.serviceRisingEdge();
+	destPick[4] = bus4DestPick.serviceRisingEdge();
+	destPick[5] = 0;
 
     //Detect held conditions
-	int busHoldBtn = 0;
+	int destBtn = 0;
 	for( int i = 1; i < 5; i++)
 	{
-		if( srcPickHold[i] )
+		if( destPick[i] )
 		{
-			busHoldBtn = i; // low priority
+			destBtn = i; // low priority
 			i = 10;//break;
 		}
-		//else busHoldBtn remains 0
+		//else destBtn remains 0
 	}
-
-	BusSrcStates nextState = busSrcState;
+	if(srcBtn||destBtn)printDebugInfo();
+	BusStates nextState = busState;
 	
-    switch( busSrcState )
+    switch( busState )
     {
-    case BusSrcInit:
-		modulator.init();
+    case BInit:
+		modulator[0].init();
+		modulator[1].init();
+		modulator[2].init();
+		modulator[3].init();
 
-		srcBus = 0;
-		srcSelect = 0;
-		destBus = 0;
-		destSelect = 0;
+		srcBusSelected = 0;
+		srcCursorOn = 0;
+		destBusSelected = 0;
+		destCursorOn = 0;
 
 		displayBusMapping();
 		
-		nextState = BusSrcShowAll;
+		nextState = BShowAll;
 		break;
-	case BusSrcShowAll:
-		if( busBtn )
+	case BShowAll:
+		if( srcBtn )
 		{
-			if( srcBus != busBtn )
+			//new button
+			srcBusSelected = srcBtn;
+			srcCursorOn = 1;
+			destBusSelected = srcBtn;
+			displayBusMapping();
+			nextState = BPickSrc;
+		}
+		if( destBtn )
+		{
+			//new button
+			destCursorOn = 1;
+			destBusSelected = destBtn;
+			srcBusSelected = destBtn;
+			displayBusMapping();
+			nextState = BPickDest;
+		}
+		break;
+	case BPickSrc:
+		if( srcBtn )
+		{
+			if( srcBusSelected != srcBtn )
 			{
 				//new button
-				srcBus = busBtn;
+				srcBusSelected = srcBtn;
+				destBusSelected = srcBtn;
+				srcCursorOn = 1;
 				displayBusMapping();
-			}
-			else //Must be same as current selection
-			{
-				srcBus = 0;
-				srcSelect = 0;
-				displayBusMapping();
-			}
-		}
-		if( busHoldBtn )
-		{
-			//Assume button is last selected
-			srcBus = busHoldBtn;
-			srcSelect = 1;
-			displayBusMapping();
-			nextState = BusSrcSelect;
-		}
-		break;
-	case BusSrcSelect:
-		if( busBtn ) //button detected
-		{
-			if( srcBus == busBtn )//save the cursor
-			{
-				if( srcCursor > 0 )
-				{
-					srcSelected[ srcBus ] = 15 - srcCursor;
-				}
-				else
-				{
-				}
 			}
 			else
 			{
-				srcBus = busBtn;
+				if( srcCursor ) //if cursor not zero
+				{
+					if( srcCursor == srcMapping[ srcBusSelected ]) //if same
+					{
+						srcMapping[ srcBusSelected ] = 0;
+					}
+					else
+					{
+						//if valid.. (TODO: WRITE)
+						srcMapping[ srcBusSelected ] = srcCursor;
+					}
+				}
+				//display
+				srcBusSelected = 0;
+				srcCursorOn = 0;
+				destBusSelected = 0;
+				destCursorOn = 0;
+				displayBusMapping();
+				nextState = BShowAll;
 			}
-			srcSelect = 0;
-			displayBusMapping();
-			nextState = BusSrcShowAll;
 		}
-        break;
+		if( destBtn )
+		{
+			//new button
+			destCursorOn = 1;
+			destBusSelected = destBtn;
+			srcBusSelected = destBtn;
+			srcCursorOn = 0;
+			displayBusMapping();
+			nextState = BPickDest;
+		}
+		break;
+	case BPickDest:
+		if( destBtn )
+		{
+			if( destBusSelected != destBtn )
+			{
+				Serial.println("destBusSelected != destBtn");
+				//new button
+				destBusSelected = destBtn;
+				srcBusSelected = destBtn;
+				destCursorOn = 1;
+				displayBusMapping();
+			}
+			else
+			{
+				Serial.println("destBusSelected == destBtn");
+				if( destCursor )
+				{
+					//Print panel variables
+					Serial.println("destCursor detected");
+					Serial.print("destMapping[destBusSelected]: ");
+					Serial.println(destMapping[destBusSelected]);
+					//Check if cursor is selecting the current mapping
+					if( destCursor == destMapping[destBusSelected])
+					{
+						Serial.println("destCursor == destMapping[destBusSelected]");
+						//Find and turn off the effect
+						for( int i = 0; i < 4; i++ )
+						{
+							if( modulator[i].connected == 1 )
+							{
+								//Print panel variables
+								Serial.print("destMapping[destBusSelected]: ");
+								Serial.println(destMapping[destBusSelected]);
+								Serial.print("&modulator[i].effectMixer = ");
+								uint32_t address = (uint32_t)&modulator[i].effectMixer;
+								Serial.println(address, HEX);
+								Serial.print("effectPaths[destMapping[destBusSelected]-1].associatedPatchCord->getSrc() = ");
+								address = (uint32_t)effectPaths[destMapping[destBusSelected]-1].associatedPatchCord->getSrc();
+								Serial.println(address, HEX);
+
+								//connected to something...
+								if( &modulator[i].effectMixer == effectPaths[destMapping[destBusSelected]-1].associatedPatchCord->getSrc())
+								{
+									//passed modulator's input is attached to the effect path we're looking for
+									modulator[i].remove(&effectPaths[destMapping[destBusSelected]-1]);
+								}
+							}
+						}
+						destMapping[destBusSelected] = 0;
+						
+					}
+					else
+					{
+						Serial.println("destCursor != destMapping[destBusSelected]");
+						//if valid..
+						//Print panel variables
+						//Serial.print("destMapping[destBusSelected]: ");
+						//Serial.println(destMapping[destBusSelected]);
+						//if( effectPaths[destMapping[destBusSelected]-1].associatedPatchCord != NULL )
+						Serial.print("destCursor - 1 = ");
+						Serial.println(destCursor - 1);
+						if( effectPaths[destCursor - 1].associatedPatchCord != NULL )
+						{
+							uint8_t recorded = 0;
+							//Find a vacent slot and turn on the effect
+							for( int i = 0; (i < 4)&&(recorded == 0); i++ )
+							{
+								if( modulator[i].connected == 0 )
+								{
+									//Free space found
+									//Record change
+									destMapping[ destBusSelected ] = destCursor;
+									recorded = 1;
+									//apply change
+									Serial.print("Inserting, destMapping[destBusSelected]: ");
+									Serial.println(destMapping[destBusSelected]);
+									modulator[i].insert(&effectPaths[destMapping[destBusSelected]-1], modSources[srcMapping[srcBusSelected]-1].src, modSources[srcMapping[srcBusSelected]-1].src_index);
+									
+								}
+							}
+						}
+					}
+				}
+				//display
+				srcBusSelected = 0;
+				srcCursorOn = 0;
+				destBusSelected = 0;
+				destCursorOn = 0;
+				displayBusMapping();
+				nextState = BShowAll;
+			}
+		}
+		if( srcBtn )
+		{
+			//new button
+			srcBusSelected = srcBtn;
+			srcCursorOn = 1;
+			destBusSelected = srcBtn;
+			destCursorOn = 0;
+			displayBusMapping();
+			nextState = BPickSrc;
+		}
+		break;
     default:
-        nextState = BusSrcInit;
+        nextState = BInit;
         break;
     }
-
-    busSrcState = nextState;
+    busState = nextState;
 
 	//Check cursor movement
 	if( Select.serviceChanged() )
 	{
-		srcCursor = Select.getState(); // 16 points
+		uint8_t variable = Select.getState();
+		if(variable)
+		{
+			//If variable = 1 (almost full CCW), output = 15
+			srcCursor = 16 - variable; // 16 points
+			destCursor = 16 - variable; // 16 points
+		}
 		displayBusMapping();
 		Serial.println(Select.getState());
-		Serial.println(srcBus);
-		Serial.println(srcSelect);
+		Serial.println(srcBusSelected);
+		Serial.println(srcCursorOn);
 	}
 	
 }
 
+void P8Interface::printDebugInfo( void )
+{
+	uint32_t address;
+	Serial.println("*****BUTTONPRESS*****");
+	//Print panel variables
+	Serial.print("srcBusSelected: ");
+	Serial.println(srcBusSelected);
+	Serial.print("destBusSelected: ");
+	Serial.println(destBusSelected);
+	Serial.print("srcCursor: ");
+	Serial.println(srcCursor);
+	Serial.print("destCursor: ");
+	Serial.println(destCursor);
+	//print srcmapping
+	for( int i = 0; i < 6; i++ )
+	{
+		Serial.print("srcMapping[");
+		Serial.print(i);
+		Serial.print("] = ");
+		Serial.println(srcMapping[i]);
+	}
+	//Print modSources
+	for( int i = 0; i < 15; i++ )
+	{
+		Serial.print("modSources[");
+		Serial.print(i);
+		Serial.print("].src = ");
+		address = (uint32_t)modSources[i].src;
+		Serial.println(address, HEX);
+	}
+	//Print destBusSelected
+	for( int i = 0; i < 6; i++ )
+	{
+		Serial.print("destMapping[");
+		Serial.print(i);
+		Serial.print("] = ");
+		Serial.println(destMapping[i]);
+	}
+//	//Print effectPaths
+//	for( int i = 0; i < 15; i++ )
+//	{
+//		Serial.print("effectPaths[");
+//		Serial.print(i);
+//		Serial.print("].associatedPatchCord->getDst() = ");
+//		address = (uint32_t)effectPaths[i].associatedPatchCord->getDst();
+//		Serial.println(address, HEX);
+//	}
+	//Print effectPaths
+	for( int i = 0; i < 15; i++ )
+	{
+		Serial.print("effectPaths[");
+		Serial.print(i);
+		Serial.print("]:   .src = ");
+		address = (uint32_t)effectPaths[i].src;
+		Serial.print(address, HEX);
+		Serial.print("   .src_index = ");
+		Serial.print(effectPaths[i].src_index, HEX);
+		Serial.print("   .associatedPatchCord->getDst() = ");
+		address = (uint32_t)effectPaths[i].associatedPatchCord->getDst();
+		Serial.println(address, HEX);
+	}
+	//Print destBusSelected
+	for( int i = 0; i < 4; i++ )
+	{
+		Serial.print("&modulator[");
+		Serial.print(i);
+		Serial.print("].effectMixer = ");
+		address = (uint32_t)&modulator[i].effectMixer;
+		Serial.println(address, HEX);
+	}
+	for( int i = 0; i < 4; i++ )
+	{
+		Serial.print("&modulator[");
+		Serial.print(i);
+		Serial.print("].connected = ");
+		Serial.println(modulator[i].connected, HEX);
+	}
+}
 void P8Interface::tickBusDestStateMachine( void )
 {
 }
@@ -682,53 +893,36 @@ void P8Interface::displayBusMapping( void )
 	bus5SrcLed.setState(LEDOFF);
 	bus5DestLed.setState(LEDOFF);
 
-	modDestLed0.setState(LEDOFF);
-	modDestLed1.setState(LEDOFF);
-	modDestLed2.setState(LEDOFF);
-	modDestLed3.setState(LEDOFF);
-	modDestLed4.setState(LEDOFF);
-	modDestLed5.setState(LEDOFF);
-	modDestLed6.setState(LEDOFF);
-	modDestLed7.setState(LEDOFF);
-	modDestLed8.setState(LEDOFF);
-	modDestLed9.setState(LEDOFF);
-	modDestLed10.setState(LEDOFF);
-	modDestLed11.setState(LEDOFF);
-	modDestLed12.setState(LEDOFF);
-	modDestLed13.setState(LEDOFF);
-	modDestLed14.setState(LEDOFF);
-	
-	
 	
 	ledState_t srcLEDTable[15];
 	for( int i = 0; i < 15; i++ ) srcLEDTable[i] = LEDOFF;
-	
+
 	//Show Source Column by state machine variables
 	ledState_t ledType = LEDON;//LEDFLASHING
-	if( srcSelect ) ledType = LEDFLASHING;
-	switch( srcBus )
+	if( srcCursorOn ) ledType = LEDFLASHING;
+	switch( srcBusSelected )
 	{
 		case 0: //None selected, OR
-		srcLEDTable[srcSelected[1]] = LEDON;
-		srcLEDTable[srcSelected[2]] = LEDON;
-		srcLEDTable[srcSelected[3]] = LEDON;
-		srcLEDTable[srcSelected[4]] = LEDON;
+		if(srcMapping[1])srcLEDTable[srcMapping[1]-1] = LEDON;
+		if(srcMapping[2])srcLEDTable[srcMapping[2]-1] = LEDON;
+		if(srcMapping[3])srcLEDTable[srcMapping[3]-1] = LEDON;
+		if(srcMapping[4])srcLEDTable[srcMapping[4]-1] = LEDON;
 		
 		break;
 		case 1:
-		srcLEDTable[srcSelected[1]] = LEDON;
+		if(srcMapping[1])srcLEDTable[srcMapping[1]-1] = LEDON;
 		bus1SrcLed.setState(ledType);
 		break;
 		case 2:
-		srcLEDTable[srcSelected[2]] = LEDON;
+		if(srcMapping[2])srcLEDTable[srcMapping[2]-1] = LEDON;
 		bus2SrcLed.setState(ledType);
 		break;
 		case 3:
-		srcLEDTable[srcSelected[3]] = LEDON;
+		if(srcMapping[3])srcLEDTable[srcMapping[3]-1] = LEDON;
 		bus3SrcLed.setState(ledType);
 		break;
 		case 4:
-		srcLEDTable[srcSelected[4]] = LEDON;
+		if(srcMapping[4])srcLEDTable[srcMapping[4]-1] = LEDON;
 		bus4SrcLed.setState(ledType);
 		break;
 		case 5:
@@ -738,21 +932,53 @@ void P8Interface::displayBusMapping( void )
 		break;
 	}
 	
-	//Show Destination Column by state machine variables
-	//switch( srcBus )
-	//{
-	//	case 0:
-	//	break;
-	//	case :
-	//	break;
-	//	default:
-	//	break;
-	//}
+	ledState_t destLEDTable[15];
+	for( int i = 0; i < 15; i++ ) destLEDTable[i] = LEDOFF;
+
+	//Show Source Column by state machine variables
+	ledType = LEDON;//LEDFLASHING
+	if( destCursorOn ) ledType = LEDFLASHING;
+	switch( destBusSelected )
+	{
+		case 0: //None selected, OR
+		if(destMapping[1])destLEDTable[destMapping[1]-1] = LEDON;
+		if(destMapping[2])destLEDTable[destMapping[2]-1] = LEDON;
+		if(destMapping[3])destLEDTable[destMapping[3]-1] = LEDON;
+		if(destMapping[4])destLEDTable[destMapping[4]-1] = LEDON;
+		
+		break;
+		case 1:
+		if(destMapping[1])destLEDTable[destMapping[1]-1] = LEDON;
+		bus1DestLed.setState(ledType);
+		break;
+		case 2:
+		if(destMapping[2])destLEDTable[destMapping[2]-1] = LEDON;
+		bus2DestLed.setState(ledType);
+		break;
+		case 3:
+		if(destMapping[3])destLEDTable[destMapping[3]-1] = LEDON;
+		bus3DestLed.setState(ledType);
+		break;
+		case 4:
+		if(destMapping[4])destLEDTable[destMapping[4]-1] = LEDON;
+		bus4DestLed.setState(ledType);
+		break;
+		case 5:
+		bus5DestLed.setState(ledType);
+		break;
+		default:
+		break;
+	}
 
 	//Draw cursor
-	if( ( srcCursor > 0 ) && srcSelect )
+	if( ( srcCursor > 0 ) && srcCursorOn )
 	{
-		srcLEDTable[ 15 - srcCursor ] = LEDFLASHING;
+		srcLEDTable[srcCursor-1] = LEDFLASHING;
+	}
+	//Draw cursor
+	if( ( destCursor > 0 ) && destCursorOn )
+	{
+		destLEDTable[destCursor-1] = LEDFLASHING;
 	}
 	
 	modSrcLed0.setState(srcLEDTable[0]);
@@ -771,7 +997,22 @@ void P8Interface::displayBusMapping( void )
 	modSrcLed13.setState(srcLEDTable[13]);
 	modSrcLed14.setState(srcLEDTable[14]);
 	
-	
+	modDestLed0.setState(destLEDTable[0]);
+	modDestLed1.setState(destLEDTable[1]);
+	modDestLed2.setState(destLEDTable[2]);
+	modDestLed3.setState(destLEDTable[3]);
+	modDestLed4.setState(destLEDTable[4]);
+	modDestLed5.setState(destLEDTable[5]);
+	modDestLed6.setState(destLEDTable[6]);
+	modDestLed7.setState(destLEDTable[7]);
+	modDestLed8.setState(destLEDTable[8]);
+	modDestLed9.setState(destLEDTable[9]);
+	modDestLed10.setState(destLEDTable[10]);
+	modDestLed11.setState(destLEDTable[11]);
+	modDestLed12.setState(destLEDTable[12]);
+	modDestLed13.setState(destLEDTable[13]);
+	modDestLed14.setState(destLEDTable[14]);
+
 	
 	
 }

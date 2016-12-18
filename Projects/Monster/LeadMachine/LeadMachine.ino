@@ -7,6 +7,7 @@
 #include "synth_multiosc.h"
 #include "synth_dc_binary.h"
 #include "P8Interface.h"
+//#include "MicroLLTemplate.h"
 
 
 
@@ -52,7 +53,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1308,897
 AudioControlSGTL5000     sgtl5000_2;     //xy=1312,853
 // GUItool: end automatically generated code
 
-ModulatorBlock modulator;
+ModulatorBlock modulator[4];
 
 
 //**********************************************************************//
@@ -561,15 +562,17 @@ void loop()
 		//Serial.print("\n\nnoteOnInList\n");
 		//noteOnInList.printfMicroLL();
 		//Serial.print("\n\nnoteOnOutLists\n");
-		Serial.print("all=");
-		Serial.print(AudioProcessorUsage());
-		Serial.print(",");
-		Serial.print(AudioProcessorUsageMax());
+		Serial.print("Processor=");
+		//Serial.print(AudioProcessorUsage());
+		//Serial.print(",");
+		Serial.print((float)AudioProcessorUsageMax(), 2);
+		AudioProcessorUsageMaxReset();
 		Serial.print("    ");
 		Serial.print("Memory: ");
-		Serial.print(AudioMemoryUsage());
-		Serial.print(",");
+		//Serial.print(AudioMemoryUsage());
+		//Serial.print(",");
 		Serial.print(AudioMemoryUsageMax());
+		AudioMemoryUsageMaxReset();//reset
 		Serial.print(",   FreeRam: ");
 		Serial.print(FreeRam());
 		Serial.print("\n");
