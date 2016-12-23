@@ -5,34 +5,19 @@
 #include <SerialFlash.h>
 
 #include "synth_dc_binary.h"
-#include "synth_multiosc.h"
-#include "wavegen.h"
-
-
-// Don't touch includes when using web gui
+//#include "wavegen.h"
 
 // GUItool: begin automatically generated code
-AudioSynthWaveformDcBinary dc_amplitude;     //xy=269,1047
-AudioSynthWaveformDcBinary dc_cent;     //xy=269,1157
-AudioSynthWaveformDcBinary dc_3_12;     //xy=270,1104
-AudioSynthWaveformDcBinary dc_out_volume;     //xy=270,1231
-AudioSynthMultiOsc       multiosc1;      //xy=460,1127
-AudioEffectMultiply      multiply1;      //xy=614,1250
-AudioOutputI2S           i2s1;           //xy=768,1207
-AudioConnection          patchCord1(dc_amplitude, 0, multiosc1, 0);
-AudioConnection          patchCord2(dc_cent, 0, multiosc1, 5);
-AudioConnection          patchCord3(dc_cent, 0, multiosc1, 6);
-AudioConnection          patchCord4(dc_cent, 0, multiosc1, 7);
-AudioConnection          patchCord5(dc_cent, 0, multiosc1, 8);
-AudioConnection          patchCord6(dc_3_12, 0, multiosc1, 1);
-AudioConnection          patchCord7(dc_3_12, 0, multiosc1, 2);
-AudioConnection          patchCord8(dc_3_12, 0, multiosc1, 3);
-AudioConnection          patchCord9(dc_3_12, 0, multiosc1, 4);
-AudioConnection          patchCord10(dc_out_volume, 0, multiply1, 1);
-AudioConnection          patchCord11(multiosc1, 0, multiply1, 0);
-AudioConnection          patchCord12(multiply1, 0, i2s1, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=757,1148
+AudioSynthWaveformDcBinary dc_out_volume;  //xy=454,1120
+AudioSynthWaveformSine   sine1;          //xy=585,1013
+AudioEffectMultiply      multiply1;      //xy=798,1139
+AudioOutputI2S           i2s1;           //xy=952,1096
+AudioConnection          patchCord1(dc_out_volume, 0, multiply1, 1);
+AudioConnection          patchCord2(sine1, 0, multiply1, 0);
+AudioConnection          patchCord3(multiply1, 0, i2s1, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=941,1037
 // GUItool: end automatically generated code
+
 
 
 
@@ -80,25 +65,10 @@ void setup() {
 	sgtl5000_1.lineOutLevel(13);
     
 	//Configure initial system here
-	dc_amplitude.amplitude_int(0);
-	dc_cent.amplitude_int(0x7FFF);
-	//dc_3_12.amplitude_int(0);
-	dc_3_12.amplitude_3_12(note2bpo[24]);
 	dc_out_volume.amplitude_int(0);
 
 	//**** Gen Waveforms ****//
-	// NOTICE: osc should be started in the following order
-	//1. Use .begin()
-	//2. Write wave data to multiosc's pointer
-	multiosc1.staticAmp[0] = 255;
-	multiosc1.staticAmp[1] = 255;
-	multiosc1.staticAmp[2] = 255;
-	multiosc1.staticAmp[3] = 255;
-
-	multiosc1.begin();
-	WaveGenerator testWave;
-	testWave.setParameters( 255, 0, 255, 0, 45 );			
-	//testWave.writeWaveU16_257( multiosc1.getPointer( 0 ) );
+	sine1.frequency(440);
 
 	AudioInterrupts();
 	
@@ -118,50 +88,18 @@ void loop() {
 		uint16_t newKnob5Value = analogRead(KNOB5);
 
 		//Set audio platform parameters based on those values
-		if( (lastKnob1Value >> 2) != (newKnob1Value >> 2) )
-		{
-			//Serial.println("New Knob Input");
-			//Take action
-			lastKnob1Value = newKnob1Value;
-			dc_amplitude.amplitude_int((int16_t)newKnob1Value<<5);
-		}
 		if( (lastKnob3Value >> 2) != (newKnob3Value >> 2) )
 		{
 			//Take action
 			lastKnob3Value = newKnob3Value;
 			dc_out_volume.amplitude_int((int16_t)lastKnob3Value<<5);
 		}
-		if( (lastKnob4Value ) != (newKnob4Value ) )
-		{
-			//Serial.println("New Knob Input");
-			//Take action
-			lastKnob4Value = newKnob4Value;
-			if( newKnob4Value < 512 )
-			{
-				float tempbpo = note2bpo[(uint32_t)newKnob4Value * 127 / 512];
-				//Serial.println((uint32_t)newKnob4Value * 127 / 512);
-				dc_3_12.amplitude_3_12(tempbpo); //add for dc tune
-			}
-			else
-			{
-				dc_3_12.amplitude_int((int16_t)(newKnob4Value - 512) << 6);
-			}
-		}
-		if( (lastKnob5Value) != (newKnob5Value) )
-		{
-			//Serial.println("New Knob Input");
-			//Take action
-			lastKnob5Value = newKnob5Value;
-			dc_cent.amplitude_int((int16_t)newKnob5Value<<5);
-		}
 		
 		//When enough regular 15ms loops have occured, send out debug data to the serial
 		if( debugCounter > 50 )
 		{
 			debugCounter = 0;
-			Serial.println((int32_t)(multiosc1.debugSave >> 32), HEX);
-			Serial.println((int32_t)multiosc1.debugSave, HEX);
-			multiosc1.debugFlag = 1;
+			
 			Serial.println("Knob values: ");
 			Serial.print("1: ");
 			Serial.println(newKnob1Value);

@@ -33,10 +33,10 @@ extern "C" {
 extern const uint16_t twoPowers12bit[4096];
 extern const float note2bpo[129];
 }
-// data_waveforms.c
-extern "C" {
-extern const int16_t AudioWaveformSine[257];
-}
+//// data_waveforms.c
+//extern "C" {
+//extern const int16_t AudioWaveformSine[257];
+//}
 
 
 void AudioSynthMultiOsc::update(void)
@@ -44,17 +44,9 @@ void AudioSynthMultiOsc::update(void)
 	audio_block_t *block, *ampModBlock, *bpoABlock, *bpoBBlock, *bpoCBlock, *bpoDBlock, *centABlock, *centBBlock, *centCBlock, *centDBlock;
 	uint32_t i, ph[4], inc, index, scale, input[4], ampInput, centInput[4];
 	int32_t val1, val2[4];
-	uint16_t inputFractional;
-	int16_t inputWhole;
+	uint16_t inputFractional, inputWhole;
 	uint32_t baseFreq, powerResult;
 	int32_t sampleAcumulator;
-	
-	if( beginHasRun == 0)
-	{
-		Serial.println("Boooo");
-		return;
-	}
-	
 	ampModBlock = receiveWritable(0);
 	if (!ampModBlock) {
 		release(ampModBlock);
@@ -73,32 +65,32 @@ void AudioSynthMultiOsc::update(void)
 	bpoCBlock = receiveWritable(3);
 	if (!bpoCBlock) {
 		release(bpoCBlock);
-		//return;
+		return;
 	}
 	bpoDBlock = receiveWritable(4);
 	if (!bpoDBlock) {
 		release(bpoDBlock);
-		//return;
+		return;
 	}
 	centABlock = receiveWritable(5);
 	if (!centABlock) {
 		release(centABlock);
-		//return;
+		return;
 	}
 	centBBlock = receiveWritable(6);
 	if (!centBBlock) {
 		release(centBBlock);
-		//return;
+		return;
 	}
 	centCBlock = receiveWritable(7);
 	if (!centCBlock) {
 		release(centCBlock);
-		//return;
+		return;
 	}
 	centDBlock = receiveWritable(8);
 	if (!centDBlock) {
 		release(centDBlock);
-		//return;
+		return;
 	}
 	block = allocate();
 	if (block) {
@@ -116,7 +108,7 @@ void AudioSynthMultiOsc::update(void)
 			input[1] = bpoBBlock->data[i];  //Get incomming pitch data
 			input[2] = bpoCBlock->data[i];  //Get incomming pitch data
 			input[3] = bpoDBlock->data[i];  //Get incomming pitch data
-			ampInput = ampModBlock->data[i] >> 2 ;
+			ampInput = ampModBlock->data[i] >> 2 ; //divide by 4 voices
 			centInput[0] = centABlock->data[i];
 			centInput[1] = centBBlock->data[i];
 			centInput[2] = centCBlock->data[i];
@@ -158,15 +150,11 @@ void AudioSynthMultiOsc::update(void)
 				inputFractional = input[0] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[0] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
-				baseFreq = baseFreq << (inputWhole + staticRoot[0]);
-				baseFreq = baseFreq >> 4; //Hard code down 3
-				if(debugFlag) debugSave = baseFreq;
+				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[0] >> 4);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[0] >> 6);
 				inc = baseFreq << 8;
 				ph[0] += inc; //Store the new phase
-				debugFlag = 0;
-				
 				//second
 				index = ph[1] >> 24;
 				val1 = waveFormPointerA[index];
@@ -176,10 +164,9 @@ void AudioSynthMultiOsc::update(void)
 				inputFractional = input[1] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[1] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
-				baseFreq = baseFreq << (inputWhole + staticRoot[1]);
-				baseFreq = baseFreq >> 4; //Hard code down 3
+				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[1] >> 4);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[1] >> 6);
 				inc = baseFreq << 8;
 				ph[1] += inc; //Store the new phase
 				//Third
@@ -191,10 +178,9 @@ void AudioSynthMultiOsc::update(void)
 				inputFractional = input[2] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[2] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
-				baseFreq = baseFreq << (inputWhole + staticRoot[2]);
-				baseFreq = baseFreq >> 4; //Hard code down 3
+				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[2] >> 4);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[2] >> 6);
 				inc = baseFreq << 8;
 				ph[2] += inc; //Store the new phase
 				//Fourth
@@ -206,10 +192,9 @@ void AudioSynthMultiOsc::update(void)
 				inputFractional = input[3] & 0x0FFF;  //Get only the RHS
 				inputWhole = ( input[3] & 0x7000 ) >> 12;  //Get only the LHS
 				baseFreq = 0x76D6A;  //This is a 24 bit number
-				baseFreq = baseFreq << (inputWhole + staticRoot[3]);
-				baseFreq = baseFreq >> 4; //Hard code down 3
+				baseFreq = baseFreq << inputWhole;
 				powerResult = ((uint64_t)baseFreq * twoPowers12bit[inputFractional]) >> 24;
-				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[3] >> 4);
+				baseFreq = powerResult + (baseFreq >> 8) + ((int32_t)centInput[3] >> 6);
 				inc = baseFreq << 8;
 				ph[3] += inc; //Store the new phase
 
@@ -256,7 +241,6 @@ void AudioSynthMultiOsc::begin(void)
 	Serial.println(address, HEX);	
     testWave.setParameters( 255, 255, 0, 0, 45 );
     testWave.writeWaveU16_257( waveFormPointerA );	
-	beginHasRun = 1;
 }
 
 int16_t * AudioSynthMultiOsc::getPointer( uint8_t oscNumber ) //Pass number 0 = OSC A, 1 = OSC B
