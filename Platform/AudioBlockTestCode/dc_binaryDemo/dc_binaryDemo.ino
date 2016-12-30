@@ -7,16 +7,27 @@
 #include "synth_dc_binary.h"
 //#include "wavegen.h"
 
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+
 // GUItool: begin automatically generated code
-AudioSynthWaveformDcBinary dc_out_volume;  //xy=454,1120
-AudioSynthWaveformSine   sine1;          //xy=585,1013
-AudioEffectMultiply      multiply1;      //xy=798,1139
-AudioOutputI2S           i2s1;           //xy=952,1096
-AudioConnection          patchCord1(dc_out_volume, 0, multiply1, 1);
+AudioSynthWaveformDc     dc1;            //xy=311,1634
+AudioSynthWaveformSine   sine1;          //xy=503,1496
+AudioSynthWaveformDcBinary dc_out_volume;  //xy=506,1649
+AudioEffectMultiply      multiply1;      //xy=716,1622
+AudioOutputAnalog        dac1;           //xy=733,1690
+AudioOutputI2S           i2s1;           //xy=870,1579
+AudioConnection          patchCord1(dc1, dc_out_volume);
 AudioConnection          patchCord2(sine1, 0, multiply1, 0);
-AudioConnection          patchCord3(multiply1, 0, i2s1, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=941,1037
+AudioConnection          patchCord3(dc_out_volume, 0, multiply1, 1);
+AudioConnection          patchCord4(dc_out_volume, dac1);
+AudioConnection          patchCord5(multiply1, 0, i2s1, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=859,1520
 // GUItool: end automatically generated code
+
 
 
 
@@ -41,6 +52,7 @@ uint16_t debugCounter = 0;
 
 //Used to prevent free run looping
 uint32_t next;
+int8_t toggle;
 
 void setup() {
 	//**** General Setup ****//
@@ -66,12 +78,31 @@ void setup() {
     
 	//Configure initial system here
 	dc_out_volume.amplitude_int(0);
+	dc1.amplitude(0);
 
 	//**** Gen Waveforms ****//
 	sine1.frequency(440);
 
 	AudioInterrupts();
+			toggle = 0;
 	
+}
+
+// getKnobInt16 gets a knob value as a full -2^15 to 2^15
+int16_t getKnobInt16( uint16_t knob10bit )
+{
+	int32_t temp = (int32_t)knob10bit << 6;
+	temp -= 0x8000;
+	
+	return (int16_t)temp;
+}
+
+// getKnobUint15 gets a knob value as a half, 0 to 2^15
+int16_t getKnobUint15( uint16_t knob10bit )
+{
+	int32_t temp = (int32_t)knob10bit << 5;
+	
+	return (int16_t)temp;
 }
 
 void loop() {
@@ -88,16 +119,49 @@ void loop() {
 		uint16_t newKnob5Value = analogRead(KNOB5);
 
 		//Set audio platform parameters based on those values
+		if( (lastKnob2Value >> 2) != (newKnob2Value >> 2) )
+		{
+			//Set the audio stream control input from 0 to 2^15
+			lastKnob2Value = newKnob2Value;
+			dc1.amplitude((float)getKnobUint15(lastKnob2Value)/32768); //set float value 0 to 1
+		}
 		if( (lastKnob3Value >> 2) != (newKnob3Value >> 2) )
 		{
-			//Take action
+			//Set new target DC level, as -2^15 to 2^15
 			lastKnob3Value = newKnob3Value;
-			dc_out_volume.amplitude_int((int16_t)lastKnob3Value<<5);
+			dc_out_volume.amplitude_int((uint16_t)lastKnob3Value << 6);
 		}
+		if( (lastKnob4Value >> 2) != (newKnob4Value >> 2) )
+		{
+			//Set an offset rate from -1 to 1
+			lastKnob4Value = newKnob4Value;
+			dc_out_volume.glideOffset(getKnobInt16(lastKnob4Value));
+		}
+		//if( (lastKnob5Value >> 2) != (newKnob5Value >> 2) )
+		//{
+		//	//Take action
+		//	lastKnob5Value = newKnob5Value;
+		//	dc1.amplitude(getKnobUint15(lastKnob5Value));
+		//}
 		
 		//When enough regular 15ms loops have occured, send out debug data to the serial
 		if( debugCounter > 50 )
 		{
+			debugCounter = 0;
+			Serial.println("Debug:");
+			Serial.println((int32_t)dc_out_volume.debugSave1, HEX);
+			Serial.println((int32_t)dc_out_volume.debugSave2, HEX);
+			dc_out_volume.debugFlag = 1;
+			if( toggle == 0 )
+			{
+				toggle = 1;
+			//	dc_out_volume.amplitude_int(0);
+			}
+			else
+			{
+				toggle = 0;
+			//	dc_out_volume.amplitude_int(0xFFFF);
+			}
 			debugCounter = 0;
 			
 			Serial.println("Knob values: ");
