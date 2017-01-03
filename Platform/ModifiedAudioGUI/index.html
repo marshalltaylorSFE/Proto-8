@@ -377,6 +377,7 @@ span.mainfunction {color: #993300; font-weight: bolder}
 		{"type":"AudioSynthToneSweep","data":{"defaults":{"name":{"value":"new"}},"shortName":"tonesweep","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthWaveformDc","data":{"defaults":{"name":{"value":"new"}},"shortName":"dc","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthWaveformDcBinary","data":{"defaults":{"name":{"value":"new"}},"shortName":"dc_binary","inputs":0,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
+		{"type":"AudioSynthWaveformDcBinaryGlide","data":{"defaults":{"name":{"value":"new"}},"shortName":"dc_binary_glide","inputs":1,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
 		{"type":"AudioSynthNoiseWhite","data":{"defaults":{"name":{"value":"new"}},"shortName":"noise","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthNoisePink","data":{"defaults":{"name":{"value":"new"}},"shortName":"pink","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioEffectFade","data":{"defaults":{"name":{"value":"new"}},"shortName":"fade","inputs":1,"outputs":1,"category":"effect-function","color":"#E6E0F8","icon":"arrow-in.png"}},
@@ -1789,7 +1790,7 @@ The actual packets are taken
 	<h3>Audio Connections</h3>
 	<table class=doc align=center cellpadding=3>
 		<tr class=top><th>Port</th><th>Purpose</th></tr>
-		<tr class=odd><td align=center>In 0</td><td>Amplitude Mod</td></tr>
+		<tr class=odd><td align=center>In 0</td><td>Amplitude mod</td></tr>
 		<tr class=odd><td align=center>In 1</td><td>Bpo osc A mod</td></tr>
 		<tr class=odd><td align=center>In 2</td><td>Bpo osc B mod</td></tr>
 		<tr class=odd><td align=center>In 3</td><td>Bpo osc C mod</td></tr>
@@ -1800,56 +1801,28 @@ The actual packets are taken
 		<tr class=odd><td align=center>In 8</td><td>Cent osc D mod</td></tr>
 		<tr class=odd><td align=center>Out 0</td><td>Wave Output</td></tr>
 	</table>
+	<p class=func><span class=keyword>Amplitude mod</span></p>
+	<p class=desc>Range 0 to 32767 for volume 0.0 to 1.0.
+	<p class=func><span class=keyword>BPO osc mod</span></p>
+	<p class=desc>Range 0 to 32767 in Q3.12.
+	<p class=func><span class=keyword>Cent osc mod</span></p>
+	<p class=desc>Range -32768 to 32767 top 9 bits add to some pointer somehow. 
 	<h3>Functions</h3>
-	<p class=func><span class=keyword>begin</span>(waveform);</p>
-	<p class=desc>Configure the waveform type to create.
-	</p>
-	<p class=func><span class=keyword>begin</span>(level, frequency, waveform);</p>
-	<p class=desc>Output a waveform, and set the amplitude and frequency.
-	</p>
-	<p class=func><span class=keyword>frequency</span>(freq);</p>
-	<p class=desc>Change the frequency.
-	</p>
-	<p class=func><span class=keyword>amplitude</span>(level);</p>
-	<p class=desc>Change the amplitude.  Set to 0 to turn the signal off.
-	</p>
-	<p class=func><span class=keyword>phase</span>(angle);</p>
-	<p class=desc>
-		Cause the generated waveform to jump to a specific point within
-		its cycle.  Angle is from 0 to 360 degrees.  When multiple objects
-		are configured,
-		<a href="http://www.pjrc.com/teensy/td_libs_AudioProcessorUsage.html" target="_blank">AudioNoInterrupts()</a>
-		should be used to guarantee all new settings take effect together.
-	</p>
-	<p class=func><span class=keyword>pulseWidth</span>(amount);</p>
-	<p class=desc>Change the width (duty cycle) of the pulse.</p>
-	<p class=func><span class=keyword>arbitraryWaveform</span>(array, maxFreq);</p>
-	<p class=desc>
-		Configure the waveform to be used with WAVEFORM_ARBITRARY.  Array
-		must be an array of 256 samples.  Currently, the data is used
-		without any filtering, which can cause aliasing with frequencies
-		above 172 Hz.  For higher frequency output, you must bandwidth
-		limit your waveform data.  Someday, "maxFreq" will be used to
-		do this automatically.
+	<p class=func><span class=keyword>begin</span>();</p>
+	<p class=desc>allocates + default shape.</p>
+	<p class=desc>--This would be useful for enumerating multiple multiosc blocks:</p>
+	<p class=desc>int16_t * tempPointer = multiosc1.getPointer(0);</p>
+	<p class=desc>multiosc2.setPointer(0, tempPointer);</p>
+	<p class=func><span class=keyword>amplitude</span>(osc, level);</p>
+	<p class=desc>Sets the amp manually from 0 to 255.
 	</p>
 	<h3>Examples</h3>
 	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; PlaySynthMusic
 	</p>
-	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; pulseWidth
-	</p>
-	<p class=exam>File &gt; Examples &gt; Audio &gt; HardwareTesting &gt; WM8731MikroSine
-	</p>
 	<h3>Notes</h3>
 	<p>Supported Waveforms:<br>
 		<ul>
-		<li><span class=literal>WAVEFORM_SINE</span></li>
-		<li><span class=literal>WAVEFORM_SAWTOOTH</span></li>
-		<li><span class=literal>WAVEFORM_SAWTOOTH_REVERSE</span></li>
-		<li><span class=literal>WAVEFORM_SQUARE</span></li>
-		<li><span class=literal>WAVEFORM_TRIANGLE</span></li>
-		<li><span class=literal>WAVEFORM_ARBITRARY</span></li>
-		<li><span class=literal>WAVEFORM_PULSE</span></li>
-		<li><span class=literal>WAVEFORM_SAMPLE_HOLD</span></li>
+		<li><span class=literal>BLAARRRRG</span></li>
 		</ul>
 	</p>
 </script>
@@ -2008,38 +1981,75 @@ The actual packets are taken
 <script type="text/x-red" data-help-name="AudioSynthWaveformDcBinary">
 	<h3>Summary</h3>
 	<div class=tooltipinfo>
-	<p>Create constant (DC) signal, useful for control of objects that take
-		a modulation or control input signal.  Rather than taking float values,
-		this block operates by a variety of int controls.</p>
+	<p>This block creates Q4.12 data and outputs it as int16 data for audio
+	system compatibility.  This is used by oscillators that have a "bit-per-octave" input terminal.
+	This block operates without glide control.
+	</p>
 	</div>
 	<h3>Audio Connections</h3>
 	<table class=doc align=center cellpadding=3>
 		<tr class=top><th>Port</th><th>Purpose</th></tr>
-		<tr class=odd><td align=center>Out 0</td><td>Output constant DC level</td></tr>
+		<tr class=odd><td align=center>Out 0</td><td>Output current value</td></tr>
 	</table>
 	<h3>Functions</h3>
-	<p class=func><span class=keyword>amplitude_int</span>( int16_t level);</p>
-	<p class=desc>Set the output.  Level is -32768 to 32767.  The output is
+	<p class=func><span class=keyword>amplitude_int</span>( int16_t level );</p>
+	<p class=desc>Set output value from -32768 to 32767.  The output is
 		changed immediately.
 	</p>
-	<p class=func><span class=keyword>amplitude_midi_key</span>( int16_t midikey);</p>
-	<p class=desc>Set the output as Q3.12 (as bit-per-octave) based on midi key.
+	<p class=func><span class=keyword>amplitude_midi_key</span>( int16_t midikey );</p>
+	<p class=desc>Set the output as Q4.12 (as bit-per-octave) based on midi key number.
 		The output is changed immediately.
 	</p>
-	<p class=func><span class=keyword>amplitude_3_12</span>( float );</p>
-	<p class=desc>Set the output as Q3.12.
+	<p class=func><span class=keyword>amplitude_4_12</span>( float );</p>
+	<p class=desc>Set the output as Q4.12 from a float ("4.0" is fourth ocatve,
+	"5.08333" is 5 1/12, or 13 notes higher. 
 	</p>
-	<!--
-<h3>Examples</h3>
-	<p class=exam>File &gt; Examples &gt; Audio &gt;
-	</p>
--->
 	<h3>Notes</h3>
-	<p>Of course, the term "DC", for Direct Current, doesn't properly apply
-		to a pure digital stream of numerical values.  But the term is widely
-		understood in audio applications, so hopefully it's not too confusing?</p>
+	<p></p>
 </script>
 <script type="text/x-red" data-template-name="AudioSynthWaveformDcBinary">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="AudioSynthWaveformDcBinaryGlide">
+	<h3>Summary</h3>
+	<div class=tooltipinfo>
+	<p>This block creates Q4.12 data and outputs it as int16 data for audio
+	system compatibility.  This is used by oscillators that have a "bit-per-octave" input terminal.
+	This features glide, which combines an input terminal for control with an internal offset.
+	</p>
+	</div>
+	<h3>Audio Connections</h3>
+	<table class=doc align=center cellpadding=3>
+		<tr class=top><th>Port</th><th>Purpose</th></tr>
+		<tr class=odd><td align=center>In 0</td><td>Apply glide, 1 to 1000 note/sec</td></tr>
+		<tr class=odd><td align=center>Out 0</td><td>Output current value</td></tr>
+	</table>
+	<h3>Functions</h3>
+	<p class=func><span class=keyword>amplitude_int</span>( int16_t level );</p>
+	<p class=desc>Set target output value from -32768 to 32767.  The output is
+		changed at the configured rate.
+	</p>
+	<p class=func><span class=keyword>amplitude_midi_key</span>( int16_t midikey );</p>
+	<p class=desc>Set the target output as Q4.12 (as bit-per-octave) based on midi key number.
+		The output is changed at the configured rate.
+	</p>
+	<p class=func><span class=keyword>amplitude_4_12</span>( float );</p>
+	<p class=desc>Set the target output as Q4.12 from a float ("4.0" is fourth ocatve,
+	"5.08333" is 5 1/12, or 13 notes higher. 
+	</p>
+	<p class=func><span class=keyword>glideOffset</span>( int16_t );</p>
+	<p class=desc>Set the offset for the glide input.  This number is added and is 
+	valid from -32768 to 32767.  The output's valid range is from 1 note/sec (input = 0)
+	to 1000 notes/sec (input = 32767), with overflow clamped to a max/min.
+	</p>
+	<h3>Notes</h3>
+	<p>The input may be left disconnected and the block controlled by glideOffset() only.</p>
+</script>
+<script type="text/x-red" data-template-name="AudioSynthWaveformDcBinaryGlide">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">

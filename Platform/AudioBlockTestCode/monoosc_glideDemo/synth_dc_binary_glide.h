@@ -24,20 +24,20 @@
  * THE SOFTWARE.
  */
 
-#ifndef synth_dc_binary_h_
-#define synth_dc_binary_h_
+#ifndef synth_dc_binary_glide_h_
+#define synth_dc_binary_glide_h_
 #include "AudioStream.h"
 #include "utility/dspinst.h"
-#include "bitPerOctaveLUTs.c"
+#include "bitPerOctaveLUTs.h"
 
-class AudioSynthWaveformDcBinary : public AudioStream
+class AudioSynthWaveformDcBinaryGlide : public AudioStream
 {
 public:
-	AudioSynthWaveformDcBinary() : AudioStream(1, inputQueueArray), target(0), accumulator(0), offsetValue(0), glideInputActive(0) {}
+	AudioSynthWaveformDcBinaryGlide() : AudioStream(1, inputQueueArray), target(0), accumulator(0), offsetValue(0), glideInputActive(0) {}
 	// Set a new target point
 	void amplitude_int( int16_t );
 	void amplitude_midi_key( int16_t );
-	void amplitude_3_12( float );
+	void amplitude_4_12( float );
 	void glideOffset( int16_t input )
 	{//this stuff is no longer true:
 		// range is from 1 to 1000 notes/second in Q4.12 format
@@ -66,7 +66,9 @@ private:
 	audio_block_t *inputQueueArray[1];
 	//uint8_t state;     // 0=steady output, 1=transitioning
 	int32_t target;    // target is Q8.24.  The output is bits 27 downto 11 are the output
+public:
 	int32_t accumulator;
+private:
 	int16_t offsetValue;
 	// adjustment per sample, as set by glideOffset function call
 	uint8_t glideInputActive;

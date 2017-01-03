@@ -28,7 +28,7 @@
 #define synth_dc_binary_h_
 #include "AudioStream.h"
 #include "utility/dspinst.h"
-#include "bitPerOctaveLUTs.c"
+#include "bitPerOctaveLUTs.h"
 
 class AudioSynthWaveformDcBinary : public AudioStream
 {

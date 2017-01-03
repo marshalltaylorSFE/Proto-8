@@ -4,7 +4,7 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
-#include "synth_dc_binary.h"
+#include "synth_dc_binary_glide.h"
 //#include "wavegen.h"
 
 #include <Audio.h>
@@ -16,7 +16,7 @@
 // GUItool: begin automatically generated code
 AudioSynthWaveformDc     dc1;            //xy=311,1634
 AudioSynthWaveformSine   sine1;          //xy=503,1496
-AudioSynthWaveformDcBinary dc_out_volume;  //xy=506,1649
+AudioSynthWaveformDcBinaryGlide dc_out_volume;  //xy=506,1649
 AudioEffectMultiply      multiply1;      //xy=716,1622
 AudioOutputAnalog        dac1;           //xy=733,1690
 AudioOutputI2S           i2s1;           //xy=870,1579

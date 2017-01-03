@@ -30,9 +30,9 @@
  */
 
   
-#include "synth_dc_binary.h"
+#include "synth_dc_binary_glide.h"
 
-void AudioSynthWaveformDcBinary::update(void)
+void AudioSynthWaveformDcBinaryGlide::update(void)
 {
 	audio_block_t *glide, *block;
 	uint32_t *p, *end, *input_p, *input_end, val;
@@ -170,7 +170,7 @@ void AudioSynthWaveformDcBinary::update(void)
 	}
 }
 
-void AudioSynthWaveformDcBinary::amplitude_int( int16_t n )
+void AudioSynthWaveformDcBinaryGlide::amplitude_int( int16_t n )
 {
 	__disable_irq();
 	//setPoint = n;
@@ -179,7 +179,7 @@ void AudioSynthWaveformDcBinary::amplitude_int( int16_t n )
 	__enable_irq();
 }
 	
-void AudioSynthWaveformDcBinary::amplitude_midi_key( int16_t n )
+void AudioSynthWaveformDcBinaryGlide::amplitude_midi_key( int16_t n )
 {
 	if( n < 0 ) n = 0;
 	if( n > 127) n = 127;
@@ -195,7 +195,7 @@ void AudioSynthWaveformDcBinary::amplitude_midi_key( int16_t n )
 	
 }
 
-void AudioSynthWaveformDcBinary::amplitude_3_12( float floatVar )
+void AudioSynthWaveformDcBinaryGlide::amplitude_4_12( float floatVar )
 {
 	__disable_irq();
     uint16_t wholePart = (uint16_t)floatVar;

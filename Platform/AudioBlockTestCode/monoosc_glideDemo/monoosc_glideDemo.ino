@@ -5,6 +5,7 @@
 #include <SerialFlash.h>
 
 #include "synth_dc_binary.h"
+#include "synth_dc_binary_glide.h"
 #include "synth_monoosc.h"
 #include "wavegen.h"
 #include "TeensyView.h"  // Include the TeensyView library
@@ -12,48 +13,30 @@
 
 // Don't touch includes when using web gui
 
-//// GUItool: begin automatically generated code
-//AudioSynthWaveformDcBinary dc_amplitude;   //xy=463,1011
-//AudioSynthWaveformDcBinary dc_cent;        //xy=463,1121
-//AudioSynthWaveformDcBinary dc_3_12;        //xy=464,1068
-//AudioSynthWaveformDcBinary dc_out_volume;  //xy=464,1195
-//AudioSynthMonoOsc        monoosc1;       //xy=676,1051
-//AudioEffectMultiply      multiply1;      //xy=808,1214
-//AudioOutputI2S           i2s1;           //xy=962,1171
-//AudioOutputAnalog        dac1;           //xy=965,1254
-//AudioConnection          patchCord1(dc_amplitude, 0, monoosc1, 0);
-//AudioConnection          patchCord2(dc_cent, 0, monoosc1, 2);
-//AudioConnection          patchCord3(dc_3_12, 0, monoosc1, 1);
-//AudioConnection          patchCord4(dc_out_volume, 0, multiply1, 1);
-//AudioConnection          patchCord5(monoosc1, 0, multiply1, 0);
-//AudioConnection          patchCord6(multiply1, 0, i2s1, 0);
-//AudioConnection          patchCord7(multiply1, dac1);
-//AudioControlSGTL5000     sgtl5000_1;     //xy=951,1112
-//// GUItool: end automatically generated code
-
 // GUItool: begin automatically generated code
-AudioSynthWaveformSine   sine1;          //xy=295,385
-AudioSynthWaveformDcBinary dc_3_12;        //xy=305,312
-AudioMixer4              mixer1;         //xy=455,326
-AudioSynthWaveformDcBinary dc_amplitude;   //xy=619,247
-AudioSynthWaveformDcBinary dc_cent;        //xy=619,357
-AudioSynthWaveformDcBinary dc_out_volume;  //xy=620,431
-AudioSynthMonoOsc        monoosc1;       //xy=832,287
-AudioEffectMultiply      multiply1;      //xy=964,450
-AudioOutputI2S           i2s1;           //xy=1118,407
-AudioOutputAnalog        dac1;           //xy=1121,490
-AudioConnection          patchCord1(sine1, 0, mixer1, 1);
-AudioConnection          patchCord2(dc_3_12, 0, mixer1, 0);
-AudioConnection          patchCord3(mixer1, 0, monoosc1, 1);
-AudioConnection          patchCord4(dc_amplitude, 0, monoosc1, 0);
-AudioConnection          patchCord5(dc_cent, 0, monoosc1, 2);
-AudioConnection          patchCord6(dc_out_volume, 0, multiply1, 1);
-AudioConnection          patchCord7(monoosc1, 0, multiply1, 0);
-AudioConnection          patchCord8(multiply1, 0, i2s1, 0);
-AudioConnection          patchCord9(multiply1, dac1);
+AudioSynthWaveformDcBinaryGlide dc_glide_4_12;  //xy=184,225
+AudioSynthWaveformSine   sine1;          //xy=255,375
+AudioMixer4              mixer1;         //xy=415,316
+AudioOutputAnalog        dac1;           //xy=419,146
+AudioSynthWaveformDcBinary dc_amplitude;   //xy=579,237
+AudioSynthWaveformDcBinary dc_cent;        //xy=579,347
+AudioSynthWaveformDcBinary dc_out_volume;  //xy=580,421
+AudioSynthMonoOsc        monoosc1;       //xy=792,277
+AudioEffectMultiply      multiply1;      //xy=924,440
+AudioOutputI2S           i2s1;           //xy=1078,397
+AudioConnection          patchCord1(dc_glide_4_12, 0, mixer1, 0);
+AudioConnection          patchCord2(dc_glide_4_12, dac1);
+AudioConnection          patchCord3(sine1, 0, mixer1, 1);
+AudioConnection          patchCord4(mixer1, 0, monoosc1, 1);
+AudioConnection          patchCord5(dc_amplitude, 0, monoosc1, 0);
+AudioConnection          patchCord6(dc_cent, 0, monoosc1, 2);
+AudioConnection          patchCord7(dc_out_volume, 0, multiply1, 1);
+AudioConnection          patchCord8(monoosc1, 0, multiply1, 0);
+AudioConnection          patchCord9(multiply1, 0, i2s1, 0);
 AudioConnection          patchCord10(multiply1, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=1107,348
+AudioControlSGTL5000     sgtl5000_1;     //xy=1067,338
 // GUItool: end automatically generated code
+
 
 
 
@@ -68,7 +51,9 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=1107,348
 
 TeensyView oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
+uint16_t graphCounter = 0;
 uint8_t displayedKnob = 0;
+uint8_t xCounter = 64;
 
 //Set knob names to analog input names here (use for remapping)
 // Knobs go:
@@ -131,8 +116,8 @@ void setup() {
 	//Configure initial system here
 	dc_amplitude.amplitude_int(1);
 	dc_cent.amplitude_int(1);
-	dc_3_12.amplitude_int(1);
-	//dc_3_12.amplitude_4_12(note2bpo[24]);
+	dc_glide_4_12.amplitude_int(1);
+	//dc_glide_4_12.amplitude_4_12(note2bpo[24]);
 	dc_out_volume.amplitude_int(0x8000);
 
 	mixer1.gain(0,1);
@@ -173,7 +158,6 @@ void showKnobInfo( uint8_t knob, uint16_t value, uint16_t lastValue )
 	oled.print(lastValue);
 	oled.display();
 }
-
 
 void loop() {
 	//Do this at the interval defined above, don't just free run the loop
@@ -231,30 +215,52 @@ void loop() {
 			lastKnob3Value = newKnob3Value;
 			sine1.frequency(20* float(newKnob3Value) / 256);
 		}
-		if( (lastKnob4Value >> 3) != (newKnob4Value >> 3) )
+		//if( (lastKnob4Value >> 3) != (newKnob4Value >> 3) )
+		if( (newKnob4Value > lastKnob4Value + 8) || ((int16_t)newKnob4Value < (int16_t)lastKnob4Value - 8))
 		{
 			lastKnob4Value = newKnob4Value;
 			//if( newKnob4Value < 512 )
 			//{
 			//	float tempbpo = note2bpo[(uint32_t)newKnob4Value * 127 / 512];
 			//	//Serial.println(tempbpo, HEX);
-			//	dc_3_12.amplitude_4_12(tempbpo); //add for dc tune
+			//	dc_glide_4_12.amplitude_4_12(tempbpo); //add for dc tune
 			//}
 			//else
 			//{
-			//	dc_3_12.amplitude_int((int16_t)(newKnob4Value - 512) << 6);
+			//	dc_glide_4_12.amplitude_int((int16_t)(newKnob4Value - 512) << 6);
 			//}
 			//float tempbpo = note2bpo[36 + (uint32_t)newKnob4Value * 24 / 1024]; //24 is full range, starting at octave 3
 			float tempbpo = note2bpo[(uint32_t)newKnob4Value * 129 / 1024]; //129 is full range
 			//Serial.println(tempbpo, HEX);
-			dc_3_12.amplitude_4_12(tempbpo); //add for dc tune
+			dc_glide_4_12.amplitude_4_12(tempbpo); //add for dc tune
 			
 		}
-		if( (lastKnob5Value) != (newKnob5Value) )
+		if( (lastKnob5Value >> 4) != (newKnob5Value >> 4) )
 		{
 			lastKnob5Value = newKnob5Value;
-			dc_cent.amplitude_int(((int32_t)newKnob5Value<<6) - 0x7FFF);
+			//dc_cent.amplitude_int(((int32_t)newKnob5Value<<6) - 0x7FFF); //This sets cent bend level
+			dc_glide_4_12.glideOffset((int16_t)newKnob5Value<<5);
 		}
+		
+		//Draw a graph every 3 times
+		if( graphCounter > 3 )
+		{
+			graphCounter = 0;
+			//  Erase the column
+			oled.line(xCounter,0,xCounter,32,BLACK,0);
+			//  Draw a new dot
+			int32_t yPos = (dc_glide_4_12.accumulator >> 12);
+			yPos *= 32;
+			yPos /= 47000;
+			yPos = 31 - yPos;
+			if(yPos < 0 )yPos = 0;
+			if(yPos > 31 )yPos = 31;
+			oled.pixel(xCounter,yPos);
+			oled.display();
+			xCounter++;
+			if( xCounter > 127 ) xCounter = 64;
+		}
+		graphCounter++;
 		
 		//When enough regular 15ms loops have occured, send out debug data to the serial
 		if( debugCounter > 50 )
