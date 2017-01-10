@@ -374,6 +374,7 @@ span.mainfunction {color: #993300; font-weight: bolder}
 		{"type":"AudioSynthWaveform","data":{"defaults":{"name":{"value":"new"}},"shortName":"waveform","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthMultiOsc","data":{"defaults":{"name":{"value":"new"}},"shortName":"multiosc","inputs":9,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
 		{"type":"AudioSynthMonoOsc","data":{"defaults":{"name":{"value":"new"}},"shortName":"monoosc","inputs":3,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
+		{"type":"AudioSynthLfo","data":{"defaults":{"name":{"value":"new"}},"shortName":"lfo","inputs":3,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
 		{"type":"AudioSynthToneSweep","data":{"defaults":{"name":{"value":"new"}},"shortName":"tonesweep","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthWaveformDc","data":{"defaults":{"name":{"value":"new"}},"shortName":"dc","inputs":0,"outputs":1,"category":"synth-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioSynthWaveformDcBinary","data":{"defaults":{"name":{"value":"new"}},"shortName":"dc_binary","inputs":0,"outputs":1,"category":"synth-function","color":"#efccff","icon":"arrow-in.png"}},
@@ -1879,6 +1880,53 @@ The actual packets are taken
 	</div>
 </script>
 
+<script type="text/x-red" data-help-name="AudioSynthLfo">
+	<h3>Summary</h3>
+	<div class=tooltipinfo>
+	<p>This block is used to play 257 sample long tables at various frequencies.
+	It uses the Q4.12 numbering scheme for the pitch mod input, and also has cent
+	and amp modulation inputs.</p>
+	</div>
+	<h3>Audio Connections</h3>
+	<table class=doc align=center cellpadding=3>
+		<tr class=top><th>Port</th><th>Purpose</th></tr>
+		<tr class=odd><td align=center>In 0</td><td>Amplitude Mod</td></tr>
+		<tr class=odd><td align=center>In 1</td><td>Bpo osc mod</td></tr>
+		<tr class=odd><td align=center>In 2</td><td>Cent osc mod</td></tr>
+		<tr class=odd><td align=center>Out 0</td><td>Wave Output</td></tr>
+	</table>
+	<h3>Functions</h3>
+	<p class=func><span class=keyword>begin</span>();</p>
+	<p class=desc>Creates memory space (for now), and generates a default wave.
+	</p>
+	<p class=func><span class=keyword>getPointer</span>( waveform number );</p>
+	<p class=desc>Returns uint16_t * of indicated waveform.
+	</p>
+	<p class=func><span class=keyword>setPointer</span>( uint8_t waveform number, int16_t * existingWave );</p>
+	<p class=desc>saves the passed pointer into the indicated location.
+	</p>
+	<p class=func><span class=keyword>amplitude</span>(level);</p>
+	<p class=desc>Set the max amplitude.  Range is 0 to 32767.
+	</p>
+	<h3>Examples</h3>
+	<p class=exam>File &gt; Examples &gt; Proto-8_Audio &gt monooscDemo; 
+	</p>
+	<p class=exam>File &gt; Examples &gt; Proto-8_Audio &gt monoosc_glideDemo; 
+	</p>
+	<h3>Notes</h3>
+	<p>All inputs must be used, and .begin() must be run once.</p>
+	<p>This block is intended to be used with something that can generate waveforms.
+	include wavegen.h to make an object that can write waveforms to allocated spaces
+	in memory.
+	</p>
+</script>
+<script type="text/x-red" data-template-name="AudioSynthLfo">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+</script>
+
 
 <script type="text/x-red" data-help-name="AudioSynthToneSweep">
 	<h3>Summary</h3>
@@ -1910,6 +1958,8 @@ The actual packets are taken
 		<input type="text" id="node-input-name" placeholder="Name">
 	</div>
 </script>
+
+
 
 <script type="text/x-red" data-help-name="AudioSynthWaveformDc">
 	<h3>Summary</h3>

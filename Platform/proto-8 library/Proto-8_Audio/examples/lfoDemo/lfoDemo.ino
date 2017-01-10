@@ -6,11 +6,13 @@
 //  and in the event that we meet you buy me a beer at your discretion.
 //
 //--------------------------------------------------------------------------------------
-//Knob 1: Pitch
-//Knob 2: Glide rate
-//Knob 3: Volume
-//Knob 4: Mod depth
-//Knob 5: Mod frequency
+//Uses standard digital pedal build
+
+//Knob 1: Volume
+//Knob 2: Mod depth
+//Knob 3: Mod frequency
+//Knob 4: Target note
+//Knob 5: cent mod
 
 #include <Audio.h>
 #include <Wire.h>
@@ -19,8 +21,7 @@
 #include <SerialFlash.h>
 
 #include "synth_dc_binary.h"
-#include "synth_dc_binary_glide.h"
-#include "synth_monoosc.h"
+#include "synth_lfo.h"
 #include "wavegen.h"
 #include "TeensyView.h"  // Include the TeensyView library
 
@@ -28,30 +29,28 @@
 // Don't touch includes when using web gui
 
 // GUItool: begin automatically generated code
-AudioSynthWaveformDcBinaryGlide dc_glide_4_12;  //xy=184,225
-AudioSynthWaveformSine   sine1;          //xy=255,375
-AudioMixer4              mixer1;         //xy=415,316
-AudioOutputAnalog        dac1;           //xy=419,146
-AudioSynthWaveformDcBinary dc_amplitude;   //xy=579,237
-AudioSynthWaveformDcBinary dc_cent;        //xy=579,347
-AudioSynthWaveformDcBinary dc_out_volume;  //xy=580,421
-AudioSynthMonoOsc        monoosc1;       //xy=792,277
-AudioEffectMultiply      multiply1;      //xy=924,440
-AudioOutputI2S           i2s1;           //xy=1078,397
-AudioConnection          patchCord1(dc_glide_4_12, 0, mixer1, 0);
-//AudioConnection          patchCord2(dc_glide_4_12, dac1);
-  AudioConnection          patchCord2(multiply1, dac1);
-AudioConnection          patchCord3(sine1, 0, mixer1, 1);
-AudioConnection          patchCord4(mixer1, 0, monoosc1, 1);
-AudioConnection          patchCord5(dc_amplitude, 0, monoosc1, 0);
-AudioConnection          patchCord6(dc_cent, 0, monoosc1, 2);
-AudioConnection          patchCord7(dc_out_volume, 0, multiply1, 1);
-AudioConnection          patchCord8(monoosc1, 0, multiply1, 0);
-AudioConnection          patchCord9(multiply1, 0, i2s1, 0);
+AudioSynthWaveformSine   sine1;          //xy=295,385
+AudioSynthWaveformDcBinary dc_3_12;        //xy=305,312
+AudioMixer4              mixer1;         //xy=455,326
+AudioSynthWaveformDcBinary dc_amplitude;   //xy=619,247
+AudioSynthWaveformDcBinary dc_cent;        //xy=619,357
+AudioSynthWaveformDcBinary dc_out_volume;  //xy=620,431
+AudioSynthLfo        lfo1;       //xy=832,287
+AudioEffectMultiply      multiply1;      //xy=964,450
+AudioOutputI2S           i2s1;           //xy=1118,407
+AudioOutputAnalog        dac1;           //xy=1121,490
+AudioConnection          patchCord1(sine1, 0, mixer1, 1);
+AudioConnection          patchCord2(dc_3_12, 0, mixer1, 0);
+AudioConnection          patchCord3(mixer1, 0, lfo1, 1);
+AudioConnection          patchCord4(dc_amplitude, 0, lfo1, 0);
+AudioConnection          patchCord5(dc_cent, 0, lfo1, 2);
+AudioConnection          patchCord6(dc_out_volume, 0, multiply1, 1);
+AudioConnection          patchCord7(lfo1, 0, multiply1, 0);
+AudioConnection          patchCord8(multiply1, 0, i2s1, 0);
+AudioConnection          patchCord9(multiply1, dac1);
 AudioConnection          patchCord10(multiply1, 0, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=1067,338
+AudioControlSGTL5000     sgtl5000_1;     //xy=1107,348
 // GUItool: end automatically generated code
-
 
 extern const float note2bpo[129];
 
@@ -66,12 +65,10 @@ extern const float note2bpo[129];
 
 TeensyView oled(PIN_RESET, PIN_DC, PIN_CS, PIN_SCK, PIN_MOSI);
 
-uint16_t graphCounter = 0;
 uint8_t displayedKnob = 0;
-uint8_t xCounter = 64;
 
 //Set knob names to analog input names here (use for remapping)
-// Knobs pins are:
+// Knobs go:
 //  1   2   3
 //    4   5
 #define KNOB3 A3 //
@@ -131,8 +128,8 @@ void setup() {
 	//Configure initial system here
 	dc_amplitude.amplitude_int(1);
 	dc_cent.amplitude_int(1);
-	dc_glide_4_12.amplitude_int(1);
-	//dc_glide_4_12.amplitude_4_12(note2bpo[24]);
+	dc_3_12.amplitude_int(1);
+	//dc_3_12.amplitude_4_12(note2bpo[24]);
 	dc_out_volume.amplitude_int(0x8000);
 
 	mixer1.gain(0,1);
@@ -141,13 +138,13 @@ void setup() {
 	sine1.amplitude(0);
 	
 	//Start the OSC with default wave.
-	monoosc1.amplitude( 0, 255 );
-	monoosc1.begin();
+	lfo1.amplitude( 0, 255 );
+	lfo1.begin();
 
 	//**** Gen Waveforms ****//
 	WaveGenerator testWave;
 	testWave.setParameters( 255, 0, 255, 0, 45 );			
-	testWave.writeWaveU16_257( monoosc1.getPointer( 0 ) );
+	testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
 
 	dac1.analogReference(EXTERNAL);
 	
@@ -173,6 +170,7 @@ void showKnobInfo( uint8_t knob, uint16_t value, uint16_t lastValue )
 	oled.print(lastValue);
 	oled.display();
 }
+
 
 void loop() {
 	//Do this at the interval defined above, don't just free run the loop
@@ -214,79 +212,54 @@ void loop() {
 			showKnobInfo( displayedKnob, lastKnob5Value, lastKnob5Value );
 		}
 		
-		//Knob 1: Pitch
-		if( (newKnob1Value > lastKnob1Value + 8) || ((int16_t)newKnob4Value < (int16_t)lastKnob1Value - 8))
+		//Set audio platform parameters based on those values
+		if( (lastKnob1Value >> 2) != (newKnob1Value >> 2) )
 		{
 			lastKnob1Value = newKnob1Value;
-			//if( newKnob1Value < 512 )
-			//{
-			//	float tempbpo = note2bpo[(uint32_t)newKnob1Value * 127 / 512];
-			//	//Serial.println(tempbpo, HEX);
-			//	dc_glide_4_12.amplitude_4_12(tempbpo); //add for dc tune
-			//}
-			//else
-			//{
-			//	dc_glide_4_12.amplitude_int((int16_t)(newKnob1Value - 512) << 6);
-			//}
-			//float tempbpo = note2bpo[36 + (uint32_t)newKnob1Value * 24 / 1024]; //24 is full range, starting at octave 3
-			float tempbpo = note2bpo[(uint32_t)newKnob1Value * 129 / 1024]; //129 is full range
-			//Serial.println(tempbpo, HEX);
-			dc_glide_4_12.amplitude_4_12(tempbpo); //add for dc tune
-			
+			dc_amplitude.amplitude_int((int16_t)newKnob1Value<<5);
 		}
-		//Knob 2: Glide rate
-		if( (lastKnob2Value >> 4) != (newKnob2Value >> 4) )
+		if( (lastKnob2Value >> 2) != (newKnob2Value >> 2) )
 		{
 			lastKnob2Value = newKnob2Value;
-			//dc_cent.amplitude_int(((int32_t)newKnob2Value<<6) - 0x7FFF); //This sets cent bend level
-			dc_glide_4_12.glideOffset((int16_t)newKnob2Value<<5);
+			sine1.amplitude(float((int32_t)newKnob2Value<<3) / 0x8000);
 		}
-		//Set audio platform parameters based on those values
-		//Knob 3: Volume
 		if( (lastKnob3Value >> 2) != (newKnob3Value >> 2) )
 		{
 			lastKnob3Value = newKnob3Value;
-			dc_amplitude.amplitude_int((int16_t)newKnob3Value<<5);
+			sine1.frequency(20* float(newKnob3Value) / 256);
 		}
-		//Knob 4: Mod depth
-		if( (lastKnob4Value >> 2) != (newKnob4Value >> 2) )
+		if( (lastKnob4Value >> 3) != (newKnob4Value >> 3) )
 		{
 			lastKnob4Value = newKnob4Value;
-			sine1.amplitude(float((int32_t)newKnob4Value<<3) / 0x8000);
+			//if( newKnob4Value < 512 )
+			//{
+			//	float tempbpo = note2bpo[(uint32_t)newKnob4Value * 127 / 512];
+			//	//Serial.println(tempbpo, HEX);
+			//	dc_3_12.amplitude_4_12(tempbpo); //add for dc tune
+			//}
+			//else
+			//{
+			//	dc_3_12.amplitude_int((int16_t)(newKnob4Value - 512) << 6);
+			//}
+			//float tempbpo = note2bpo[36 + (uint32_t)newKnob4Value * 24 / 1024]; //24 is full range, starting at octave 3
+			float tempbpo = note2bpo[(uint32_t)newKnob4Value * 129 / 1024]; //129 is full range
+			//Serial.println(tempbpo, HEX);
+			dc_3_12.amplitude_4_12(tempbpo); //add for dc tune
+			
 		}
-		//Knob 5: Mod frequency
-		if( (lastKnob5Value >> 2) != (newKnob5Value >> 2) )
+		if( (lastKnob5Value) != (newKnob5Value) )
 		{
 			lastKnob5Value = newKnob5Value;
-			sine1.frequency(20* float(newKnob5Value) / 256);
+			dc_cent.amplitude_int(((int32_t)newKnob5Value<<6) - 0x7FFF);
 		}
-		//Draw a graph every 3 times
-		if( graphCounter > 3 )
-		{
-			graphCounter = 0;
-			//  Erase the column
-			oled.line(xCounter,0,xCounter,32,BLACK,0);
-			//  Draw a new dot
-			int32_t yPos = (dc_glide_4_12.accumulator >> 12);
-			yPos *= 32;
-			yPos /= 47000;
-			yPos = 31 - yPos;
-			if(yPos < 0 )yPos = 0;
-			if(yPos > 31 )yPos = 31;
-			oled.pixel(xCounter,yPos);
-			oled.display();
-			xCounter++;
-			if( xCounter > 127 ) xCounter = 64;
-		}
-		graphCounter++;
 		
 		//When enough regular 15ms loops have occured, send out debug data to the serial
 		if( debugCounter > 50 )
 		{
 			debugCounter = 0;
-			Serial.println((int32_t)(monoosc1.debugSave >> 32), HEX);
-			Serial.println((int32_t)monoosc1.debugSave, HEX);
-			monoosc1.debugFlag = 1;
+			Serial.println((int32_t)(lfo1.debugSave >> 32), HEX);
+			Serial.println((int32_t)lfo1.debugSave, HEX);
+			lfo1.debugFlag = 1;
 			Serial.println("Knob values: ");
 			Serial.print("1: ");
 			Serial.println(newKnob1Value);
