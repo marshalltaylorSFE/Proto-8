@@ -26,64 +26,31 @@
 #include <SD.h>
 #include "SerialFlash.h"
 #include "synth_bendvelope.h"
-#include "synth_multiosc.h"
+#include "synth_monoosc.h"
 #include "synth_dc_binary.h"
+#include "synth_dc_binary_glide.h"
 
 extern LEDShiftRegister LEDs;
 extern AnalogMuxTree knobs;
 extern SwitchMatrix switches;
 
-//// GUItool: begin automatically generated code
-//extern AudioSynthBendvelope     bendvelope1;    //xy=71,800
-//extern AudioSynthBendvelope     bendvelope2;    //xy=103,1183
-//extern AudioSynthWaveformDcBinary dc1A;           //xy=260,883
-//extern AudioSynthWaveformDcBinary dc1CentA;       //xy=264,1013
-//extern AudioSynthWaveformDcBinary dc1B;           //xy=321,920
-//extern AudioSynthWaveformDcBinary dc1CentB;       //xy=331,1049
-//extern AudioSynthWaveformDcBinary dc1C;           //xy=384,958
-//extern AudioSynthWaveformDcBinary dc1CentC;       //xy=396,1084
-//extern AudioSynthWaveformDcBinary dc1D;           //xy=449,994
-//extern AudioSynthWaveformDcBinary dc1CentD;       //xy=457,1123
-//extern AudioSynthMultiOsc       multiosc1;      //xy=696,1014
-//extern AudioMixer4              mixer5;         //xy=872,1024
-//extern AudioFilterStateVariable filter1;        //xy=1018,1034
-//extern AudioFilterStateVariable filter2;        //xy=1164,1033
-//extern AudioOutputI2SQuad       is_quad23;      //xy=1354,1042
-//extern AudioConnection          patchCord1;
-//extern AudioConnection          patchCord2;
-//extern AudioConnection          patchCord3;
-//extern AudioConnection          patchCord4;
-//extern AudioConnection          patchCord5;
-//extern AudioConnection          patchCord6;
-//extern AudioConnection          patchCord7;
-//extern AudioConnection          patchCord8;
-//extern AudioConnection          patchCord9;
-//extern AudioConnection          patchCord10;
-//extern AudioConnection          patchCord11;
-//extern AudioConnection          patchCord12;
-//extern AudioConnection          patchCord13;
-//extern AudioConnection          patchCord14;
-//extern AudioConnection          patchCord15;
-//extern AudioConnection          patchCord16;
-//extern AudioControlSGTL5000     sgtl5000_1;     //xy=1308,897
-//extern AudioControlSGTL5000     sgtl5000_2;     //xy=1312,853
-//// GUItool: end automatically generated code
-
-extern AudioSynthBendvelope     bendvelope1;    //xy=144.88888549804688,248
-extern AudioSynthBendvelope     bendvelope2;    //xy=176.88888549804688,631
-extern AudioSynthWaveformDcBinary dc1A;           //xy=320.8888854980469,331
-extern AudioSynthWaveformDcBinary dc1CentA;       //xy=328.8888854980469,367
-extern AudioSynthWaveformDcBinary dc1B;           //xy=347.8888854980469,402
+// GUItool: begin automatically generated code
+extern AudioSynthWaveformDcBinary glideRate;           //xy=118.88888549804688,205
+extern AudioSynthWaveformDcBinary lfo1Pitch;     //xy=129.88888549804688,599.8889465332031
+extern AudioSynthWaveformDcBinary dc_one;     //xy=140.88888549804688,711.8889465332031
+extern AudioSynthWaveformDcBinary dc_zero;     //xy=156.88888549804688,429.888916015625
+extern AudioSynthWaveformDcBinaryGlide dc1A; //xy=344.888916015625,331.888916015625
+extern AudioSynthWaveformDcBinaryGlide dc1B; //xy=351.8888854980469,385.8888854980469
+extern AudioSynthBendvelope     bendvelope2;    //xy=351.8888854980469,521.0001525878906
 extern AudioSynthWaveformDcBinary dc1CentB;       //xy=355.8888854980469,435
-extern AudioSynthWaveformDcBinary dc1C;           //xy=378.8888854980469,469
-extern AudioSynthWaveformDcBinary dc1CentC;       //xy=388.8888854980469,504
-extern AudioSynthWaveformDcBinary dc1D;           //xy=412.8888854980469,541.0001525878906
-extern AudioSynthWaveformDcBinary dc1CentD;       //xy=417.8888854980469,576.0000305175781
-extern AudioSynthMultiOsc       multiosc1;      //xy=769.8888854980469,462
-extern AudioMixer4              mixer5;         //xy=945.8888854980469,472
-extern AudioFilterStateVariable filter1;        //xy=1091.8888854980469,482
-extern AudioFilterStateVariable filter2;        //xy=1237.8888854980469,481
-extern AudioOutputI2SQuad       is_quad23;      //xy=1427.8888854980469,490
+extern AudioSynthMonoOsc        lfo1;       //xy=369.888916015625,579.8889465332031
+extern AudioSynthBendvelope     bendvelope1;    //xy=384.8888854980469,252
+extern AudioSynthMonoOsc        monoosc2;       //xy=590.8889465332031,420.8888854980469
+extern AudioSynthMonoOsc        monoosc1;       //xy=592.8888854980469,345.8888854980469
+extern AudioSynthWaveformDcBinary dc_filter;     //xy=732.8889465332031,536.8889465332031
+extern AudioMixer4              mixer5;         //xy=784.8889465332031,408
+extern AudioFilterStateVariable filter1;        //xy=930.8889465332031,418
+extern AudioOutputI2SQuad       is_quad23;      //xy=1157.8889465332031,428
 extern AudioConnection          patchCord1;
 extern AudioConnection          patchCord2;
 extern AudioConnection          patchCord3;
@@ -100,17 +67,20 @@ extern AudioConnection          patchCord13;
 extern AudioConnection          patchCord14;
 extern AudioConnection          patchCord15;
 extern AudioConnection          patchCord16;
-extern AudioControlSGTL5000     sgtl5000_1;     //xy=1381.8888854980469,345
-extern AudioControlSGTL5000     sgtl5000_2;     //xy=1385.8888854980469,301
+extern AudioConnection          patchCord17;
+extern AudioConnection          patchCord18;
+extern AudioConnection          patchCord19;
+extern AudioControlSGTL5000     sgtl5000_1;     //xy=1120.8889465332031,323
+extern AudioControlSGTL5000     sgtl5000_2;     //xy=1124.8889465332031,279
+// GUItool: end automatically generated code
 
-#define CordDCPA patchCord2
-#define CordDCCA patchCord3
-#define CordDCPB patchCord4
-#define CordDCCB patchCord5
-#define CordDCPC patchCord6
-#define CordDCCC patchCord7
-#define CordDCPD patchCord8
-#define CordDCCD patchCord9
+#define CordDCPA patchCord7
+#define CordDCCA patchCord5
+#define CordDCPB patchCord8
+#define CordDCCB patchCord9
+#define Cordlfo1Pitch patchCord3
+#define Cordlfo1Amp patchCord4
+#define CordFilter patchCord14
 
 extern ModulatorBlock modulator[4];
 
@@ -144,15 +114,15 @@ P8Interface::P8Interface( void )
 	waveShapeParams[1][2] = 0;
 	waveShapeParams[1][3] = 0;
 	
-	srcMapping[1] = 1;
-	srcMapping[2] = 2;
-	srcMapping[3] = 3;
-	srcMapping[4] = 4;
+	srcMapping[1] = 0;
+	srcMapping[2] = 0;
+	srcMapping[3] = 0;
+	srcMapping[4] = 0;
 
-	destMapping[1] = 5;
-	destMapping[2] = 6;
-	destMapping[3] = 7;
-	destMapping[4] = 8;
+	destMapping[1] = 0;
+	destMapping[2] = 0;
+	destMapping[3] = 0;
+	destMapping[4] = 0;
 
 }
 
@@ -161,16 +131,19 @@ void P8Interface::reset( void )
 	//Set explicit states
 	//Set all LED off
 	LEDs.clear();
-	modSources[0].set( &bendvelope2, 0 );
+	modSources[0].set( &bendvelope1, 0 );
+	modSources[1].set( &bendvelope2, 0 );
+	modSources[2].set( &lfo1, 0 );
+	modSources[3].set( &monoosc1, 0 );
+	modSources[4].set( &monoosc2, 0 );
 
 	effectPaths[0].set(&CordDCPA);
 	effectPaths[1].set(&CordDCCA);
 	effectPaths[2].set(&CordDCPB);
 	effectPaths[3].set(&CordDCCB);
-	effectPaths[4].set(&CordDCPC);
-	effectPaths[5].set(&CordDCCC);
-	effectPaths[6].set(&CordDCPD);
-	effectPaths[7].set(&CordDCCD);	
+	effectPaths[4].set(&Cordlfo1Pitch);
+	effectPaths[5].set(&Cordlfo1Amp);
+	effectPaths[6].set(&CordFilter);
 	
 }
 
@@ -224,30 +197,30 @@ void P8Interface::processMachine( void )
 			
 		}
 	}
-	if( lfo2Shape.serviceRisingEdge() )
-	{
-		Serial.println("Detect.");
-		lfo2WaveSrc++;
-		if(lfo2WaveSrc > 3) lfo2WaveSrc = 1;
-		lfo2Led1.setState(LEDOFF);
-		lfo2Led2.setState(LEDOFF);
-		lfo2Led3.setState(LEDOFF);
-		switch(lfo2WaveSrc)
-		{
-			case 1:
-			lfo2Led1.setState(LEDON);
-			break;
-			case 2:
-			lfo2Led2.setState(LEDON);
-			break;
-			case 3:
-			lfo2Led3.setState(LEDON);
-			break;
-			default:
-			break;
-			
-		}
-	}
+	//if( lfo2Shape.serviceRisingEdge() )
+	//{
+	//	Serial.println("Detect.");
+	//	lfo2WaveSrc++;
+	//	if(lfo2WaveSrc > 3) lfo2WaveSrc = 1;
+	//	lfo2Led1.setState(LEDOFF);
+	//	lfo2Led2.setState(LEDOFF);
+	//	lfo2Led3.setState(LEDOFF);
+	//	switch(lfo2WaveSrc)
+	//	{
+	//		case 1:
+	//		lfo2Led1.setState(LEDON);
+	//		break;
+	//		case 2:
+	//		lfo2Led2.setState(LEDON);
+	//		break;
+	//		case 3:
+	//		lfo2Led3.setState(LEDON);
+	//		break;
+	//		default:
+	//		break;
+	//		
+	//	}
+	//}
 	if( oscAShape.serviceRisingEdge() )
 	{
 		Serial.println("Detect.");
@@ -296,58 +269,69 @@ void P8Interface::processMachine( void )
 			
 		}
 	}
-	if( oscCShape.serviceRisingEdge() )
-	{
-		Serial.println("Detect.");
-		oscCWaveSrc++;
-		if(oscCWaveSrc > 3) oscCWaveSrc = 1;
-		oscCLed1.setState(LEDOFF);
-		oscCLed2.setState(LEDOFF);
-		oscCLed3.setState(LEDOFF);
-		switch(oscCWaveSrc)
-		{
-			case 1:
-			oscCLed1.setState(LEDON);
-			break;
-			case 2:
-			oscCLed2.setState(LEDON);
-			break;
-			case 3:
-			oscCLed3.setState(LEDON);
-			break;
-			default:
-			break;
-			
-		}
-	}
-	if( oscDShape.serviceRisingEdge() )
-	{
-		Serial.println("Detect.");
-		oscDWaveSrc++;
-		if(oscDWaveSrc > 3) oscDWaveSrc = 1;
-		oscDLed1.setState(LEDOFF);
-		oscDLed2.setState(LEDOFF);
-		oscDLed3.setState(LEDOFF);
-		switch(oscDWaveSrc)
-		{
-			case 1:
-			oscDLed1.setState(LEDON);
-			break;
-			case 2:
-			oscDLed2.setState(LEDON);
-			break;
-			case 3:
-			oscDLed3.setState(LEDON);
-			break;
-			default:
-			break;
-			
-		}
-	}
+	//if( oscCShape.serviceRisingEdge() )
+	//{
+	//	Serial.println("Detect.");
+	//	oscCWaveSrc++;
+	//	if(oscCWaveSrc > 3) oscCWaveSrc = 1;
+	//	oscCLed1.setState(LEDOFF);
+	//	oscCLed2.setState(LEDOFF);
+	//	oscCLed3.setState(LEDOFF);
+	//	switch(oscCWaveSrc)
+	//	{
+	//		case 1:
+	//		oscCLed1.setState(LEDON);
+	//		break;
+	//		case 2:
+	//		oscCLed2.setState(LEDON);
+	//		break;
+	//		case 3:
+	//		oscCLed3.setState(LEDON);
+	//		break;
+	//		default:
+	//		break;
+	//		
+	//	}
+	//}
+	//if( oscDShape.serviceRisingEdge() )
+	//{
+	//	Serial.println("Detect.");
+	//	oscDWaveSrc++;
+	//	if(oscDWaveSrc > 3) oscDWaveSrc = 1;
+	//	oscDLed1.setState(LEDOFF);
+	//	oscDLed2.setState(LEDOFF);
+	//	oscDLed3.setState(LEDOFF);
+	//	switch(oscDWaveSrc)
+	//	{
+	//		case 1:
+	//		oscDLed1.setState(LEDON);
+	//		break;
+	//		case 2:
+	//		oscDLed2.setState(LEDON);
+	//		break;
+	//		case 3:
+	//		oscDLed3.setState(LEDON);
+	//		break;
+	//		default:
+	//		break;
+	//		
+	//	}
+	//}
 	//Handle sync toggles
 	if( oscBSync.serviceRisingEdge() )
 	{
-		oscBSyncLed.toggle();
+		if(oscBSyncLed.getState() == LEDON) //Using light state as memory
+		{
+			oscBSyncLed.setState(LEDOFF);
+			CordDCPB.disconnect();
+			CordDCPB.reconnect( &dc1B, 0, &monoosc2, 1);
+		}
+		else
+		{
+			oscBSyncLed.setState(LEDON);
+			CordDCPB.disconnect();
+			CordDCPB.reconnect( &dc1A, 0, &monoosc2, 1);
+		}
 	}
 	if( oscCSync.serviceRisingEdge() )
 	{
@@ -359,18 +343,24 @@ void P8Interface::processMachine( void )
 	}
 
 	//OSC Knobs
+	if( lfo1Freq.serviceChanged() )
+	{
+		lfo1Pitch.amplitude_int(((int16_t)lfo1Freq.getState() - 128) << 8);
+	}
+	
 	if( oscAPitch.serviceChanged() || oscAOctave.serviceChanged() )
 	{
 		oscAOctaveState = oscAOctave.getState();
 		dcTuneOffset[0] = (int16_t)oscAOctaveState - 2 + ((float)oscAPitch.getState() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
-	if( oscACent.serviceChanged() )
-	{
-		dc1CentA.amplitude_int(((int16_t)oscACent.getState() - 128) << 8);
-	}
+	//if( oscACent.serviceChanged() )
+	//{
+	//	//dc1CentA.amplitude_int(((int16_t)oscACent.getState() - 128) << 8);
+    //
+	//}
 	if( oscAPreAmp.serviceChanged() )
 	{
-		multiosc1.staticAmp[0] = oscAPreAmp.getState();
+		monoosc1.staticAmp[0] = oscAPreAmp.getState();
 	}
 
 
@@ -385,7 +375,7 @@ void P8Interface::processMachine( void )
 	}	
 	if( oscBPreAmp.serviceChanged() )
 	{
-		multiosc1.staticAmp[1] = oscBPreAmp.getState();
+		monoosc2.staticAmp[0] = oscBPreAmp.getState();
 	}
 	
 	
@@ -396,11 +386,11 @@ void P8Interface::processMachine( void )
 	}	
 	if( oscCCent.serviceChanged() )
 	{
-		dc1CentC.amplitude_int(((int16_t)oscCCent.getState() - 128) << 8);
+		//dc1CentC.amplitude_int(((int16_t)oscCCent.getState() - 128) << 8);
 	}	
 	if( oscCPreAmp.serviceChanged() )
 	{
-		multiosc1.staticAmp[2] = oscCPreAmp.getState();
+		//multiosc1.staticAmp[2] = oscCPreAmp.getState();
 	}
 	
 	
@@ -411,11 +401,11 @@ void P8Interface::processMachine( void )
 	}	
 	if( oscDCent.serviceChanged() )
 	{
-		dc1CentD.amplitude_int(((int16_t)oscDCent.getState() - 128) << 8);
+		//dc1CentD.amplitude_int(((int16_t)oscDCent.getState() - 128) << 8);
 	}	
 	if( oscDPreAmp.serviceChanged() )
 	{
-		multiosc1.staticAmp[3] = oscDPreAmp.getState();
+		//multiosc1.staticAmp[3] = oscDPreAmp.getState();
 	}
 	
 	
@@ -472,18 +462,71 @@ void P8Interface::processMachine( void )
 		testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], 45 );			
 		Serial.println("before");
 		delay(20);
-		testWave.writeWaveU16_257( multiosc1.getPointer( 0 ) );
+		if( lfo1WaveSrc == 1 )
+		{
+			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+		}
+		if( oscAWaveSrc == 1 )
+		{
+			testWave.writeWaveU16_257( monoosc1.getPointer( 0 ) );
+		}
+		if( oscBWaveSrc == 1 )
+		{
+			testWave.writeWaveU16_257( monoosc2.getPointer( 0 ) );
+		}
 		Serial.println("after");
 		delay(20);
 		
 	}
 	if( wave2Ramp.serviceChanged() || wave2Sine.serviceChanged() || wave2Pulse.serviceChanged() )
 	{
+		waveShapeParams[1][0] = wave2Ramp.getState();
+		waveShapeParams[1][1] = wave2Sine.getState();
+		waveShapeParams[1][2] = wave2Pulse.getState();	
 		
+		WaveGenerator testWave;
+		testWave.setParameters( 255, waveShapeParams[1][0], waveShapeParams[1][1], waveShapeParams[1][2], 45 );			
+		Serial.println("before");
+		delay(20);
+		if( lfo1WaveSrc == 2 )
+		{
+			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+		}
+		if( oscAWaveSrc == 2 )
+		{
+			testWave.writeWaveU16_257( monoosc1.getPointer( 0 ) );
+		}
+		if( oscBWaveSrc == 2 )
+		{
+			testWave.writeWaveU16_257( monoosc2.getPointer( 0 ) );
+		}
+		Serial.println("after");
+		delay(20);		
 	}
 	if( wave3Width.serviceChanged() || wave3Pulse.serviceChanged() )
 	{
+		waveShapeParams[2][0] = 0;
+		waveShapeParams[2][1] = 0;
+		waveShapeParams[2][2] = wave3Pulse.getState();	
 		
+		WaveGenerator testWave;
+		testWave.setParameters( 255, 0, 0, waveShapeParams[2][2], wave3Width.getState() );			
+		Serial.println("before");
+		delay(20);
+		if( lfo1WaveSrc == 3 )
+		{
+			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+		}
+		if( oscAWaveSrc == 3 )
+		{
+			testWave.writeWaveU16_257( monoosc1.getPointer( 0 ) );
+		}
+		if( oscBWaveSrc == 3 )
+		{
+			testWave.writeWaveU16_257( monoosc2.getPointer( 0 ) );
+		}
+		Serial.println("after");
+		delay(20);			
 	}
 	
 	//Bus knobs
@@ -498,12 +541,49 @@ void P8Interface::processMachine( void )
 		modulator[0].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
 		modulator[0].modOffset.amplitude_int( offsetCalc );
 	}	
-	
+	if( bus2Amp.serviceChanged() || bus2Offset.serviceChanged() )
+	{
+		int16_t ampCalc = ((int16_t)bus2Amp.getState() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus2Offset.getState() - 128) << 8;
+		Serial.print(ampCalc);
+		Serial.println(offsetCalc);
+		modulator[1].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
+		modulator[1].modOffset.amplitude_int( offsetCalc );
+	}
+	if( bus3Amp.serviceChanged() || bus3Offset.serviceChanged() )
+	{
+		int16_t ampCalc = ((int16_t)bus3Amp.getState() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus3Offset.getState() - 128) << 8;
+		Serial.print(ampCalc);
+		Serial.println(offsetCalc);
+		modulator[2].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
+		modulator[2].modOffset.amplitude_int( offsetCalc );
+	}	
+	if( bus4Amp.serviceChanged() || bus4Offset.serviceChanged() )
+	{
+		int16_t ampCalc = ((int16_t)bus4Amp.getState() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus4Offset.getState() - 128) << 8;
+		Serial.print(ampCalc);
+		Serial.println(offsetCalc);
+		modulator[3].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
+		modulator[3].modOffset.amplitude_int( offsetCalc );
+	}	
+
 	//Misc knobs
 	if( masterVolume.serviceChanged() )
 	{
 		sgtl5000_1.volume(((float)masterVolume.getState() / 256) * 1);
 		sgtl5000_2.volume(((float)masterVolume.getState() / 256) * 1);
+	}
+	if( bus5Amp.serviceChanged() )
+	{
+		//Set glide rate
+		glideRate.amplitude_int( (int16_t)bus5Amp.getState() << 7 );
+	}
+	if( bus5Offset.serviceChanged() )
+	{
+		//Set filter point
+		dc_filter.amplitude_int( ((int16_t)bus5Offset.getState() - 128) << 8 );
 	}
 	//if( Select.serviceChanged() )
 	//{
@@ -530,12 +610,13 @@ void P8Interface::tickStateMachine()
     switch( state )
     {
     case PInit:
+		
 		lfo1Led1.setState(LEDON);
-		lfo2Led1.setState(LEDON);
+		//lfo2Led1.setState(LEDON);
 		oscALed1.setState(LEDON);
 		oscBLed1.setState(LEDON);
-		oscCLed1.setState(LEDON);
-		oscDLed1.setState(LEDON);
+		//oscCLed1.setState(LEDON);
+		//oscDLed1.setState(LEDON);
 		
 		oscAOctaveState = oscAOctave.getState();
 		oscBOctaveState = oscBOctave.getState();

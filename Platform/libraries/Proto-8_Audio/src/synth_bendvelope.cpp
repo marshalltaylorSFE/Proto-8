@@ -30,7 +30,7 @@ AudioSynthBendvelope::AudioSynthBendvelope() : AudioStream(1, inputQueueArray)
 	decayTable.maxTime = 2500000;
 	releaseTable.maxTime = 5000000;
 	maxAHold = 1000000;
-
+	lastSerialState = 0xFF;
 }
 
 BendTable::BendTable( void )
@@ -205,15 +205,21 @@ void AudioSynthBendvelope::update(void)
 
 void AudioSynthBendvelope::tick( uint32_t uTicks )
 {
+	__disable_irq();
 	// Let the timers know how may useconds have passed
 	mainTimeKeeper.uIncrement(uTicks);
-
+	
 	//State machine
 	uint8_t next_state = state;
 	switch( state )
 	{
 	case SM_IDLE:
-		//do nothing
+//		if(lastSerialState != SM_IDLE)
+//		{
+//			Serial.println("SM_IDLE");
+//			lastSerialState = SM_IDLE;
+//		}
+//		//do nothing
 		if( noteState != NOTE_OFF )
 		{
 			next_state = SM_ATTACK;
@@ -222,6 +228,12 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 		}
 		break;
 	case SM_ATTACK:
+//		if(lastSerialState != SM_ATTACK)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			Serial.println("SM_ATTACK");
+//		}
 		//Increment amp or leave
 		if( amp > 253 )
 		{
@@ -260,11 +272,20 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 			//change amp
             amp = attackTable.getSampleByTime(mainTimeKeeper.uGet());
 		}
-		break;
-	case SM_PRE_DECAY:
+//		if(lastSerialState != SM_ATTACK)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			lastSerialState = SM_ATTACK;
+//		}
 		break;
 	case SM_ATTACK_HOLD:
-		//Increment amp or leave
+//		if(lastSerialState != SM_ATTACK_HOLD)
+//		{
+//			Serial.println("SM_ATTACK_HOLD");
+//			lastSerialState = SM_ATTACK_HOLD;
+//		}
+//		//Increment amp or leave
 		if( mainTimeKeeper.uGet() > envAttackHold.timeScale )
 		{
 			next_state = SM_DECAY;
@@ -272,6 +293,12 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 		}
 		break;
 	case SM_DECAY:
+//		if(lastSerialState != SM_DECAY)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			Serial.println("SM_DECAY");
+//		}
 		if( amp > envSustain.level )  //Always get to sustain level before advancing
 		{
             amp = decayTable.getSampleByTime(mainTimeKeeper.uGet());
@@ -293,12 +320,20 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 			mainTimeKeeper.uClear();
 			next_state = SM_RELEASE;
 		}
-		break;
-	case SM_POST_DECAY:
-		break;
-	case SM_PRE_RELEASE:
+//		if(lastSerialState != SM_DECAY)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			lastSerialState = SM_DECAY;
+//		}
 		break;
 	case SM_RELEASE:
+//		if(lastSerialState != SM_RELEASE)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			Serial.println("SM_RELEASE");
+//		}
 		if( noteState != NOTE_OFF )
 		{
 			//Note went back on!
@@ -325,28 +360,21 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 				next_state = SM_IDLE;
 			}
 		}
-		break;
-	case SM_POST_RELEASE:
-/* 		if( noteState == NOTE_OFF )
-		{
-			//go back to the release
-			next_state = SM_RELEASE;
-
-		}
-		else
-		{
-			if( amp > 0 )
-			{
-				//changeAmp( envRelease, mainTimeKeeper.uGet(), state, amp );
-			}
-		} */
+//		if(lastSerialState != SM_RELEASE)
+//		{
+//			Serial.print("Amp: ");
+//			Serial.println(amp);
+//			lastSerialState = SM_RELEASE;
+//		}
 		break;
 	default:
+		Serial.println("Default");
 		break;
 	}
 	//Apply the next state after the logic has completed
 	state = next_state;
 	//Serial.println(amp);
+	__enable_irq();
 }
 
 void AudioSynthBendvelope::noteOn(void)

@@ -4,47 +4,90 @@
 #include <SD.h>
 #include "SerialFlash.h"
 #include "synth_bendvelope.h"
-#include "synth_multiosc.h"
+#include "synth_monoosc.h"
 #include "synth_dc_binary.h"
+#include "synth_dc_binary_glide.h"
 #include "P8Interface.h"
 //#include "MicroLLTemplate.h"
 
+//// GUItool: begin automatically generated code
+//AudioSynthWaveformDcBinary dc1A;           //xy=320.8888854980469,331
+//AudioSynthWaveformDcBinary dc1CentA;       //xy=328.8888854980469,367
+//AudioSynthWaveformDcBinary dc1B;           //xy=347.8888854980469,402
+//AudioSynthWaveformDcBinary dc1CentB;       //xy=355.8888854980469,435
+//AudioSynthBendvelope     bendvelope1;    //xy=384.8888854980469,252
+//AudioSynthBendvelope     bendvelope2;    //xy=400.8888854980469,538.0000305175781
+//AudioSynthMonoOsc        monoosc2;       //xy=590.8889465332031,420.8888854980469
+//AudioSynthMonoOsc        monoosc1;       //xy=592.8888854980469,345.8888854980469
+//AudioMixer4              mixer5;         //xy=784.8889465332031,408
+//AudioFilterStateVariable filter1;        //xy=930.8889465332031,418
+//AudioFilterStateVariable filter2;        //xy=1076.8889465332031,417
+//AudioOutputI2SQuad       is_quad23;      //xy=1266.8889465332031,426
+//AudioConnection          patchCord1(dc1A, 0, monoosc1, 1);
+//AudioConnection          patchCord2(dc1CentA, 0, monoosc1, 2);
+//AudioConnection          patchCord3(dc1B, 0, monoosc2, 1);
+//AudioConnection          patchCord4(dc1CentB, 0, monoosc2, 2);
+//AudioConnection          patchCord5(bendvelope1, 0, monoosc1, 0);
+//AudioConnection          patchCord6(bendvelope1, 0, monoosc2, 0);
+//AudioConnection          patchCord7(monoosc2, 0, mixer5, 1);
+//AudioConnection          patchCord8(monoosc1, 0, mixer5, 0);
+//AudioConnection          patchCord9(mixer5, 0, filter1, 0);
+//AudioConnection          patchCord10(filter1, 0, filter2, 0);
+//AudioConnection          patchCord11(filter2, 0, is_quad23, 0);
+//AudioConnection          patchCord12(filter2, 0, is_quad23, 1);
+//AudioConnection          patchCord13(filter2, 0, is_quad23, 2);
+//AudioConnection          patchCord14(filter2, 0, is_quad23, 3);
+//AudioControlSGTL5000     sgtl5000_1;     //xy=1220.8889465332031,281
+//AudioControlSGTL5000     sgtl5000_2;     //xy=1224.8889465332031,237
+//// GUItool: end automatically generated code
+
 // GUItool: begin automatically generated code
-AudioSynthBendvelope     bendvelope1;    //xy=144.88888549804688,248
-AudioSynthBendvelope     bendvelope2;    //xy=176.88888549804688,631
-AudioSynthWaveformDcBinary dc1A;           //xy=320.8888854980469,331
-AudioSynthWaveformDcBinary dc1CentA;       //xy=328.8888854980469,367
-AudioSynthWaveformDcBinary dc1B;           //xy=347.8888854980469,402
+AudioSynthWaveformDcBinary glideRate;           //xy=118.88888549804688,205
+AudioSynthWaveformDcBinary lfo1Pitch;     //xy=129.88888549804688,599.8889465332031
+AudioSynthWaveformDcBinary dc_one;     //xy=140.88888549804688,711.8889465332031
+AudioSynthWaveformDcBinary dc_zero;     //xy=156.88888549804688,429.888916015625
+AudioSynthWaveformDcBinaryGlide dc1A; //xy=344.888916015625,331.888916015625
+AudioSynthWaveformDcBinaryGlide dc1B; //xy=351.8888854980469,385.8888854980469
+AudioSynthBendvelope     bendvelope2;    //xy=351.8888854980469,521.0001525878906
 AudioSynthWaveformDcBinary dc1CentB;       //xy=355.8888854980469,435
-AudioSynthWaveformDcBinary dc1C;           //xy=378.8888854980469,469
-AudioSynthWaveformDcBinary dc1CentC;       //xy=388.8888854980469,504
-AudioSynthWaveformDcBinary dc1D;           //xy=412.8888854980469,541.0001525878906
-AudioSynthWaveformDcBinary dc1CentD;       //xy=417.8888854980469,576.0000305175781
-AudioSynthMultiOsc       multiosc1;      //xy=769.8888854980469,462
-AudioMixer4              mixer5;         //xy=945.8888854980469,472
-AudioFilterStateVariable filter1;        //xy=1091.8888854980469,482
-AudioFilterStateVariable filter2;        //xy=1237.8888854980469,481
-AudioOutputI2SQuad       is_quad23;      //xy=1427.8888854980469,490
-AudioConnection          patchCord1(bendvelope1, 0, multiosc1, 0);
-AudioConnection          patchCord2(dc1A, 0, multiosc1, 1);
-AudioConnection          patchCord3(dc1CentA, 0, multiosc1, 2);
-AudioConnection          patchCord4(dc1B, 0, multiosc1, 3);
-AudioConnection          patchCord5(dc1CentB, 0, multiosc1, 4);
-AudioConnection          patchCord6(dc1C, 0, multiosc1, 5);
-AudioConnection          patchCord7(dc1CentC, 0, multiosc1, 6);
-AudioConnection          patchCord8(dc1D, 0, multiosc1, 7);
-AudioConnection          patchCord9(dc1CentD, 0, multiosc1, 8);
-AudioConnection          patchCord10(multiosc1, 0, mixer5, 0);
-//AudioConnection          patchCord11(mixer5, 0, filter1, 0);
-//AudioConnection          patchCord12(filter1, 0, filter2, 0);
-AudioConnection          patchCord13(mixer5, 0, is_quad23, 0);
-AudioConnection          patchCord14(mixer5, 0, is_quad23, 1);
-AudioConnection          patchCord15(mixer5, 0, is_quad23, 2);
-AudioConnection          patchCord16(mixer5, 0, is_quad23, 3);
-AudioControlSGTL5000     sgtl5000_1;     //xy=1381.8888854980469,345
-AudioControlSGTL5000     sgtl5000_2;     //xy=1385.8888854980469,301
+AudioSynthMonoOsc        lfo1;       //xy=369.888916015625,579.8889465332031
+AudioSynthBendvelope     bendvelope1;    //xy=384.8888854980469,252
+AudioSynthMonoOsc        monoosc2;       //xy=590.8889465332031,420.8888854980469
+AudioSynthMonoOsc        monoosc1;       //xy=592.8888854980469,345.8888854980469
+AudioSynthWaveformDcBinary dc_filter;     //xy=732.8889465332031,536.8889465332031
+AudioMixer4              mixer5;         //xy=784.8889465332031,408
+AudioFilterStateVariable filter1;        //xy=930.8889465332031,418
+AudioOutputI2SQuad       is_quad23;      //xy=1157.8889465332031,428
+AudioConnection          patchCord1(glideRate, dc1A);
+AudioConnection          patchCord2(glideRate, dc1B);
+AudioConnection          patchCord3(lfo1Pitch, 0, lfo1, 1);
+AudioConnection          patchCord4(dc_one, 0, lfo1, 0);
+AudioConnection          patchCord5(dc_zero, 0, monoosc1, 2);
+AudioConnection          patchCord6(dc_zero, 0, lfo1, 2);
+AudioConnection          patchCord7(dc1A, 0, monoosc1, 1);
+AudioConnection          patchCord8(dc1B, 0, monoosc2, 1);
+AudioConnection          patchCord9(dc1CentB, 0, monoosc2, 2);
+AudioConnection          patchCord10(bendvelope1, 0, monoosc1, 0);
+AudioConnection          patchCord11(bendvelope1, 0, monoosc2, 0);
+AudioConnection          patchCord12(monoosc2, 0, mixer5, 1);
+AudioConnection          patchCord13(monoosc1, 0, mixer5, 0);
+AudioConnection          patchCord14(dc_filter, 0, filter1, 1);
+AudioConnection          patchCord15(mixer5, 0, filter1, 0);
+AudioConnection          patchCord16(filter1, 0, is_quad23, 0);
+AudioConnection          patchCord17(filter1, 0, is_quad23, 1);
+AudioConnection          patchCord18(filter1, 0, is_quad23, 2);
+AudioConnection          patchCord19(filter1, 0, is_quad23, 3);
+AudioControlSGTL5000     sgtl5000_1;     //xy=1120.8889465332031,323
+AudioControlSGTL5000     sgtl5000_2;     //xy=1124.8889465332031,279
 // GUItool: end automatically generated code
 
+#define CordDCPA patchCord7
+#define CordDCCA patchCord5
+#define CordDCPB patchCord8
+#define CordDCCB patchCord9
+#define Cordlfo1Pitch patchCord3
+#define Cordlfo1Amp patchCord4
+#define CordFilter patchCord14
 
 
 ModulatorBlock modulator[4];
@@ -222,7 +265,6 @@ void HandleControlChange(byte channel, byte number, byte value)
 		case 1:
 		//Filter
 		filter1.frequency((value * value * 0.9) + 40);  
-		filter2.frequency((value * value * 0.9) + 40);  
 		break;
 		default:
 		break;
@@ -308,21 +350,29 @@ void setup()
 	sgtl5000_2.volume(1.0);
 	sgtl5000_2.unmuteHeadphone();
 
+	dc_filter.amplitude_int( 0 );
+	
 	filter1.frequency(8000);  
-	filter2.frequency(8000);
+	filter1.octaveControl(2.5);
 	
 	//multiosc1.amplitude(0x7FFF);
-	
-	multiosc1.begin(); //allocates + default shape
+	glideRate.amplitude_int( 10000 );
+	dc_zero.amplitude_int( 0 );
+	dc_one.amplitude_int( 25000 );
+	lfo1Pitch.amplitude_4_12( 1.0 );
+	lfo1.begin();
+	lfo1.staticAmp[0] = 255;
+	monoosc1.begin(); //allocates + default shape
+	monoosc2.begin(); //allocates + default shape
 	//--This would be useful for enumerating multiple multiosc blocks
 	//int16_t * tempPointer = multiosc1.getPointer(0);
 	//multiosc2.setPointer(0, tempPointer);
 
 	//dc1A.amplitude_4_12(6.459432);
 	//dc1B.amplitude_4_12(6.459432);
-	mixer5.gain(0, 1.0);
-	mixer5.gain(1, 0);
-	mixer5.gain(2, 0);
+	mixer5.gain(0, 0.5);
+	mixer5.gain(1, 0.5);
+	mixer5.gain(2, 0.5);
 	mixer5.gain(3, 0);
 
 }
@@ -441,8 +491,6 @@ void loop()
 					float tempbpoA = note2bpo[tempNote.value];
 					dc1A.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[0]);
 					dc1B.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[1]);
-					dc1C.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[2]);
-					dc1D.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[3]);
 					digitalWrite(syncPin, 1);
 					bendvelope1.noteOn();
 					bendvelope2.noteOn();
@@ -497,7 +545,7 @@ void loop()
 					//--old
 					//Serial.print("Voice silenced: ");
 					//Serial.println(tempNote.voice);					
-					
+
 					noteOnInList.dropObject( tempSeekDepth );
 
 					rxNoteList.dropObject( unservicedNoteCount - 1 );
@@ -513,11 +561,11 @@ void loop()
 						float tempbpoA = note2bpo[tempNote.value];
 						dc1A.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[0]);
 						dc1B.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[1]);
-						dc1C.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[2]);
-						dc1D.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[3]);
 						digitalWrite(syncPin, 1);
-						bendvelope1.noteOn();
-						bendvelope2.noteOn();
+						// This should be: if note dropped was not playing, do not
+						// regrigger.  if note was playing, restart oldest note
+						//bendvelope1.noteOn();
+						//bendvelope2.noteOn();
 						digitalWrite(syncPin, 0);
 					}
 					

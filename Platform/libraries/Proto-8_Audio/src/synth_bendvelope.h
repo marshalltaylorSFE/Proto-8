@@ -78,9 +78,9 @@ public:
     BendTable attackTable;
     BendTable decayTable;
     BendTable releaseTable;
-
+private:
 	uint8_t  state;  // idle, delay, attack, hold, decay, sustain, release
-	
+public:
 	using AudioStream::release;
 private:
 	// state
@@ -109,6 +109,8 @@ private:
 	uint32_t maxDecay;
 	uint32_t maxRelease;
 	uint32_t maxAHold;
+	
+	uint8_t lastSerialState;
 
 };
 
