@@ -245,10 +245,10 @@ Serial.println("J");
 	__enable_irq();	
 }
 
-void AudioConnection::reconnect(AudioStream &source, unsigned char sourceOutput, AudioStream &destination, unsigned char destinationInput)
+void AudioConnection::reconnect(AudioStream * source, unsigned char sourceOutput, AudioStream * destination, unsigned char destinationInput)
 {
-	src = &source;
-	dst = &destination;
+	src = source;
+	dst = destination;
 	src_index = sourceOutput;
 	dest_index = destinationInput;
 	next_dest = NULL;

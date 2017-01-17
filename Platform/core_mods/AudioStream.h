@@ -73,7 +73,11 @@ public:
 		next_dest(NULL)
 		{ connect(); }
 	void disconnect(void);
-	void reconnect(AudioStream &source, unsigned char sourceOutput,	AudioStream &destination, unsigned char destinationInput);
+	void reconnect(AudioStream * source, unsigned char sourceOutput,	AudioStream * destination, unsigned char destinationInput);
+	AudioStream * getSrc( void ){return src;}
+	AudioStream * getDst( void ){return dst;}
+	unsigned char getSrc_Index( void ){return src_index;}
+	unsigned char getDest_Index( void ){return dest_index;}
 	friend class AudioStream;
 protected:
 	void connect(void);
