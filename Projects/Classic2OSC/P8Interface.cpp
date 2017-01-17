@@ -36,14 +36,12 @@ extern SwitchMatrix switches;
 
 // GUItool: begin automatically generated code
 extern AudioSynthWaveformDcBinary glideRate;           //xy=118.88888549804688,205
-extern AudioSynthWaveformDcBinary lfo1Pitch;     //xy=129.88888549804688,599.8889465332031
-extern AudioSynthWaveformDcBinary dc_one;     //xy=140.88888549804688,711.8889465332031
 extern AudioSynthWaveformDcBinary dc_zero;     //xy=156.88888549804688,429.888916015625
 extern AudioSynthWaveformDcBinaryGlide dc1A; //xy=344.888916015625,331.888916015625
 extern AudioSynthWaveformDcBinaryGlide dc1B; //xy=351.8888854980469,385.8888854980469
 extern AudioSynthBendvelope     bendvelope2;    //xy=351.8888854980469,521.0001525878906
 extern AudioSynthWaveformDcBinary dc1CentB;       //xy=355.8888854980469,435
-extern AudioSynthMonoOsc        lfo1;       //xy=369.888916015625,579.8889465332031
+extern AudioSynthWaveformSine   lfo1;          //xy=369,570
 extern AudioSynthBendvelope     bendvelope1;    //xy=384.8888854980469,252
 extern AudioSynthMonoOsc        monoosc2;       //xy=590.8889465332031,420.8888854980469
 extern AudioSynthMonoOsc        monoosc1;       //xy=592.8888854980469,345.8888854980469
@@ -67,20 +65,18 @@ extern AudioConnection          patchCord13;
 extern AudioConnection          patchCord14;
 extern AudioConnection          patchCord15;
 extern AudioConnection          patchCord16;
-extern AudioConnection          patchCord17;
-extern AudioConnection          patchCord18;
-extern AudioConnection          patchCord19;
 extern AudioControlSGTL5000     sgtl5000_1;     //xy=1120.8889465332031,323
 extern AudioControlSGTL5000     sgtl5000_2;     //xy=1124.8889465332031,279
 // GUItool: end automatically generated code
 
-#define CordDCPA patchCord7
-#define CordDCCA patchCord5
-#define CordDCPB patchCord8
-#define CordDCCB patchCord9
-#define Cordlfo1Pitch patchCord3
-#define Cordlfo1Amp patchCord4
-#define CordFilter patchCord14
+
+#define CordDCPA patchCord4
+#define CordDCCA patchCord3
+#define CordDCPB patchCord5
+#define CordDCCB patchCord6
+
+
+#define CordFilter patchCord11
 
 extern ModulatorBlock modulator[4];
 
@@ -141,8 +137,8 @@ void P8Interface::reset( void )
 	effectPaths[1].set(&CordDCCA);
 	effectPaths[2].set(&CordDCPB);
 	effectPaths[3].set(&CordDCCB);
-	effectPaths[4].set(&Cordlfo1Pitch);
-	effectPaths[5].set(&Cordlfo1Amp);
+
+
 	effectPaths[6].set(&CordFilter);
 	
 }
@@ -345,7 +341,8 @@ void P8Interface::processMachine( void )
 	//OSC Knobs
 	if( lfo1Freq.serviceChanged() )
 	{
-		lfo1Pitch.amplitude_int(((int16_t)lfo1Freq.getState() - 128) << 8);
+		//lfo1Pitch.amplitude_int(((int16_t)lfo1Freq.getState() - 128) << 8);
+		lfo1.frequency  (0.05 + ((float)lfo1Freq.getState() / 50));
 	}
 	
 	if( oscAPitch.serviceChanged() || oscAOctave.serviceChanged() )
@@ -464,7 +461,7 @@ void P8Interface::processMachine( void )
 		delay(20);
 		if( lfo1WaveSrc == 1 )
 		{
-			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+			//testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
 		}
 		if( oscAWaveSrc == 1 )
 		{
@@ -490,7 +487,7 @@ void P8Interface::processMachine( void )
 		delay(20);
 		if( lfo1WaveSrc == 2 )
 		{
-			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+			//testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
 		}
 		if( oscAWaveSrc == 2 )
 		{
@@ -515,7 +512,7 @@ void P8Interface::processMachine( void )
 		delay(20);
 		if( lfo1WaveSrc == 3 )
 		{
-			testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
+			//testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
 		}
 		if( oscAWaveSrc == 3 )
 		{

@@ -86,7 +86,9 @@ void AudioSynthMonoOsc::update(void)
 			sampleAcumulator = 0;
 			//input and centInput needs poly handling
 			input[0] = bpoABlock->data[i];  //Get incomming pitch data
-			ampInput = ampModBlock->data[i] >> 2 ;
+			//ampInput = ampModBlock->data[i] >> 2 ;
+			//try not >> 2
+			ampInput = ampModBlock->data[i];
 			centInput[0] = centABlock->data[i];
 			
 			//First
@@ -96,7 +98,7 @@ void AudioSynthMonoOsc::update(void)
 			scale = (ph[0] >> 16) & 0xFF; //get partial phase value as 8 bit
 			val2 = (val2 * scale) >> 8; //scale val2 by scale
 			val1 = (val1 + val2) * staticAmp[0] / 256; //add scaled delta to val1
-			sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput);
+			sampleAcumulator += multiply_32x32_rshift32(val1 << 16, ampInput << 1);
 			
 			//Calculate the next increment value
 			inputFractional = input[0] & 0x0FFF;  //Get only the RHS

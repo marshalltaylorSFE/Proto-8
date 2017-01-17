@@ -43,14 +43,12 @@
 
 // GUItool: begin automatically generated code
 AudioSynthWaveformDcBinary glideRate;           //xy=118.88888549804688,205
-AudioSynthWaveformDcBinary lfo1Pitch;     //xy=129.88888549804688,599.8889465332031
-AudioSynthWaveformDcBinary dc_one;     //xy=140.88888549804688,711.8889465332031
 AudioSynthWaveformDcBinary dc_zero;     //xy=156.88888549804688,429.888916015625
 AudioSynthWaveformDcBinaryGlide dc1A; //xy=344.888916015625,331.888916015625
 AudioSynthWaveformDcBinaryGlide dc1B; //xy=351.8888854980469,385.8888854980469
 AudioSynthBendvelope     bendvelope2;    //xy=351.8888854980469,521.0001525878906
 AudioSynthWaveformDcBinary dc1CentB;       //xy=355.8888854980469,435
-AudioSynthMonoOsc        lfo1;       //xy=369.888916015625,579.8889465332031
+AudioSynthWaveformSine   lfo1;          //xy=369,570
 AudioSynthBendvelope     bendvelope1;    //xy=384.8888854980469,252
 AudioSynthMonoOsc        monoosc2;       //xy=590.8889465332031,420.8888854980469
 AudioSynthMonoOsc        monoosc1;       //xy=592.8888854980469,345.8888854980469
@@ -60,34 +58,35 @@ AudioFilterStateVariable filter1;        //xy=930.8889465332031,418
 AudioOutputI2SQuad       is_quad23;      //xy=1157.8889465332031,428
 AudioConnection          patchCord1(glideRate, dc1A);
 AudioConnection          patchCord2(glideRate, dc1B);
-AudioConnection          patchCord3(lfo1Pitch, 0, lfo1, 1);
-AudioConnection          patchCord4(dc_one, 0, lfo1, 0);
-AudioConnection          patchCord5(dc_zero, 0, monoosc1, 2);
-AudioConnection          patchCord6(dc_zero, 0, lfo1, 2);
-AudioConnection          patchCord7(dc1A, 0, monoosc1, 1);
-AudioConnection          patchCord8(dc1B, 0, monoosc2, 1);
-AudioConnection          patchCord9(dc1CentB, 0, monoosc2, 2);
-AudioConnection          patchCord10(bendvelope1, 0, monoosc1, 0);
-AudioConnection          patchCord11(bendvelope1, 0, monoosc2, 0);
-AudioConnection          patchCord12(monoosc2, 0, mixer5, 1);
-AudioConnection          patchCord13(monoosc1, 0, mixer5, 0);
-AudioConnection          patchCord14(dc_filter, 0, filter1, 1);
-AudioConnection          patchCord15(mixer5, 0, filter1, 0);
-AudioConnection          patchCord16(filter1, 0, is_quad23, 0);
-AudioConnection          patchCord17(filter1, 0, is_quad23, 1);
-AudioConnection          patchCord18(filter1, 0, is_quad23, 2);
-AudioConnection          patchCord19(filter1, 0, is_quad23, 3);
+AudioConnection          patchCord3(dc_zero, 0, monoosc1, 2);
+AudioConnection          patchCord4(dc1A, 0, monoosc1, 1);
+AudioConnection          patchCord5(dc1B, 0, monoosc2, 1);
+AudioConnection          patchCord6(dc1CentB, 0, monoosc2, 2);
+AudioConnection          patchCord7(bendvelope1, 0, monoosc1, 0);
+AudioConnection          patchCord8(bendvelope1, 0, monoosc2, 0);
+AudioConnection          patchCord9(monoosc2, 0, mixer5, 1);
+AudioConnection          patchCord10(monoosc1, 0, mixer5, 0);
+AudioConnection          patchCord11(dc_filter, 0, filter1, 1);
+AudioConnection          patchCord12(mixer5, 0, filter1, 0);
+AudioConnection          patchCord13(filter1, 0, is_quad23, 0);
+AudioConnection          patchCord14(filter1, 0, is_quad23, 1);
+AudioConnection          patchCord15(filter1, 0, is_quad23, 2);
+AudioConnection          patchCord16(filter1, 0, is_quad23, 3);
 AudioControlSGTL5000     sgtl5000_1;     //xy=1120.8889465332031,323
 AudioControlSGTL5000     sgtl5000_2;     //xy=1124.8889465332031,279
 // GUItool: end automatically generated code
 
-#define CordDCPA patchCord7
-#define CordDCCA patchCord5
-#define CordDCPB patchCord8
-#define CordDCCB patchCord9
-#define Cordlfo1Pitch patchCord3
-#define Cordlfo1Amp patchCord4
-#define CordFilter patchCord14
+
+AudioAnalyzePeak         peak1;          //xy=1396,593
+AudioConnection          patchCord20(lfo1, 0, peak1, 0);
+
+#define CordDCPA patchCord4
+#define CordDCCA patchCord3
+#define CordDCPB patchCord5
+#define CordDCCB patchCord6
+
+
+#define CordFilter patchCord11
 
 
 ModulatorBlock modulator[4];
@@ -289,6 +288,9 @@ void handleSystemReset(void)
 	//Send note offs to all envelopes
 	bendvelope1.noteOff();
 	bendvelope2.noteOff();
+	
+	p8hid.bv1Trigger.setState(LEDOFF);
+	p8hid.bv2Trigger.setState(LEDOFF);
 }
 
 
@@ -358,10 +360,11 @@ void setup()
 	//multiosc1.amplitude(0x7FFF);
 	glideRate.amplitude_int( 10000 );
 	dc_zero.amplitude_int( 0 );
-	dc_one.amplitude_int( 25000 );
-	lfo1Pitch.amplitude_4_12( 1.0 );
-	lfo1.begin();
-	lfo1.staticAmp[0] = 255;
+	//dc_one.amplitude_int( 25000 );
+	lfo1.amplitude(0.2);
+	//lfo1Pitch.amplitude_4_12( 1.0 );
+	//lfo1.begin();
+	//lfo1.staticAmp[0] = 255;
 	monoosc1.begin(); //allocates + default shape
 	monoosc2.begin(); //allocates + default shape
 	//--This would be useful for enumerating multiple multiosc blocks
@@ -370,9 +373,9 @@ void setup()
 
 	//dc1A.amplitude_4_12(6.459432);
 	//dc1B.amplitude_4_12(6.459432);
-	mixer5.gain(0, 0.5);
-	mixer5.gain(1, 0.5);
-	mixer5.gain(2, 0.5);
+	mixer5.gain(0, 1);
+	mixer5.gain(1, 1);
+	mixer5.gain(2, 0);
 	mixer5.gain(3, 0);
 
 }
@@ -494,6 +497,9 @@ void loop()
 					digitalWrite(syncPin, 1);
 					bendvelope1.noteOn();
 					bendvelope2.noteOn();
+					p8hid.bv1Trigger.setState(LEDON);
+					p8hid.bv2Trigger.setState(LEDON);
+
 					digitalWrite(syncPin, 0);
 					rxNoteList.dropObject( unservicedNoteCount - 1 );
 
@@ -541,6 +547,8 @@ void loop()
 					tempNote = *noteOnInList.readObject( tempSeekDepth );
 					bendvelope1.noteOff();
 					bendvelope2.noteOff();
+					p8hid.bv1Trigger.setState(LEDOFF);
+					p8hid.bv2Trigger.setState(LEDOFF);
 
 					//--old
 					//Serial.print("Voice silenced: ");
@@ -625,7 +633,11 @@ void loop()
 		Serial.println(pUTStopTime - pUTStartTime);
 		//Serial.print(", ");
 		//Serial.println(usTicks - tempTime);
-		
+		if(peak1.available())
+		{
+			Serial.print("Peak value: ");
+			Serial.println(peak1.read());
+		}
 		Serial.println();
 
 	}
