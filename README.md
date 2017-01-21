@@ -15,11 +15,11 @@
 * 8 unassigned 1/2 inch TRS connectors
 * 64 knob inputs (analog multiplexed)
 * 64 switch inputs (4x16 diode multiplexed)
-* 64 LED outputs (shift registers based for low flicker)
+* 64 LED outputs (shift registers to remove flicker)
 
 ![alt text](https://raw.githubusercontent.com/marshalltaylorSFE/Proto-8/master/Images/Proto-8_render.jpg "Render of Proto-8 Circuit")
 
-*A KiCad Render of the circuit board* 
+*A KiCad render of the circuit board* 
 
 **Software:**
 
@@ -39,7 +39,7 @@
 *New audio system blocks* 
 
 #### Windows Installation
-1. Obtain Arduino 1.6.12 from [arduino.cc](https://www.arduino.cc/en/Main/OldSoftwareReleases#previous) and install.  I recommend the zip file extracted to a non-system-integrated install.\
+1. Obtain Arduino 1.6.12 from [arduino.cc](https://www.arduino.cc/en/Main/OldSoftwareReleases#previous) and install.  I recommend the zip file extracted to a non-system-integrated install.
 3. Install [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) and all libraries to the 1.6.12 installation.
 2. Download [the Audio GUI](https://github.com/PaulStoffregen/Audio/tree/master/gui) and place in a directory of your computer.  Test that you can view "index.html" in a browser and that the system functions like [the online version](https://www.pjrc.com/teensy/gui/).
 3. Replace the modified files from this repo into the local audio gui's folder (described in [Proto-8/Platform/GUI_mods/readme.md](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/GUI_mods)).  Refresh the index.html file in your browser and the new modules should appear in a pinker color.
