@@ -395,4 +395,3 @@ uint8_t P8PanelSelector::serviceChanged( void )
 	
 	return returnVar;
 }
-
