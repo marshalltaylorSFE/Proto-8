@@ -27,17 +27,11 @@ void ADCKnob::update( void )
 	values.write(analogRead( posNumber ));
 	//Get the averages
 	int32_t accumulator = 0;
-	accumulator += values.read(0);
-	accumulator += values.read(1);
-	accumulator += values.read(2);
-	accumulator += values.read(3);
-	accumulator += values.read(4);
-	accumulator += values.read(5);
-	accumulator += values.read(6);
-	accumulator += values.read(7);
-	accumulator += values.read(8);
-	accumulator += values.read(9);
-	averages.write(accumulator/10);
+	for( int i = 0; i < samplesAveraged; i++ )
+	{
+		accumulator += values.read(i);
+	}
+	averages.write(accumulator/samplesAveraged);
 	if(hystState == 0)
 	{
 		if( averages.read(0) > currentValue )

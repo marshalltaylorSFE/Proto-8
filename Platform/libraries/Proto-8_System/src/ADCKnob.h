@@ -69,10 +69,15 @@ public:
 	{
 		hysteresis = input;
 	}
+	void setSamplesAveraged( uint8_t input )
+	{
+		samplesAveraged = input;
+	}
+	uint8_t samplesAveraged = 4;
 	CircularBuffer values;
 	CircularBuffer averages;
 	uint16_t lowerKnobVal = 0;
-	uint16_t upperKnobVal = 1024;
+	uint16_t upperKnobVal = 1023;
 	float lowerFloatVal = -1.0;
 	float upperFloatVal = 1.0;
 	int16_t lowerIntVal = -32768;

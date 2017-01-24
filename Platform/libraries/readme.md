@@ -24,5 +24,6 @@ Examples:
 Examples:
 
 * knobDemo -- Demonstrates the stand alone knob filter and scale object
+* knobDemoTeensyView -- Demonstrates knobDemo with filter on knobs and TeensyView
 * proto-8HardwareDemo -- Shows a demo using a panel (P8Panel / P8Interface), with serial output
 * proto-8HardwareTest -- Walks through various IO testing of the Proto-8 circuit board
