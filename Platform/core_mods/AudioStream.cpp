@@ -29,6 +29,7 @@
  */
 
 
+#include <string.h> // for memcpy
 #include "AudioStream.h"
 
 
@@ -126,8 +127,10 @@ void AudioStream::release(audio_block_t *block)
 // Transmit an audio data block
 // to all streams that connect to an output.  The block
 // becomes owned by all the recepients, but also is still
-// owned by this object.  Normally, a block is released
-// after it's transmitted.
+// owned by this object.  Normally, a block must be released
+// by the caller after it's transmitted.  This allows the
+// caller to transmit to same block to more than 1 output,
+// and then release it once after all transmit calls.
 void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
@@ -202,40 +205,40 @@ void AudioConnection::disconnect(void)
 	if (p == NULL) return; //No items in list!
 	if (p == this)//This object is the head
 	{
-Serial.println("A");
+//Serial.println("A");
 		if(this->next_dest == NULL) //The is the last object in the list
 		{
 			src->destination_list = NULL; //Nullify destination_list of src (now empty)
 			src->active = false;
 			dst->active = false;
-Serial.println("B");
+//Serial.println("B");
 		}
 		else //There are objects after this one
 		{
-Serial.println("C");
+//Serial.println("C");
 			src->destination_list = this->next_dest; //it can't be null so save it
 			src->active = true;
 		}
 	}
 	else
 	{
-Serial.println("G");
+//Serial.println("G");
 		//We're in the list, but are not the head
 		while ((p->next_dest != this)&&(p->next_dest != NULL)) //go seek something
 		{
-Serial.println("H");
+//Serial.println("H");
 			p = p->next_dest;
 		}
 		//Now, the ref is either null or this
 		if(p->next_dest == this)
 		{
-Serial.println("I");
+//Serial.println("I");
 			p->next_dest = this->next_dest;
 			dst->active = true;
 		}
 		else
 		{
-Serial.println("J");
+//Serial.println("J");
 			//null -- must not have been connected
 		}
 	}
@@ -255,15 +258,15 @@ void AudioConnection::reconnect(AudioStream * source, unsigned char sourceOutput
 	//connect();
 
 	AudioConnection *p;
-Serial.println("a");
+//Serial.println("a");
 	if (dest_index > dst->num_inputs) return;
 	__disable_irq();
 	p = src->destination_list;
 	if (p == NULL) {
-Serial.println("b");
+//Serial.println("b");
 		src->destination_list = this;
 	} else {
-Serial.println("c");
+//Serial.println("c");
 		while (p->next_dest) p = p->next_dest;
 		p->next_dest = this;
 	}

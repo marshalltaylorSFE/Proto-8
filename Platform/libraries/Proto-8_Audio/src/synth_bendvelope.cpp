@@ -368,7 +368,7 @@ void AudioSynthBendvelope::tick( uint32_t uTicks )
 //		}
 		break;
 	default:
-		Serial.println("Default");
+//		Serial.println("Default");
 		break;
 	}
 	//Apply the next state after the logic has completed
