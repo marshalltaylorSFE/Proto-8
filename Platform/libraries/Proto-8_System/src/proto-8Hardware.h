@@ -5,9 +5,12 @@
 //    2/25/2016 -- Branched to demo for deployment
 //    2/28/2016 -- Moved to Proto-8 repo
 //    2/28/2016 -- Added tick() methods;
+//    4/11/2017 -- Added Arduino include
 
 #if !defined(PROTO8_HARDWARE_H)
 #define PROTO8_HARDWARE_H
+#include <Arduino.h>
+
 
 static const int nOEPin = 33;
 static const int LCLKPin = 32;

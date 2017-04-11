@@ -12,97 +12,71 @@
 #ifndef P8PANEL_H
 #define P8PANEL_H
 
-#include "P8PanelComponents.h"
+#include "Panel.h"
+#include "PanelComponents.h"
+#include "proto-8HardwareInterfaces.h"
+#include <Arduino.h>
 
-class P8Panel
+enum PStates
+{
+	PInit,
+	PRun
+};
+
+class P8Panel : public Panel
 {
 public:
 	P8Panel( void );
-	void update( void );
-	void init( void );
-	void toggleFlasherState( void );
-	void toggleFastFlasherState( void );
-
-	P8PanelButton button1;
-	P8PanelButton button2;
-	P8PanelButton button3;
-	P8PanelButton button4;
-	P8PanelButton button5;
-	P8PanelButton button6;
-	P8PanelButton button7;
-	P8PanelButton button8;
-	P8PanelButton button9;
-	P8PanelButton button10;
-	P8PanelButton button11;
-	P8PanelButton button12;
-	P8PanelButton button13;
-	P8PanelButton button14;
-	P8PanelButton button15;
-	P8PanelButton button16;
+	void reset( void );
+	void tickStateMachine( int msTicksDelta );
+	uint8_t getState( void ){
+		return (uint8_t)state;
+	}
 	
-	P8PanelLed led1;
-	P8PanelLed led2;
-	P8PanelLed led3;
-	P8PanelLed led4;
-	P8PanelLed led5;
-	P8PanelLed led6;
-	P8PanelLed led7;
-	P8PanelLed led8;
-	P8PanelLed led9;
-	P8PanelLed led10;
-	P8PanelLed led11;
-	P8PanelLed led12;
-	P8PanelLed led13;
-	P8PanelLed led14;
-	P8PanelLed led15;
-	P8PanelLed led16;
-	
-	P8PanelLed hpA;
-	P8PanelLed hpB;
-	P8PanelLed hpC;
-	P8PanelLed hpD;
-	P8PanelLed hpE;
-	P8PanelLed hpF;
-	P8PanelLed hpG;
-	P8PanelLed hpDP;
-	P8PanelLed hpD1;
-	P8PanelLed hpD2;
-	P8PanelLed hpD3;
-	P8PanelLed hpD4;
-	P8PanelLed hpD5;
-	P8PanelLed hpD6;
-	P8PanelLed hpD7;
-	P8PanelLed hpD8;
-	P8PanelLed hpD9;
-	
-	P8PanelKnob8Bit fixtureKnob;
-
-	P8PanelKnob8Bit attackKnob;
-	P8PanelKnob8Bit attackBendKnob;
-	P8PanelKnob8Bit holdKnob;
-	P8PanelKnob8Bit decayKnob;
-	P8PanelKnob8Bit decayBendKnob;
-	P8PanelKnob8Bit sustainKnob;
-	P8PanelKnob8Bit releaseKnob;
-	P8PanelKnob8Bit releaseBendKnob;
-
-	P8PanelKnob8Bit refKnob;
-	P8PanelKnob8Bit rail18Knob;
-	P8PanelKnob8Bit rail33Knob;
-
-
-
-
-
-
-
-
-	
-protected:
 private:
-	volatile uint8_t flasherState;
-	volatile uint8_t fastFlasherState;
+	Button button1;
+	Button button2;
+	Button button3;
+	Button button4;
+	Button button5;
+	Button button6;
+	Button button7;
+	Button button8;
+	Button button9;
+	Button button10;
+	Button button11;
+	Button button12;
+	Button button13;
+	Button button14;
+	Button button15;
+	Button button16;
+	
+	Led led1;
+	Led led2;
+	Led led3;
+	Led led4;
+	Led led5;
+	Led led6;
+	Led led7;
+	Led led8;
+	Led led9;
+	Led led10;
+	Led led11;
+	Led led12;
+	Led led13;
+	Led led14;
+	Led led15;
+	Led led16;
+	
+	Windowed10BitKnob fixtureKnob;
 
+	Simple10BitKnob refKnob;
+	Simple10BitKnob rail18Knob;
+	Simple10BitKnob rail33Knob;
+
+	//State machine stuff  
+	PStates state;
+	
 };
 
 #endif // P8PANEL_H

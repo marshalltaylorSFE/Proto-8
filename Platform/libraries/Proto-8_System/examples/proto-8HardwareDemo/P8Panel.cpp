@@ -9,8 +9,17 @@
 //    2016/2/24: Created
 //
 //**********************************************************************//
+//#include "Arduino.h"
+#include "proto-8Hardware.h"
+#include "VoltageMonitor.h"
 #include "P8Panel.h"
-#include "Arduino.h"
+#include "panelComponents.h"
+#include "HardwareInterfaces.h"
+#include "flagMessaging.h"
+
+extern VoltageMonitor LEDs;
+extern AnalogMuxTree knobs;
+extern SwitchMatrix switches;
 
 //This is where PanelComponents are joined to form the custom panel
 //col,row
@@ -50,156 +59,246 @@
 
 #define FIXTUREKNOBPOS 64
 
-#define	AKPOS 56
-#define	ABKPOS 51
-#define	HKPOS 55
-#define	DKPOS 54
-#define	DBKPOS 50
-#define	SKPOS 53
-#define	RKPOS 52
-#define	RBKPOS 49
+//#define	AKPOS 56
+//#define	ABKPOS 51
+//#define	HKPOS 55
+//#define	DKPOS 54
+//#define	DBKPOS 50
+//#define	SKPOS 53
+//#define	RKPOS 52
+//#define	RBKPOS 49
 
 #define	REFPOS 8
 #define	RAIL18POS 6
 #define	RAIL33POS 7
 
+//segments at:
+//hpA.init(60);
+//hpB.init(52);
+//hpC.init(64);
+//hpD.init(56);
+//hpE.init(58);
+//hpF.init(50);
+//hpG.init(54);
+//hpDP.init(62);
+//hpD1.init(48);
+//hpD2.init(63);
+//hpD3.init(61);
+//hpD4.init(59);
+//hpD5.init(57);
+//hpD6.init(55);
+//hpD7.init(53);
+//hpD8.init(51);
+//hpD9.init(49);
+
 P8Panel::P8Panel( void )
 {
-	flasherState = 0;
-	fastFlasherState = 0;
+	button1.setHardware(new Proto8DigitalIn( B1POS ), 0);
+	button2.setHardware(new Proto8DigitalIn( B2POS ), 0);
+	button3.setHardware(new Proto8DigitalIn( B3POS ), 0);
+	button4.setHardware(new Proto8DigitalIn( B4POS ), 0);
+	button5.setHardware(new Proto8DigitalIn( B5POS ), 0);
+	button6.setHardware(new Proto8DigitalIn( B6POS ), 0);
+	button7.setHardware(new Proto8DigitalIn( B7POS ), 0);
+	button8.setHardware(new Proto8DigitalIn( B8POS ), 0);
+	button9.setHardware(new Proto8DigitalIn( B9POS ), 0);
+	button10.setHardware(new Proto8DigitalIn( B10POS ), 0);
+	button11.setHardware(new Proto8DigitalIn( B11POS ), 0);
+	button12.setHardware(new Proto8DigitalIn( B12POS ), 0);
+	button13.setHardware(new Proto8DigitalIn( B13POS ), 0);
+	button14.setHardware(new Proto8DigitalIn( B14POS ), 0);
+	button15.setHardware(new Proto8DigitalIn( B15POS ), 0);
+	button16.setHardware(new Proto8DigitalIn( B16POS ), 0);
+	add( &button1 );
+	add( &button2 );
+	add( &button3 );
+	add( &button4 );
+	add( &button5 );
+	add( &button6 );
+	add( &button7 );
+	add( &button8 );
+	add( &button9 );
+	add( &button10 );
+	add( &button11 );
+	add( &button12 );
+	add( &button13 );
+	add( &button14 );
+	add( &button15 );
+	add( &button16 );
+    
+	led1.setHardware(new Proto8DigitalOut( LED1POS ), 0);
+	led2.setHardware(new Proto8DigitalOut( LED2POS ), 0);
+	led3.setHardware(new Proto8DigitalOut( LED3POS ), 0);
+	led4.setHardware(new Proto8DigitalOut( LED4POS ), 0);
+	led5.setHardware(new Proto8DigitalOut( LED5POS ), 0);
+	led6.setHardware(new Proto8DigitalOut( LED6POS ), 0);
+	led7.setHardware(new Proto8DigitalOut( LED7POS ), 0);
+	led8.setHardware(new Proto8DigitalOut( LED8POS ), 0);
+	led9.setHardware(new Proto8DigitalOut( LED9POS ), 0);
+	led10.setHardware(new Proto8DigitalOut( LED10POS ), 0);
+	led11.setHardware(new Proto8DigitalOut( LED11POS ), 0);
+	led12.setHardware(new Proto8DigitalOut( LED12POS ), 0);
+	led13.setHardware(new Proto8DigitalOut( LED13POS ), 0);
+	led14.setHardware(new Proto8DigitalOut( LED14POS ), 0);
+	led15.setHardware(new Proto8DigitalOut( LED15POS ), 0);
+	led16.setHardware(new Proto8DigitalOut( LED16POS ), 0);
+	add( &led1 );
+	add( &led2 );
+	add( &led3 );
+	add( &led4 );
+	add( &led5 );
+	add( &led6 );
+	add( &led7 );
+	add( &led8 );
+	add( &led9 );
+	add( &led10 );
+	add( &led11 );
+	add( &led12 );
+	add( &led13 );
+	add( &led14 );
+	add( &led15 );
+	add( &led16 );
+    
+	fixtureKnob.setHardware(new Proto8AnalogIn( FIXTUREKNOBPOS ));
+	refKnob.setHardware(new Proto8AnalogIn( REFPOS ));
+	rail18Knob.setHardware(new Proto8AnalogIn( RAIL18POS ));
+	rail33Knob.setHardware(new Proto8AnalogIn( RAIL33POS ));
+	add( &fixtureKnob );
+	add( &refKnob );
+	add( &rail18Knob );
+	add( &rail33Knob );
+	
+	state = PInit;
 }
 
-void P8Panel::init( void )
+void P8Panel::reset( void )
 {
-	button1.init(B1POS);
-	button2.init(B2POS);
-	button3.init(B3POS);
-	button4.init(B4POS);
-	button5.init(B5POS);
-	button6.init(B6POS);
-	button7.init(B7POS);
-	button8.init(B8POS);
-	button9.init(B9POS);
-	button10.init(B10POS);
-	button11.init(B11POS);
-	button12.init(B12POS);
-	button13.init(B13POS);
-	button14.init(B14POS);
-	button15.init(B15POS);
-	button16.init(B16POS);
-	
-	led1.init(LED1POS);
-	led2.init(LED2POS);
-	led3.init(LED3POS);
-	led4.init(LED4POS);
-	led5.init(LED5POS);
-	led6.init(LED6POS);
-	led7.init(LED7POS);
-	led8.init(LED8POS);
-	led9.init(LED9POS);
-	led10.init(LED10POS);
-	led11.init(LED11POS);
-	led12.init(LED12POS);
-	led13.init(LED13POS);
-	led14.init(LED14POS);
-	led15.init(LED15POS);
-	led16.init(LED16POS);
-
-	hpA.init(60);
-	hpB.init(52);
-	hpC.init(64);
-	hpD.init(56);
-	hpE.init(58);
-	hpF.init(50);
-	hpG.init(54);
-	hpDP.init(62);
-	hpD1.init(48);
-	hpD2.init(63);
-	hpD3.init(61);
-	hpD4.init(59);
-	hpD5.init(57);
-	hpD6.init(55);
-	hpD7.init(53);
-	hpD8.init(51);
-	hpD9.init(49);
-	
-	fixtureKnob.init(FIXTUREKNOBPOS);
-	
-	attackKnob.init(AKPOS);
-	attackBendKnob.init(ABKPOS);
-	holdKnob.init(HKPOS);
-	decayKnob.init(DKPOS);
-	decayBendKnob.init(DBKPOS);
-	sustainKnob.init(SKPOS);
-	releaseKnob.init(RKPOS);
-	releaseBendKnob.init(RBKPOS);
-	
-	refKnob.init(REFPOS);
-	rail18Knob.init(RAIL18POS);
-	rail33Knob.init(RAIL33POS);
-	
- 	flasherState = 0;
-	fastFlasherState = 0;
-}
-
-void P8Panel::update( void )
-{
-	button1.update();
-	button2.update();
-	button3.update();
-	button4.update();
-	button5.update();
-	button6.update();
-	button7.update();
-	button8.update();
-	button9.update();
-	button10.update();
-	button11.update();
-	button12.update();
-	button13.update();
-	button14.update();
-	button15.update();
-	button16.update();
-	
-	led1.update();
-	led2.update();
-	led3.update();
-	led4.update();
-	led5.update();
-	led6.update();
-	led7.update();
-	led8.update();
-	led9.update();
-	led10.update();
-	led11.update();
-	led12.update();
-	led13.update();
-	led14.update();
-	led15.update();
-	led16.update();
-	
-	fixtureKnob.update();
-	
-	attackKnob.update();
-	attackBendKnob.update();
-	holdKnob.update();
-	decayKnob.update();
-	decayBendKnob.update();
-	sustainKnob.update();
-	releaseKnob.update();
-	releaseBendKnob.update();
-	refKnob.update();
-	rail18Knob.update();
-	rail33Knob.update();
+	//Set explicit states
+	//Set all LED off
+	LEDs.clear();
+	led1.setState(LEDOFF);
+	led2.setState(LEDOFF);
+	led3.setState(LEDOFF);
+	led4.setState(LEDOFF);
+	led5.setState(LEDOFF);
+	led6.setState(LEDOFF);
+	led7.setState(LEDOFF);
+	led8.setState(LEDOFF);
+	led9.setState(LEDOFF);
+	led10.setState(LEDOFF);
+	led11.setState(LEDOFF);
+	led12.setState(LEDOFF);
+	led13.setState(LEDOFF);
+	led14.setState(LEDOFF);
+	led15.setState(LEDOFF);
+	led16.setState(LEDOFF);
 	
 }
 
-void P8Panel::toggleFlasherState( void )
+void P8Panel::tickStateMachine( int msTicksDelta )
 {
-	flasherState ^= 0x01;
-}
+	float tempVoltage = 0;
+	float tempFactor = 0;
 
-void P8Panel::toggleFastFlasherState( void )
-{
-	fastFlasherState ^= 0x01;
+	//switches.scan();
+	//knobs.scan();
+	freshenComponents( msTicksDelta );
+	
+	//***** PROCESS THE LOGIC *****//
+	//Now do the states.
+	PStates nextState = state;
+	switch( state )
+	{
+	case PInit:
+		nextState = PRun;
+		break;
+	case PRun:
+		if( button1.serviceRisingEdge() )
+		{
+			led1.toggle();
+		}
+		if( button2.serviceRisingEdge() )
+		{
+			led2.toggle();
+		}
+		if( button3.serviceRisingEdge() )
+		{
+			led3.toggle();
+		}
+		if( button4.serviceRisingEdge() )
+		{
+			led4.toggle();
+		}
+		if( button5.serviceRisingEdge() )
+		{
+			led5.toggle();
+		}
+		if( button6.serviceRisingEdge() )
+		{
+			led6.toggle();
+		}
+		if( button7.serviceRisingEdge() )
+		{
+			led7.toggle();
+		}
+		if( button8.serviceRisingEdge() )
+		{
+			led8.toggle();
+		}
+		if( button9.serviceRisingEdge() )
+		{
+			led9.toggle();
+		}
+		if( button10.serviceRisingEdge() )
+		{
+			led10.toggle();
+		}
+		if( button11.serviceRisingEdge() )
+		{
+			led11.toggle();
+		}
+		if( button12.serviceRisingEdge() )
+		{
+			led12.toggle();
+		}
+		if( button13.serviceRisingEdge() )
+		{
+			led13.toggle();
+		}
+		if( button14.serviceRisingEdge() )
+		{
+			led14.toggle();
+			Serial.println("14!!!");
+		}
+		if( button15.serviceRisingEdge() )
+		{
+			led15.toggle();
+			Serial.println("15!!!");
+		}
+		if( button16.serviceRisingEdge() )
+		{
+			led16.toggle();
+			Serial.println("16!!!");
+		}
+		if( fixtureKnob.serviceChanged() == 1 )
+		{
+			//LEDs.store( fixtureKnob.getState() + 1, 1 );
+			//LEDs.store( attackBendKnob.getState() + 1, 0 );
+			//LEDs.setNumber1( fixtureKnob.getState() );
+			//Serial.println( fixtureKnob.getState() );
+		}
+		LEDs.setNumber1( knobs.fetch(64) );
+		// n * factor = 2.5
+		tempFactor = 2.5 / (refKnob.getState() >> 2);
+		tempVoltage = (float)(rail18Knob.getState() >> 2) * tempFactor * 2;
+		LEDs.setVoltage( tempVoltage, 0 );
+		tempVoltage = (float)(rail33Knob.getState() >> 2) * tempFactor * 2;
+		LEDs.setVoltage( tempVoltage, 3 );
+		break;		
+	default:
+		nextState = PInit;
+		break;
+	}
+	state = nextState;
+
 }

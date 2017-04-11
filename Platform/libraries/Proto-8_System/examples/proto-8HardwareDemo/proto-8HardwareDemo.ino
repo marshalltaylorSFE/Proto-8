@@ -32,8 +32,6 @@ AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 //    2016/2/24: Created
 //
 //**********************************************************************//
-
-
 #include "proto-8Hardware.h"
 #include "VoltageMonitor.h"
 
@@ -41,12 +39,11 @@ AudioControlSGTL5000     sgtl5000_2;     //xy=429.888916015625,271
 #include "timerModule32.h"
 
 #include "timeKeeper.h"
-//**Panels and stuff**************************//
+
+//**Panel*************************************//
 #include "P8Panel.h"
 
-//**Panel State Machine***********************//
-#include "P8Interface.h"
-P8Interface p8hid;
+P8Panel p8hid;
 
 //**Timers and stuff**************************//
 IntervalTimer myTimer;
@@ -62,18 +59,10 @@ uint32_t maxTimer = 60000000;
 uint32_t maxInterval = 2000000;
 
 TimerClass32 panelUpdateTimer(10000);
+
 TimerClass32 LEDsTimer(200);
 TimerClass32 switchesTimer(500);
 TimerClass32 knobsTimer(500);
-
-
-
-TimerClass32 ledToggleTimer( 333000 );
-uint8_t ledToggleState = 0;
-TimerClass32 ledToggleFastTimer( 100000 );
-uint8_t ledToggleFastState = 0;
-
-TimerClass32 debounceTimer(5000);
 
 TimerClass32 debugTimer(333000);
 
@@ -81,18 +70,10 @@ TimerClass32 debugTimer(333000);
 uint32_t usTicks = 0;
 uint8_t usTicksMutex = 1; //start locked out
 
-
-
-
-
-int8_t loopCount = 0;
-int8_t maxLoopCount = 20;
-
-//Names use in P8PanelComponents.cpp and .h
+//proto-8Hardware
 VoltageMonitor LEDs;
 AnalogMuxTree knobs;
 SwitchMatrix switches;
-//End used names
 
 void setup()
 {
@@ -126,10 +107,10 @@ void setup()
 	switches.begin();
 	delay(1000);
 
-	p8hid.init();
+	p8hid.reset();
 	
-	Serial.println("Program Started");
 	delay(1000);
+	Serial.println("Program Started");
 	// initialize IntervalTimer
 	myTimer.begin(serviceUS, 1);  // serviceMS to run every 0.001 seconds
 	
@@ -139,14 +120,11 @@ void loop()
 {
 //**Copy to make a new timer******************//  
 //   msTimerA.update(usTicks);
-	ledToggleTimer.update(usTicks);
-	ledToggleFastTimer.update(usTicks);
 	panelUpdateTimer.update(usTicks);
-	debounceTimer.update(usTicks);
-	debugTimer.update(usTicks);
 	LEDsTimer.update(usTicks);
 	switchesTimer.update(usTicks);
 	knobsTimer.update(usTicks);
+	debugTimer.update(usTicks);
 	
 //**Copy to make a new timer******************//  
 	//  if(msTimerA.flagStatus() == PENDING)
@@ -154,47 +132,29 @@ void loop()
 	//    digitalWrite( LEDPIN, digitalRead(LEDPIN) ^ 1 );
 	//  }
 	
-	//**Debounce timer****************************//  
-	if(debounceTimer.flagStatus() == PENDING)
+	//**uCModules timer***************************//  
+	if(panelUpdateTimer.flagStatus() == PENDING)
 	{
-		p8hid.timersMIncrement(5);
+		p8hid.tickStateMachine(10);
 	
 	}
-	//**Debounce timer****************************//  
+	//**proto-8Hardware timers********************//  
 	if(LEDsTimer.flagStatus() == PENDING)
 	{
 		LEDs.tickSeg();
 	
 	}
-	//**Debounce timer****************************//  
 	if(switchesTimer.flagStatus() == PENDING)
 	{
 		switches.tick();
 	
 	}
-	//**Debounce timer****************************//  
 	if(knobsTimer.flagStatus() == PENDING)
 	{
 		knobs.tick();
 	
 	}	
-	//**Process the panel and state machine***********//  
-	if(panelUpdateTimer.flagStatus() == PENDING)
-	{
-		p8hid.processMachine();
-	}
-	//**Fast LED toggling of the panel class***********//  
-	if(ledToggleFastTimer.flagStatus() == PENDING)
-	{
-		p8hid.toggleFastFlasherState();
-		
-	}
-	//**LED toggling of the panel class***********//  
-	if(ledToggleTimer.flagStatus() == PENDING)
-	{
-		p8hid.toggleFlasherState();
-		
-	}
+
 	//**Debug timer*******************************//  
 	if(debugTimer.flagStatus() == PENDING)
 	{
