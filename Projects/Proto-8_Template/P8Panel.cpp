@@ -1,12 +1,16 @@
 //**********************************************************************//
 //
-//  Panel example for the Bendvelope panel, 16 button/led bar w/ knob
-//  and scanned matrix 7 segment display.
-//  
+//  Template for the full Proto-8
+//
+//  Provides panel interfaces for:  
+//   4 audio osc
+//   2 lfo
+//   2 Bendvelopes
+//   5 patchbays
+//   master tune
 //
 //  Written by:  Marshall Taylor
-//  Changelog (YYYY/MM/DD):
-//    2016/2/24: Created
+//  April 3, 2017
 //
 //**********************************************************************//
 #include "Arduino.h"
@@ -18,7 +22,6 @@
 
 
 //This is where PanelComponents are joined to form the custom panel
-
 
 P8Panel::P8Panel( void )
 {

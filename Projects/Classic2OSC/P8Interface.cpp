@@ -12,7 +12,7 @@
 //
 //**********************************************************************//
 #include "P8Interface.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "Arduino.h"
 #include "flagMessaging.h"
@@ -82,6 +82,51 @@ extern ModulatorBlock modulator[4];
 
 P8Interface::P8Interface( void )
 {
+//	//Controls
+//	state = PInit;
+//	busState = BInit;
+//	
+//	lfo1WaveSrc = 1;
+//	lfo2WaveSrc = 1;
+//	oscAWaveSrc = 1;
+//	oscBWaveSrc = 1;
+//	oscCWaveSrc = 1;
+//	oscDWaveSrc = 1;
+//	
+//	lastAttack = 10;
+//	lastAttackBend = 127;
+//	lastAttackHold = 10;
+//	lastDecay = 100;
+//	lastDecayBend = 127;
+//	lastSustain = 100;
+//	lastRelease = 100;
+//	lastReleaseBend = 127;
+//	waveShapeParams[0][0] = 255;
+//	waveShapeParams[0][1] = 0;
+//	waveShapeParams[0][2] = 0;
+//	waveShapeParams[0][3] = 45;
+//	waveShapeParams[1][0] = 0;
+//	waveShapeParams[1][1] = 0;
+//	waveShapeParams[1][2] = 0;
+//	waveShapeParams[1][3] = 0;
+//	
+//	srcMapping[1] = 0;
+//	srcMapping[2] = 0;
+//	srcMapping[3] = 0;
+//	srcMapping[4] = 0;
+//
+//	destMapping[1] = 0;
+//	destMapping[2] = 0;
+//	destMapping[3] = 0;
+//	destMapping[4] = 0;
+//	
+//	//freshenComponents(10);
+//
+}
+
+void P8Interface::reset( void )
+{
+Serial.println("WOOOOOOOOOOOOOOOOO");
 	//Controls
 	state = PInit;
 	busState = BInit;
@@ -105,10 +150,16 @@ P8Interface::P8Interface( void )
 	waveShapeParams[0][1] = 0;
 	waveShapeParams[0][2] = 0;
 	waveShapeParams[0][3] = 45;
+
 	waveShapeParams[1][0] = 0;
-	waveShapeParams[1][1] = 0;
+	waveShapeParams[1][1] = 255;
 	waveShapeParams[1][2] = 0;
 	waveShapeParams[1][3] = 0;
+
+	waveShapeParams[2][0] = 0;
+	waveShapeParams[2][1] = 0;
+	waveShapeParams[2][2] = 255;
+	waveShapeParams[2][3] = 45;
 	
 	srcMapping[1] = 0;
 	srcMapping[2] = 0;
@@ -119,12 +170,11 @@ P8Interface::P8Interface( void )
 	destMapping[2] = 0;
 	destMapping[3] = 0;
 	destMapping[4] = 0;
+	
+	//freshenComponents(10);
 
-}
-
-void P8Interface::reset( void )
-{
 	//Set explicit states
+	state = PInit;
 	//Set all LED off
 	LEDs.clear();
 	modSources[0].set( &bendvelope1, 0 );
@@ -152,26 +202,15 @@ void P8Interface::reset( void )
 //    clean up and post output data
 //
 //---------------------------------------------------------------------------//
-void P8Interface::processMachine( void )
+void P8Interface::processMachine( uint16_t msInput )
 {
-	//switches.scan();
-	//knobs.scan();
-	update();
+	freshenComponents(msInput);
 
-	//Do small machines
-//	if( trackDownButton.serviceRisingEdge() )
-//	{
-//		if( viewingTrack > 1 )
-//		{
-//			viewingTrack--;
-//		}
-//	}
-//	if( quantizeSelector.serviceChanged() )
-//	{
 	// Handle wave selection variable
 	if( lfo1Shape.serviceRisingEdge() )
 	{
 		Serial.println("Detect.");
+		Serial.println(lfo1WaveSrc);
 		lfo1WaveSrc++;
 		if(lfo1WaveSrc > 3) lfo1WaveSrc = 1;
 		lfo1Led1.setState(LEDOFF);
@@ -192,6 +231,9 @@ void P8Interface::processMachine( void )
 			break;
 			
 		}
+		WaveGenerator testWave;
+		testWave.setParameters( 255, waveShapeParams[lfo1WaveSrc - 1][0], waveShapeParams[lfo1WaveSrc - 1][1], waveShapeParams[lfo1WaveSrc - 1][2], waveShapeParams[lfo1WaveSrc - 1][3] );			
+		//testWave.writeWaveU16_257( lfo1.getPointer( 0 ) );
 	}
 	//if( lfo2Shape.serviceRisingEdge() )
 	//{
@@ -240,6 +282,10 @@ void P8Interface::processMachine( void )
 			break;
 			
 		}
+		WaveGenerator testWave;
+		testWave.setParameters( 255, waveShapeParams[oscAWaveSrc - 1][0], waveShapeParams[oscAWaveSrc - 1][1], waveShapeParams[oscAWaveSrc - 1][2], waveShapeParams[oscAWaveSrc - 1][3] );			
+		testWave.writeWaveU16_257( monoosc1.getPointer( 0 ) );
+
 	}
 	if( oscBShape.serviceRisingEdge() )
 	{
@@ -264,6 +310,9 @@ void P8Interface::processMachine( void )
 			break;
 			
 		}
+		WaveGenerator testWave;
+		testWave.setParameters( 255, waveShapeParams[oscAWaveSrc - 1][0], waveShapeParams[oscAWaveSrc - 1][1], waveShapeParams[oscAWaveSrc - 1][2], waveShapeParams[oscAWaveSrc - 1][3] );			
+		testWave.writeWaveU16_257( monoosc2.getPointer( 0 ) );
 	}
 	//if( oscCShape.serviceRisingEdge() )
 	//{
@@ -341,122 +390,122 @@ void P8Interface::processMachine( void )
 	//OSC Knobs
 	if( lfo1Freq.serviceChanged() )
 	{
-		//lfo1Pitch.amplitude_int(((int16_t)lfo1Freq.getState() - 128) << 8);
-		lfo1.frequency  (0.05 + ((float)lfo1Freq.getState() / 50));
+		//lfo1Pitch.amplitude_int(((int16_t)lfo1Freq.getAsUInt8() - 128) << 8);
+		lfo1.frequency(0.05 + ((float)lfo1Freq.getAsUInt8() / 50));
 	}
 	
 	if( oscAPitch.serviceChanged() || oscAOctave.serviceChanged() )
 	{
 		oscAOctaveState = oscAOctave.getState();
-		dcTuneOffset[0] = (int16_t)oscAOctaveState - 2 + ((float)oscAPitch.getState() - 127) / 200; //Use +- 2 octave with no range control for now
+		dcTuneOffset[0] = (int16_t)oscAOctaveState - 2 + ((float)oscAPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	//if( oscACent.serviceChanged() )
 	//{
-	//	//dc1CentA.amplitude_int(((int16_t)oscACent.getState() - 128) << 8);
+	//	//dc1CentA.amplitude_int(((int16_t)oscACent.getAsUInt8() - 128) << 8);
     //
 	//}
 	if( oscAPreAmp.serviceChanged() )
 	{
-		monoosc1.staticAmp[0] = oscAPreAmp.getState();
+		monoosc1.staticAmp[0] = oscAPreAmp.getAsUInt8();
 	}
 
 
 	if( oscBPitch.serviceChanged() || oscBOctave.serviceChanged() )
 	{
 		oscBOctaveState = oscBOctave.getState();
-		dcTuneOffset[1] = (int16_t)oscBOctaveState - 2 + ((float)oscBPitch.getState() - 127) / 200; //Use +- 2 octave with no range control for now
+		dcTuneOffset[1] = (int16_t)oscBOctaveState - 2 + ((float)oscBPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	if( oscBCent.serviceChanged() )
 	{
-		dc1CentB.amplitude_int(((int16_t)oscBCent.getState() - 128) << 8);
+		dc1CentB.amplitude_int(((int16_t)oscBCent.getAsUInt8() - 128) << 8);
 	}	
 	if( oscBPreAmp.serviceChanged() )
 	{
-		monoosc2.staticAmp[0] = oscBPreAmp.getState();
+		monoosc2.staticAmp[0] = oscBPreAmp.getAsUInt8();
 	}
 	
 	
 	if( oscCPitch.serviceChanged() || oscCOctave.serviceChanged() )
 	{
 		oscCOctaveState = oscCOctave.getState();
-		dcTuneOffset[2] = (int16_t)oscCOctaveState - 2 + ((float)oscCPitch.getState() - 127) / 200; //Use +- 2 octave with no range control for now
+		dcTuneOffset[2] = (int16_t)oscCOctaveState - 2 + ((float)oscCPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	if( oscCCent.serviceChanged() )
 	{
-		//dc1CentC.amplitude_int(((int16_t)oscCCent.getState() - 128) << 8);
+		//dc1CentC.amplitude_int(((int16_t)oscCCent.getAsUInt8() - 128) << 8);
 	}	
 	if( oscCPreAmp.serviceChanged() )
 	{
-		//multiosc1.staticAmp[2] = oscCPreAmp.getState();
+		//multiosc1.staticAmp[2] = oscCPreAmp.getAsUInt8();
 	}
 	
 	
 	if( oscDPitch.serviceChanged() || oscDOctave.serviceChanged() )
 	{
 		oscDOctaveState = oscDOctave.getState();
-		dcTuneOffset[3] = (int16_t)oscDOctaveState - 2 + ((float)oscDPitch.getState() - 127) / 200; //Use +- 2 octave with no range control for now
+		dcTuneOffset[3] = (int16_t)oscDOctaveState - 2 + ((float)oscDPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	if( oscDCent.serviceChanged() )
 	{
-		//dc1CentD.amplitude_int(((int16_t)oscDCent.getState() - 128) << 8);
+		//dc1CentD.amplitude_int(((int16_t)oscDCent.getAsUInt8() - 128) << 8);
 	}	
 	if( oscDPreAmp.serviceChanged() )
 	{
-		//multiosc1.staticAmp[3] = oscDPreAmp.getState();
+		//multiosc1.staticAmp[3] = oscDPreAmp.getAsUInt8();
 	}
 	
 	
 	//Bendvelope knobs
 	if( bv1Attack.serviceChanged() || bv1AttackBend.serviceChanged() )
 	{
-		bendvelope1.attack( bv1Attack.getState(), (int16_t)bv1AttackBend.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope1.attack( bv1Attack.getAsUInt8(), (int16_t)bv1AttackBend.getAsUInt8() - 128 );// 0 to 255 for length, -128 to 127
 	}	
 	if( bv1Hold.serviceChanged() )
 	{
-		bendvelope1.setAttackHold( bv1Hold.getState() );
+		bendvelope1.setAttackHold( bv1Hold.getAsUInt8() );
 	}
 	if( bv1Decay.serviceChanged() || bv1DecayBend.serviceChanged() )
 	{
-		bendvelope1.decay( bv1Decay.getState(), ((int16_t)bv1DecayBend.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		bendvelope1.decay( bv1Decay.getAsUInt8(), ((int16_t)bv1DecayBend.getAsUInt8() - 127 ) * -1);// 0 to 255 for length, -128 to 127
 	}	
 	if( bv1Sustain.serviceChanged() )
 	{
-		bendvelope1.sustain( bv1Sustain.getState() );// 0 to 255 for level
+		bendvelope1.sustain( bv1Sustain.getAsUInt8() );// 0 to 255 for level
 	}
 	if( bv1Release.serviceChanged() || bv1ReleaseBend.serviceChanged() )
 	{
-		bendvelope1.release( bv1Release.getState(), (int16_t)bv1ReleaseBend.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope1.release( bv1Release.getAsUInt8(), (int16_t)bv1ReleaseBend.getAsUInt8() - 128 );// 0 to 255 for length, -128 to 127
 	}
 	
 	if( bv2Attack.serviceChanged() || bv2AttackBend.serviceChanged() )
 	{
-		bendvelope2.attack( bv2Attack.getState(), (int16_t)bv2AttackBend.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope2.attack( bv2Attack.getAsUInt8(), (int16_t)bv2AttackBend.getAsUInt8() - 128 );// 0 to 255 for length, -128 to 127
 	}	
 	if( bv2Hold.serviceChanged() )
 	{
-		bendvelope2.setAttackHold( bv2Hold.getState() );
+		bendvelope2.setAttackHold( bv2Hold.getAsUInt8() );
 	}
 	if( bv2Decay.serviceChanged() || bv2DecayBend.serviceChanged() )
 	{
-		bendvelope2.decay( bv2Decay.getState(), ((int16_t)bv2DecayBend.getState() - 127 ) * -1);// 0 to 255 for length, -128 to 127
+		bendvelope2.decay( bv2Decay.getAsUInt8(), ((int16_t)bv2DecayBend.getAsUInt8() - 127 ) * -1);// 0 to 255 for length, -128 to 127
 	}	
 	if( bv2Sustain.serviceChanged() )
 	{
-		bendvelope2.sustain( bv2Sustain.getState() );// 0 to 255 for level
+		bendvelope2.sustain( bv2Sustain.getAsUInt8() );// 0 to 255 for level
 	}
 	if( bv2Release.serviceChanged() || bv2ReleaseBend.serviceChanged() )
 	{
-		bendvelope2.release( bv2Release.getState(), (int16_t)bv2ReleaseBend.getState() - 128 );// 0 to 255 for length, -128 to 127
+		bendvelope2.release( bv2Release.getAsUInt8(), (int16_t)bv2ReleaseBend.getAsUInt8() - 128 );// 0 to 255 for length, -128 to 127
 	}
 	//Wave shape knobs
 	if( wave1Ramp.serviceChanged() || wave1Sine.serviceChanged() || wave1Pulse.serviceChanged() )
 	{
-		waveShapeParams[0][0] = wave1Ramp.getState();
-		waveShapeParams[0][1] = wave1Sine.getState();
-		waveShapeParams[0][2] = wave1Pulse.getState();	
+		waveShapeParams[0][0] = wave1Ramp.getAsUInt8();
+		waveShapeParams[0][1] = wave1Sine.getAsUInt8();
+		waveShapeParams[0][2] = wave1Pulse.getAsUInt8();	
 		
 		WaveGenerator testWave;
-		testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], 45 );			
+		testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], waveShapeParams[0][3] );			
 		Serial.println("before");
 		delay(20);
 		if( lfo1WaveSrc == 1 )
@@ -477,12 +526,12 @@ void P8Interface::processMachine( void )
 	}
 	if( wave2Ramp.serviceChanged() || wave2Sine.serviceChanged() || wave2Pulse.serviceChanged() )
 	{
-		waveShapeParams[1][0] = wave2Ramp.getState();
-		waveShapeParams[1][1] = wave2Sine.getState();
-		waveShapeParams[1][2] = wave2Pulse.getState();	
+		waveShapeParams[1][0] = wave2Ramp.getAsUInt8();
+		waveShapeParams[1][1] = wave2Sine.getAsUInt8();
+		waveShapeParams[1][2] = wave2Pulse.getAsUInt8();	
 		
 		WaveGenerator testWave;
-		testWave.setParameters( 255, waveShapeParams[1][0], waveShapeParams[1][1], waveShapeParams[1][2], 45 );			
+		testWave.setParameters( 255, waveShapeParams[1][0], waveShapeParams[1][1], waveShapeParams[1][2], waveShapeParams[1][3] );			
 		Serial.println("before");
 		delay(20);
 		if( lfo1WaveSrc == 2 )
@@ -504,10 +553,11 @@ void P8Interface::processMachine( void )
 	{
 		waveShapeParams[2][0] = 0;
 		waveShapeParams[2][1] = 0;
-		waveShapeParams[2][2] = wave3Pulse.getState();	
+		waveShapeParams[2][2] = wave3Pulse.getAsUInt8();	
+		waveShapeParams[2][2] =  wave3Width.getAsUInt8();	
 		
 		WaveGenerator testWave;
-		testWave.setParameters( 255, 0, 0, waveShapeParams[2][2], wave3Width.getState() );			
+		testWave.setParameters( 255, waveShapeParams[2][0], waveShapeParams[2][1], waveShapeParams[2][2], waveShapeParams[2][3] );			
 		Serial.println("before");
 		delay(20);
 		if( lfo1WaveSrc == 3 )
@@ -529,8 +579,8 @@ void P8Interface::processMachine( void )
 	//Bus knobs
 	if( bus1Amp.serviceChanged() || bus1Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus1Amp.getState() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus1Offset.getState() - 128) << 8;
+		int16_t ampCalc = ((int16_t)bus1Amp.getState() - 512) << 8;
+		int16_t offsetCalc = ((int16_t)bus1Offset.getState() - 512) << 8;
 		Serial.print("Amp1: ");
 		Serial.print(ampCalc);
 		Serial.print("  Offset1: ");
@@ -540,8 +590,8 @@ void P8Interface::processMachine( void )
 	}	
 	if( bus2Amp.serviceChanged() || bus2Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus2Amp.getState() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus2Offset.getState() - 128) << 8;
+		int16_t ampCalc = ((int16_t)bus2Amp.getAsUInt8() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus2Offset.getAsUInt8() - 128) << 8;
 		Serial.print(ampCalc);
 		Serial.println(offsetCalc);
 		modulator[1].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
@@ -549,8 +599,8 @@ void P8Interface::processMachine( void )
 	}
 	if( bus3Amp.serviceChanged() || bus3Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus3Amp.getState() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus3Offset.getState() - 128) << 8;
+		int16_t ampCalc = ((int16_t)bus3Amp.getAsUInt8() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus3Offset.getAsUInt8() - 128) << 8;
 		Serial.print(ampCalc);
 		Serial.println(offsetCalc);
 		modulator[2].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
@@ -558,8 +608,8 @@ void P8Interface::processMachine( void )
 	}	
 	if( bus4Amp.serviceChanged() || bus4Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus4Amp.getState() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus4Offset.getState() - 128) << 8;
+		int16_t ampCalc = ((int16_t)bus4Amp.getAsUInt8() - 128) << 8;
+		int16_t offsetCalc = ((int16_t)bus4Offset.getAsUInt8() - 128) << 8;
 		Serial.print(ampCalc);
 		Serial.println(offsetCalc);
 		modulator[3].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
@@ -569,34 +619,31 @@ void P8Interface::processMachine( void )
 	//Misc knobs
 	if( masterVolume.serviceChanged() )
 	{
-		sgtl5000_1.volume(((float)masterVolume.getState() / 256) * 1);
-		sgtl5000_2.volume(((float)masterVolume.getState() / 256) * 1);
+		sgtl5000_1.volume(((float)masterVolume.getAsUInt8() / 256) * 1);
+		sgtl5000_2.volume(((float)masterVolume.getAsUInt8() / 256) * 1);
 	}
 	if( bus5Amp.serviceChanged() )
 	{
 		//Set glide rate
-		glideRate.amplitude_int( (int16_t)bus5Amp.getState() << 7 );
+		glideRate.amplitude_int( (int16_t)bus5Amp.getAsUInt8() << 7 );
 	}
 	if( bus5Offset.serviceChanged() )
 	{
 		//Set filter point
-		dc_filter.amplitude_int( ((int16_t)bus5Offset.getState() - 128) << 8 );
+		dc_filter.amplitude_int( ((int16_t)bus5Offset.getAsUInt8() - 128) << 8 );
 	}
 	//if( Select.serviceChanged() )
 	//{
-	//	effectMixer.gain(0, ((float)Select.getState() - 127)/256);
+	//	effectMixer.gain(0, ((float)Select.getAsUInt8() - 127)/256);
 	//}
 	
 	//Do main machine
 	tickStateMachine();
-	tickBusStateMachine();
-	tickBusDestStateMachine();
+	//tickBusStateMachine();
+	//tickBusDestStateMachine();
 	
 	//Do something afterwards?
 	
-	update();
-	//Panel level LEDs
-	//LEDs.send();
 }
 
 void P8Interface::tickStateMachine()
@@ -1120,32 +1167,6 @@ void P8Interface::displayBusMapping( void )
 
 	
 	
-}
-
-
-void P8Interface::timersMIncrement( uint8_t inputValue )
-{
-	bus1SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);
-	bus1DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus2SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus2DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus3SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus3DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus4SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus4DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus5SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus5DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	lfo1Shape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	lfo2Shape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscASync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscAShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscBSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscBShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscCSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscCShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscDSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscDShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-
 }
 
 void P8Interface::setPointer( uint8_t oscNumber, int16_t * pointerVar ) //Pass number 0 = OSC A, 1 = OSC B

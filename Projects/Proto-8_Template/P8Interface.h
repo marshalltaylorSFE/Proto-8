@@ -16,9 +16,12 @@
 
 #include "stdint.h"
 #include "timeKeeper.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "flagMessaging.h"
+
+#include "Audio.h"
+#include "synth_dc_binary.h"
 
 
 enum PStates
@@ -34,15 +37,12 @@ public:
 	P8Interface( void );
 	void reset( void );
 	//State machine stuff  
-	void processMachine( void );
+	void processMachine( uint16_t );
 	void tickStateMachine( void );
-
-	void timersMIncrement( uint8_t );
 	
 	//Flags coming in from the system
 	//  ..and data.
 	
-
 private:
 	//Internal Flags
 	uint8_t lfo1WaveSrc;

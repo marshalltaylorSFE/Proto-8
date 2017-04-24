@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Audio.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -75,6 +76,7 @@ AudioConnection          patchCord16(filter1, 0, is_quad23, 3);
 AudioControlSGTL5000     sgtl5000_1;     //xy=1120.8889465332031,323
 AudioControlSGTL5000     sgtl5000_2;     //xy=1124.8889465332031,279
 // GUItool: end automatically generated code
+//AudioConnection          patchCordBOGO(monoosc1, 0, mixer5, 3);
 
 
 AudioAnalyzePeak         peak1;          //xy=1396,593
@@ -136,23 +138,16 @@ IntervalTimer myTimer;
 //    cannot exceed variable size.
 
 TimerClass32 midiRecordTimer( 1000 );
-TimerClass32 panelUpdateTimer(10000);
+TimerClass32 panelUpdateTimer(30000);
+TimerClass32 routerUpdateTimer(30000);
+
 uint8_t debugLedStates = 1;
 
 TimerClass32 LEDsTimer(20);
 TimerClass32 switchesTimer(500);
 TimerClass32 knobsTimer(500);
 
-TimerClass32 ledToggleTimer( 333000 );
-uint8_t ledToggleState = 0;
-TimerClass32 ledToggleFastTimer( 100000 );
-uint8_t ledToggleFastState = 0;
-
 TimerClass32 envTimer( 200 );
-
-//TimerClass32 processSMTimer( 50000 );
-
-TimerClass32 debounceTimer(5000);
 
 TimerClass32 debugTimer(1000000);
 
@@ -162,13 +157,25 @@ uint8_t usTicksMutex = 1; //start locked out
 
 //**Panel State Machine***********************//
 P8Interface p8hid;
-volatile uint32_t pUTStartTime = 0;
-volatile uint32_t pUTLastTime = 0;
-volatile uint32_t pUTStopTime = 0;
-volatile uint32_t GPStartTime = 0;
-volatile uint32_t GPLastTime = 0;
-volatile uint32_t GPStopTime = 0;
+volatile int32_t pUTStartTime = 0;
+volatile int32_t pUTLastTime = 0;
+volatile int32_t pUTStopTime = 0;
+volatile int32_t pUTLength = 0;
 
+volatile int32_t GPStartTime = 0;
+volatile int32_t GPLastTime = 0;
+volatile int32_t GPStopTime = 0;
+volatile int32_t GPLength = 0;
+
+volatile int32_t MIDIStartTime = 0;
+volatile int32_t MIDILastTime = 0;
+volatile int32_t MIDIStopTime = 0;
+volatile int32_t MIDILength = 0;
+
+volatile int32_t rStartTime = 0;
+volatile int32_t rLastTime = 0;
+volatile int32_t rStopTime = 0;
+volatile int32_t rLength = 0;
 
 //Names use in P8PanelComponents.cpp and .h
 LEDShiftRegister LEDs;
@@ -220,6 +227,7 @@ void HandleNoteOn(byte channel, byte pitch, byte velocity)
 	rxLedFlag = 1;
 	MidiEvent tempEvent;
 
+	tempEvent.timeStamp = 0;
 	tempEvent.eventType = 0x90;
 	tempEvent.channel = channel;
 	tempEvent.value = pitch;
@@ -241,6 +249,7 @@ void HandleNoteOff(byte channel, byte pitch, byte velocity)
 	
 	MidiEvent tempEvent;
 
+	tempEvent.timeStamp = 0;
 	tempEvent.eventType = 0x80;
 	tempEvent.channel = channel;
 	tempEvent.value = pitch;
@@ -320,15 +329,8 @@ void setup()
 	knobs.begin();
 	switches.begin();
 	
-	//Init panel.h stuff
-	p8hid.init();
-	
 	// initialize IntervalTimer
 	myTimer.begin(serviceUS, 1);  // serviceMS to run every 0.001 seconds
-	
-	//Update the panel
-	p8hid.update();
-	p8hid.reset();
 	
 	//Connect MIDI handlers
 	midiA.setHandleNoteOn(HandleNoteOn);  // Put only the name of the function
@@ -378,6 +380,9 @@ void setup()
 	mixer5.gain(2, 0);
 	mixer5.gain(3, 0);
 
+	//Reset the hid states
+	p8hid.reset();
+
 }
 
 void loop()
@@ -385,19 +390,23 @@ void loop()
 //**Copy to make a new timer******************//  
 //   msTimerA.update(usTicks);
 
+	usTicksMutex = 1;
+
 	midiRecordTimer.update(usTicks);
 
-	debounceTimer.update(usTicks);
 	envTimer.update(usTicks);
 
-	ledToggleTimer.update(usTicks);
-	ledToggleFastTimer.update(usTicks);
 	panelUpdateTimer.update(usTicks);
+	routerUpdateTimer.update(usTicks);
+
 	switchesTimer.update(usTicks);
 	knobsTimer.update(usTicks);
 	LEDsTimer.update(usTicks);
 
 	debugTimer.update(usTicks);
+	
+	usTicksMutex = 0;
+	
 	//**Copy to make a new timer******************//  
 	//  if(msTimerA.flagStatus() == PENDING)
 	//  {
@@ -423,17 +432,20 @@ void loop()
 	{
 		GPLastTime = GPStartTime;
 		GPStartTime = usTicks;
-		bendvelope1.tick(100);
-		bendvelope2.tick(100);
-		GPStopTime = usTicks;
-	}
-	//**Debounce timer****************************//  
-	if(debounceTimer.flagStatus() == PENDING)
-	{
-		p8hid.timersMIncrement(5);
-	
-	}
 		
+		bendvelope1.tick(200);
+		bendvelope2.tick(200);
+		
+		GPStopTime = usTicks;
+		
+		int32_t length = GPStopTime - GPStartTime;
+		if(length > GPLength )
+		{
+			GPLength = length;
+		}
+		//GPCycle = GPStartTime - GPLastTime;
+
+	}
 	//**Process the panel and state machine***********//  
 	if(panelUpdateTimer.flagStatus() == PENDING)
 	{
@@ -442,7 +454,7 @@ void loop()
 		//Provide inputs
 
 		//Tick the machine
-		p8hid.processMachine();
+		p8hid.processMachine( 30 );
 		
 		//Deal with outputs
 		//float ampTemp = 0;
@@ -466,16 +478,66 @@ void loop()
 		//LEDs.setNumber1( ampTemp );
 		
 		pUTStopTime = usTicks;
+		int32_t length = pUTStopTime - pUTStartTime;
+		if(length > pUTLength )
+		{
+			pUTLength = length;
+		}
+	midiA.read();
+
+	}
+	//**Process the router state machine**************//  
+	if(routerUpdateTimer.flagStatus() == PENDING)
+	{
+		rLastTime = rStartTime;
+		rStartTime = usTicks;
+		//Provide inputs
+
+		//Tick the machine
+		p8hid.tickBusStateMachine();
+		
+		//Deal with outputs
+		//float ampTemp = 0;
+		//ampTemp = bendvelope1.amp;
+		
+		//--This part from poly
+		//if( bendvelope2.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}		
+		//if( bendvelope3.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}
+		//if( bendvelope4.amp > ampTemp )
+		//{
+		//	ampTemp = bendvelope2.amp;
+		//}
+		
+		//dc1.amplitude((ampTemp / 128.0) - 1.0);
+		//LEDs.setNumber1( ampTemp );
+		
+		rStopTime = usTicks;
+		int32_t length = rStopTime - rStartTime;
+		if(length > rLength )
+		{
+			rLength = length;
+		}
+	midiA.read();
 
 	}
 	if(midiRecordTimer.flagStatus() == PENDING)
 	{
+		MIDILastTime = MIDIStartTime;
+		MIDIStartTime = usTicks;
 		//
 		listIdemNumber_t unservicedNoteCount = rxNoteList.listLength();
 		//Get a note for this round
 		MidiEvent tempNote;
 		if( unservicedNoteCount > 0 )
 		{
+//Print full list
+rxNoteList.printfMicroLL();
 			tempNote = *rxNoteList.readObject( unservicedNoteCount - 1 );
 			if( tempNote.eventType == 0x90 )//We got a new note-on
 			{
@@ -524,10 +586,14 @@ void loop()
 					//Was found
 					//do nothing
 				}
+//Print full list
+//noteOnInList.printfMicroLL();
 			}
 			else if( tempNote.eventType == 0x80 )
 			{
 				//Congratulations! It's a note off!
+//Print full list
+noteOnInList.printfMicroLL();
 				//Search for the note on.  If found, do nothing, else write
 				int8_t tempSeekDepth = noteOnInList.seekObjectbyNoteValue( tempNote );
 				if( tempSeekDepth == -1 )
@@ -539,45 +605,48 @@ void loop()
 				else
 				{
 					//Was found.  Time for note off actions
-					Serial.print("Dropping ");
-					Serial.println( tempSeekDepth );
-					//Find the note and learn its voice
-					
-					/////This is where we might turn the note off -- repurpose tempNote
-					tempNote = *noteOnInList.readObject( tempSeekDepth );
-					bendvelope1.noteOff();
-					bendvelope2.noteOff();
-					p8hid.bv1Trigger.setState(LEDOFF);
-					p8hid.bv2Trigger.setState(LEDOFF);
+					//tempNote = *noteOnInList.readObject( tempSeekDepth );
 
-					//--old
-					//Serial.print("Voice silenced: ");
-					//Serial.println(tempNote.voice);					
-
-					noteOnInList.dropObject( tempSeekDepth );
-
-					rxNoteList.dropObject( unservicedNoteCount - 1 );
-					
-					//Find oldest note still on. For now, retrigger
+					//Take actions depending on how many notes are requested to be on.
 					int16_t listLength = noteOnInList.listLength();
-					if( listLength > 0 )
+					if( listLength == 1 )
 					{
-						//Print full list
-						noteOnInList.printfMicroLL();
-
-						tempNote = *noteOnInList.readObject( listLength - 1 );
+						//Only one note in the list, turn it off
+						bendvelope1.noteOff();
+						bendvelope2.noteOff();
+						p8hid.bv1Trigger.setState(LEDOFF);
+						p8hid.bv2Trigger.setState(LEDOFF);
+						
+					}
+					else if( tempSeekDepth == listLength - 1 )
+					{
+						//The youngest note is turned off, change pitch only
+						tempNote = *noteOnInList.readObject( listLength - 2 );
 						float tempbpoA = note2bpo[tempNote.value];
 						dc1A.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[0]);
 						dc1B.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[1]);
-						digitalWrite(syncPin, 1);
-						// This should be: if note dropped was not playing, do not
-						// regrigger.  if note was playing, restart oldest note
-						//bendvelope1.noteOn();
-						//bendvelope2.noteOn();
-						digitalWrite(syncPin, 0);
+						
 					}
+//					else
+//					{
+//						//Leave benvelopes on but change pitch
+//						tempNote = *noteOnInList.readObject( listLength - 1 );
+//						float tempbpoA = note2bpo[tempNote.value];
+//						dc1A.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[0]);
+//						dc1B.amplitude_4_12(tempbpoA + p8hid.dcTuneOffset[1]);
+////						digitalWrite(syncPin, 1);
+////						digitalWrite(syncPin, 0);
+//					}
+
+					Serial.print("Dropping ");
+					Serial.println( tempSeekDepth );
+
+					noteOnInList.dropObject( tempSeekDepth );
+					rxNoteList.dropObject( unservicedNoteCount - 1 );
 					
 				}				
+//Print full list
+//noteOnInList.printfMicroLL();
 			}
 			else
 			{
@@ -590,20 +659,12 @@ void loop()
 		{
 			
 		}
-	}
-
-	//**Fast LED toggling of the panel class***********//  
-	if(ledToggleFastTimer.flagStatus() == PENDING)
-	{
-		p8hid.toggleFastFlasherState();
-		
-	}
-
-	//**LED toggling of the panel class***********//  
-	if(ledToggleTimer.flagStatus() == PENDING)
-	{
-		p8hid.toggleFlasherState();
-		
+		MIDIStopTime = usTicks;
+		int32_t length = MIDIStopTime - MIDIStartTime;
+		if(length > MIDILength )
+		{
+			MIDILength = length;
+		}
 	}
 	//**Debug timer*******************************//  
 	if(debugTimer.flagStatus() == PENDING)
@@ -627,10 +688,24 @@ void loop()
 		Serial.print(",   FreeRam: ");
 		Serial.print(FreeRam());
 		Serial.print("\n");
-		Serial.print("panelUpdateTimer (sTime, length): ");
-		Serial.print(pUTStartTime - pUTLastTime);
-		Serial.print(", ");
-		Serial.println(pUTStopTime - pUTStartTime);
+		//Serial.print("panelUpdateTimer (sTime, length): ");
+		//Serial.print(pUTStartTime - pUTLastTime);
+		//Serial.print(", ");
+		//Serial.println(pUTStopTime - pUTStartTime);
+		
+		Serial.print("GPLength: ");
+		Serial.println(GPLength);
+		GPLength = 0;
+		Serial.print("pUTLength: ");
+		Serial.println(pUTLength);
+		pUTLength = 0;
+		Serial.print("MIDILength: ");
+		Serial.println(MIDILength);
+		MIDILength = 0;
+		Serial.print("rLength: ");
+		Serial.println(rLength);
+		rLength = 0;
+
 		//Serial.print(", ");
 		//Serial.println(usTicks - tempTime);
 		if(peak1.available())
@@ -639,7 +714,11 @@ void loop()
 			Serial.println(peak1.read());
 		}
 		Serial.println();
-
+		//timers
+		Serial.print("millis: ");
+		Serial.println( millis() );
+		Serial.print("usTicks: ");
+		Serial.println( usTicks );
 	}
 	midiA.read();
 }
@@ -665,7 +744,14 @@ void serviceUS(void)
   uint32_t returnVar = 0;
   if(usTicks >= ( maxTimer + maxInterval ))
   {
-    returnVar = usTicks - maxTimer;
+	 if( usTicksMutex == 0 )
+	 {
+		 returnVar = usTicks - maxTimer;
+	 }
+	 else
+	 {
+		 returnVar = usTicks + 1;
+	 }
 
   }
   else
@@ -673,7 +759,6 @@ void serviceUS(void)
     returnVar = usTicks + 1;
   }
   usTicks = returnVar;
-  usTicksMutex = 0;  //unlock
 }
 
 uint32_t tapTempoTimerMath( uint16_t BPMInput )

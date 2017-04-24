@@ -16,7 +16,7 @@
 
 #include "stdint.h"
 #include "timeKeeper.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "flagMessaging.h"
 
@@ -151,15 +151,15 @@ public:
 	P8Interface( void );
 	void reset( void );
 	//State machine stuff  
-	void processMachine( void );
+	void processMachine( uint16_t );
 	void printDebugInfo( void );
 	void tickStateMachine( void );
 	void tickBusStateMachine( void );
 	void tickBusDestStateMachine( void );
 	void displayBusMapping( void );
 	
-	void timersMIncrement( uint8_t );
-
+	//For waveforms?  Kind of unsure about this function
+	//Maybe it chooses a waveform pointer to use?
 	void setPointer( uint8_t, int16_t * );
 	
 	//Flags coming in from the system
@@ -198,7 +198,7 @@ private:
 	int16_t * waveFormPointerA;
 	int16_t * waveFormPointerB;
 
-	uint8_t waveShapeParams[2][4];
+	uint8_t waveShapeParams[3][4];
 
 	uint8_t lfo1WaveSrc;
 	uint8_t lfo2WaveSrc;
@@ -227,6 +227,7 @@ private:
 	uint8_t destMapping[6];
 	uint8_t srcCursor;
 	uint8_t destCursor;
+	
 	//AudioConnection tables
 	ModSourceItem modSources[15];
 	EffectPathItem effectPaths[15];

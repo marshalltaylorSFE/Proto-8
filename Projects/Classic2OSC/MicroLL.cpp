@@ -12,7 +12,7 @@
 //**********************************************************************//
 
 //Define MICROLL_DEBUG to get serial debug info regarding notes in lists
-//#define MICROLL_DEBUG
+#define MICROLL_DEBUG
 
 //Includes
 #include "MicroLL.h"

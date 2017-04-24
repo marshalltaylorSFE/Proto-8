@@ -12,7 +12,7 @@
 //
 //**********************************************************************//
 #include "P8Interface.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "Arduino.h"
 #include "flagMessaging.h"
@@ -24,24 +24,36 @@ extern SwitchMatrix switches;
 
 P8Interface::P8Interface( void )
 {
-	//Controls
-	state = PInit;
-	
 	lfo1WaveSrc = 1;
 	lfo2WaveSrc = 1;
 	oscAWaveSrc = 1;
 	oscBWaveSrc = 1;
 	oscCWaveSrc = 1;
 	oscDWaveSrc = 1;
+
+	//Set explicit states
+	state = PInit;
+
+	//Set all LED off
+	LEDs.clear();
 	
 }
 
 void P8Interface::reset( void )
 {
+	lfo1WaveSrc = 1;
+	lfo2WaveSrc = 1;
+	oscAWaveSrc = 1;
+	oscBWaveSrc = 1;
+	oscCWaveSrc = 1;
+	oscDWaveSrc = 1;
+
 	//Set explicit states
+	state = PInit;
+
 	//Set all LED off
 	LEDs.clear();
-	
+
 }
 
 //---------------------------------------------------------------------------//
@@ -53,11 +65,9 @@ void P8Interface::reset( void )
 //    clean up and post output data
 //
 //---------------------------------------------------------------------------//
-void P8Interface::processMachine( void )
+void P8Interface::processMachine( uint16_t msInput )
 {
-	//switches.scan();
-	//knobs.scan();
-	update();
+	freshenComponents(msInput);
 
 	//Do small machines
 	if( lfo1Shape.serviceRisingEdge() )
@@ -219,20 +229,7 @@ void P8Interface::processMachine( void )
 	
 	//Do main machine
 	tickStateMachine();
-	
-	//Do pure LED operations first
-	
-	//System level LEDs
-//	oscALed1.setState(LEDOFF);
-//	oscALed2.setState(LEDOFF);
-//	oscALed3.setState(LEDOFF);
-//	oscBLed1.setState(LEDOFF);
-//	oscBLed2.setState(LEDOFF);
-//	oscBLed3.setState(LEDOFF);
 
-	update();
-	//Panel level LEDs
-	//LEDs.send();
 }
 
 void P8Interface::tickStateMachine()
@@ -262,30 +259,5 @@ void P8Interface::tickStateMachine()
     }
 	
     state = nextState;
-
-}
-
-void P8Interface::timersMIncrement( uint8_t inputValue )
-{
-	bus1SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);
-	bus1DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus2SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus2DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus3SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus3DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus4SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus4DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus5SrcPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	bus5DestPick.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	lfo1Shape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	lfo2Shape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscASync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscAShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscBSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscBShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscCSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscCShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscDSync.buttonDebounceTimeKeeper.mIncrement(inputValue);	
-	oscDShape.buttonDebounceTimeKeeper.mIncrement(inputValue);	
 
 }
