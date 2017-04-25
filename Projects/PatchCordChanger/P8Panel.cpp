@@ -1,16 +1,32 @@
 //**********************************************************************//
 //
-//  Panel example for the Bendvelope panel, 16 button/led bar w/ knob
-//  and scanned matrix 7 segment display.
-//  
+//  Patch cord changer panel description.
 //
+//  Hardware:
+//    16 buttons
+//    16 LEDs
+//    Knob on 64
+//    scanned matrix 7 segment display.
+//  
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
+//    2017/4/24: Converted to uCModules 2.0 interface
+//
+//  BEERWARE LICENSE
+//
+//  This code is free for any use provided that if you meet the author
+//  in person, you buy them a beer.
+//
+//  This license block is BeerWare itself.
 //
 //**********************************************************************//
-#include "P8Panel.h"
 #include "Arduino.h"
+#include "P8Panel.h"
+#include "panelComponents.h"
+#include "proto-8PanelComponents.h"
+#include "HardwareInterfaces.h"
+#include "flagMessaging.h"
 
 //This is where PanelComponents are joined to form the custom panel
 //col,row
@@ -66,123 +82,80 @@
 
 P8Panel::P8Panel( void )
 {
-	flasherState = 0;
-	fastFlasherState = 0;
-}
-
-void P8Panel::init( void )
-{
-	button1.init(B1POS);
-	button2.init(B2POS);
-	button3.init(B3POS);
-	button4.init(B4POS);
-	button5.init(B5POS);
-	button6.init(B6POS);
-	button7.init(B7POS);
-	button8.init(B8POS);
-	button9.init(B9POS);
-	button10.init(B10POS);
-	button11.init(B11POS);
-	button12.init(B12POS);
-	button13.init(B13POS);
-	button14.init(B14POS);
-	button15.init(B15POS);
-	button16.init(B16POS);
+	button1.setHardware(new Proto8DigitalIn( B1POS ), 0);
+	button2.setHardware(new Proto8DigitalIn( B2POS ), 0);
+	button3.setHardware(new Proto8DigitalIn( B3POS ), 0);
+	button4.setHardware(new Proto8DigitalIn( B4POS ), 0);
+	button5.setHardware(new Proto8DigitalIn( B5POS ), 0);
+	button6.setHardware(new Proto8DigitalIn( B6POS ), 0);
+	button7.setHardware(new Proto8DigitalIn( B7POS ), 0);
+	button8.setHardware(new Proto8DigitalIn( B8POS ), 0);
+	button9.setHardware(new Proto8DigitalIn( B9POS ), 0);
+	button10.setHardware(new Proto8DigitalIn( B10POS ), 0);
+	button11.setHardware(new Proto8DigitalIn( B11POS ), 0);
+	button12.setHardware(new Proto8DigitalIn( B12POS ), 0);
+	button13.setHardware(new Proto8DigitalIn( B13POS ), 0);
+	button14.setHardware(new Proto8DigitalIn( B14POS ), 0);
+	button15.setHardware(new Proto8DigitalIn( B15POS ), 0);
+	button16.setHardware(new Proto8DigitalIn( B16POS ), 0);
+	add( &button1 );
+	add( &button2 );
+	add( &button3 );
+	add( &button4 );
+	add( &button5 );
+	add( &button6 );
+	add( &button7 );
+	add( &button8 );
+	add( &button9 );
+	add( &button10 );
+	add( &button11 );
+	add( &button12 );
+	add( &button13 );
+	add( &button14 );
+	add( &button15 );
+	add( &button16 );
 	
-	led1.init(LED1POS, &flasherState, &fastFlasherState );
-	led2.init(LED2POS, &flasherState, &fastFlasherState );
-	led3.init(LED3POS, &flasherState, &fastFlasherState );
-	led4.init(LED4POS, &flasherState, &fastFlasherState );
-	led5.init(LED5POS, &flasherState, &fastFlasherState );
-	led6.init(LED6POS, &flasherState, &fastFlasherState );
-	led7.init(LED7POS, &flasherState, &fastFlasherState );
-	led8.init(LED8POS, &flasherState, &fastFlasherState );
-	led9.init(LED9POS, &flasherState, &fastFlasherState );
-	led10.init(LED10POS, &flasherState, &fastFlasherState );
-	led11.init(LED11POS, &flasherState, &fastFlasherState );
-	led12.init(LED12POS, &flasherState, &fastFlasherState );
-	led13.init(LED13POS, &flasherState, &fastFlasherState );
-	led14.init(LED14POS, &flasherState, &fastFlasherState );
-	led15.init(LED15POS, &flasherState, &fastFlasherState );
-	led16.init(LED16POS, &flasherState, &fastFlasherState );
+	led1.setHardware(new Proto8DigitalOut( LED1POS ), 0);
+	led2.setHardware(new Proto8DigitalOut( LED2POS ), 0);
+	led3.setHardware(new Proto8DigitalOut( LED3POS ), 0);
+	led4.setHardware(new Proto8DigitalOut( LED4POS ), 0);
+	led5.setHardware(new Proto8DigitalOut( LED5POS ), 0);
+	led6.setHardware(new Proto8DigitalOut( LED6POS ), 0);
+	led7.setHardware(new Proto8DigitalOut( LED7POS ), 0);
+	led8.setHardware(new Proto8DigitalOut( LED8POS  ), 0);
+	led9.setHardware(new Proto8DigitalOut( LED9POS  ), 0);
+	led10.setHardware(new Proto8DigitalOut( LED10POS ), 0);
+	led11.setHardware(new Proto8DigitalOut( LED11POS ), 0);
+	led12.setHardware(new Proto8DigitalOut( LED12POS ), 0);
+	led13.setHardware(new Proto8DigitalOut( LED13POS ), 0);
+	led14.setHardware(new Proto8DigitalOut( LED14POS ), 0);
+	led15.setHardware(new Proto8DigitalOut( LED15POS ), 0);
+	led16.setHardware(new Proto8DigitalOut( LED16POS ), 0);
+	add( &led1 );
+	add( &led2 );
+	add( &led3 );
+	add( &led4 );
+	add( &led5 );
+	add( &led6 );
+	add( &led7 );
+	add( &led8 );
+	add( &led9 );
+	add( &led10 );
+	add( &led11 );
+	add( &led12 );
+	add( &led13 );
+	add( &led14 );
+	add( &led15 );
+	add( &led16 );
 
-	fixtureKnob.init(FIXTUREKNOBPOS);
+	fixtureKnob.setHardware(new Proto8AnalogIn( FIXTUREKNOBPOS ));
+	add( &fixtureKnob );
 	
-	attackKnob.init(AKPOS);
-	attackBendKnob.init(ABKPOS);
-	holdKnob.init(HKPOS);
-	decayKnob.init(DKPOS);
-	decayBendKnob.init(DBKPOS);
-	sustainKnob.init(SKPOS);
-	releaseKnob.init(RKPOS);
-	releaseBendKnob.init(RBKPOS);
-
-	refKnob.init(REFPOS);
-	rail18Knob.init(RAIL18POS);
-	rail33Knob.init(RAIL33POS);
+	refKnob.setHardware(new Proto8AnalogIn( REFPOS ));
+	rail18Knob.setHardware(new Proto8AnalogIn( RAIL18POS ));
+	rail33Knob.setHardware(new Proto8AnalogIn( RAIL33POS ));
+	add( &refKnob );
+	add( &rail18Knob );
+	add( &rail33Knob );
 	
- 	flasherState = 0;
-	fastFlasherState = 0;
-}
-
-void P8Panel::update( void )
-{
-	button1.update();
-	button2.update();
-	button3.update();
-	button4.update();
-	button5.update();
-	button6.update();
-	button7.update();
-	button8.update();
-	button9.update();
-	button10.update();
-	button11.update();
-	button12.update();
-	button13.update();
-	button14.update();
-	button15.update();
-	button16.update();
-	
-	led1.update();
-	led2.update();
-	led3.update();
-	led4.update();
-	led5.update();
-	led6.update();
-	led7.update();
-	led8.update();
-	led9.update();
-	led10.update();
-	led11.update();
-	led12.update();
-	led13.update();
-	led14.update();
-	led15.update();
-	led16.update();
-	
-	fixtureKnob.update();
-	
-	attackKnob.update();
-	attackBendKnob.update();
-	holdKnob.update();
-	decayKnob.update();
-	decayBendKnob.update();
-	sustainKnob.update();
-	releaseKnob.update();
-	releaseBendKnob.update();
-
-	refKnob.update();
-	rail18Knob.update();
-	rail33Knob.update();
-}
-
-void P8Panel::toggleFlasherState( void )
-{
-	flasherState ^= 0x01;
-}
-
-void P8Panel::toggleFastFlasherState( void )
-{
-	fastFlasherState ^= 0x01;
 }

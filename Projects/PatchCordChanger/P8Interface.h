@@ -1,7 +1,12 @@
 //**********************************************************************//
 //
-//  Interface example for the Bendvelope panel, 16 button/led bar w/ knob
-//  and scanned matrix 7 segment display.
+//  Patch cord changer interface.
+//
+//  Hardware:
+//    16 buttons
+//    16 LEDs
+//    Knob on 64
+//    scanned matrix 7 segment display.
 //  
 //  This file defines the human interaction of the panel parts
 //
@@ -9,6 +14,14 @@
 //  Changelog (YYYY/MM/DD):
 //    2016/2/24: Created
 //    2016/2/29: Moved seven segment stuff to voltage monitor
+//    2017/4/24: Converted to uCModules 2.0 interface
+//
+//  BEERWARE LICENSE
+//
+//  This code is free for any use provided that if you meet the author
+//  in person, you buy them a beer.
+//
+//  This license block is BeerWare itself.
 //
 //**********************************************************************//
 #ifndef P8INTERFACE_H
@@ -16,10 +29,11 @@
 
 #include "stdint.h"
 #include "timeKeeper.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "flagMessaging.h"
 
+#include "Audio.h"
 
 enum PStates
 {
@@ -34,38 +48,22 @@ public:
 	P8Interface( void );
 	void reset( void );
 	//State machine stuff  
-	void processMachine( void );
+	void processMachine( uint16_t );
 	void tickStateMachine( void );
-
-	void timersMIncrement( uint8_t );
 	
-	//Flags coming in from the system
-	
-	//Internal - and going out to the system - Flags
-	uint8_t lastAttack;
-	uint8_t lastAttackBend;
-	uint8_t lastAttackHold;
-	uint8_t lastDecay;
-	uint8_t lastDecayBend;
-	uint8_t lastSustain;
-	uint8_t lastRelease;
-	uint8_t lastReleaseBend;
-		
-		
-	//  ..and data.
-
 private:
 	//Internal Flags
 	//MessagingFlag quantizeHoldOffFlag;
-	//  ..and data
-	int8_t select1 = 1;
-	int8_t select2 = 1;
-	int8_t select3 = 1;
-	int8_t select4 = 1;
+
+	//Internal Data
+	int8_t select1;
+	int8_t select2;
+	int8_t select3;
+	int8_t select4;
 
 	//State machine stuff  
 	PStates state;
-	uint8_t debugTemp = 0;
+	uint8_t debugTemp;
 };
 
 

@@ -3,10 +3,20 @@ The project folder contains builds of individual synths and concepts that run on
 
 These are designed to run on Teensys with expanded IO (Proto-8).
 
-**Contents:**
+**Requirements**
+
+Libraries
+
+* uCModules 2.0 
+* Proto-8_Audio
+* Proto-8_System
+
+Also requires core_mods applied to AudioStream source and header files within \hardware\teensy\avr\cores\teensy3, for patchcord moving
+
+**Contents**
 
 * Classic2OSC -- A simple emulation of the pro-one.  This require the proto-8 libs and the big panel.
-* **Broken**: Update for uCModules 2.0**PatchCordChanger -- (successful) Experiment in swapping patch cords live.
-* **Broken**: Update for uCModules 2.0**PCCBlock -- An experiment with creating a audio system block for manipulating patchcords.
-* Proto-8_Template -- The hardware layer with panel components matching to the locations of the "big panel".  This has been migrated to use with the proto-8 libs
+* ClassicTemplate -- The hardware layer with panel components matching to the locations of the "big panel".
+* PatchCordChanger -- Swaps outputs between 4 waveforms
+* PatchCordChangerTwo -- Swaps filter taps and chooses L/R output combinations
 * README.md -- This file

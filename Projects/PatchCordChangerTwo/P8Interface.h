@@ -1,14 +1,17 @@
 //**********************************************************************//
 //
-//  Interface example for the Bendvelope panel, 16 button/led bar w/ knob
-//  and scanned matrix 7 segment display.
-//  
-//  This file defines the human interaction of the panel parts
+//  Interface
 //
 //  Written by:  Marshall Taylor
 //  Changelog (YYYY/MM/DD):
-//    2016/2/24: Created
-//    2016/2/29: Moved seven segment stuff to voltage monitor
+//    2017/4/24: Converted to uCModules 2.0 interface
+//
+//  BEERWARE LICENSE
+//
+//  This code is free for any use provided that if you meet the author
+//  in person, you buy them a beer.
+//
+//  This license block is BeerWare itself.
 //
 //**********************************************************************//
 #ifndef P8INTERFACE_H
@@ -16,9 +19,11 @@
 
 #include "stdint.h"
 #include "timeKeeper.h"
-#include "P8PanelComponents.h"
+#include "PanelComponents.h"
 #include "P8Panel.h"
 #include "flagMessaging.h"
+
+#include "Audio.h"
 
 
 enum PStates
@@ -34,16 +39,12 @@ public:
 	P8Interface( void );
 	void reset( void );
 	//State machine stuff  
-	void processMachine( void );
+	void processMachine( uint16_t );
+
 	void tickStateMachine( void );
 
 	void timersMIncrement( uint8_t );
 
-	void setPointer( uint8_t, int16_t * );
-	
-	//Flags coming in from the system
-	//  ..and data.
-	
 	//Internal - and going out to the system - Flags
 	uint8_t filterOutputState;
 	uint8_t audioChanState;

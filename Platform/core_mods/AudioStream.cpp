@@ -28,10 +28,14 @@
  * SOFTWARE.
  */
 
+//#define SERIAL_OUTPUT
+
+#ifdef SERIAL_OUTPUT
+#include <Arduino.h>
+#endif
 
 #include <string.h> // for memcpy
 #include "AudioStream.h"
-
 
 audio_block_t * AudioStream::memory_pool;
 uint32_t AudioStream::memory_pool_available_mask[6];
@@ -197,48 +201,79 @@ void AudioConnection::disconnect(void)
 {
 	AudioConnection *p;
 	
+	if (src == NULL)
+	{
+		//Never been connected (no source)
+#ifdef SERIAL_OUTPUT
+Serial.println("X1");
+#endif
+		return;
+	}
+
 	__disable_irq();
 	//Remove cord from src.destination_list --
 	//  Find the reference to this object in the src's destination_list
 	p = src->destination_list;
 	//  If found, remove and adjust pointers
-	if (p == NULL) return; //No items in list!
+	if (p == NULL)
+	{
+		//No items in list!
+#ifdef SERIAL_OUTPUT
+Serial.println("X2");
+#endif
+		__enable_irq();
+		return;
+	}
 	if (p == this)//This object is the head
 	{
-//Serial.println("A");
+#ifdef SERIAL_OUTPUT
+Serial.println("A");
+#endif
 		if(this->next_dest == NULL) //The is the last object in the list
 		{
 			src->destination_list = NULL; //Nullify destination_list of src (now empty)
 			src->active = false;
 			dst->active = false;
-//Serial.println("B");
+#ifdef SERIAL_OUTPUT
+Serial.println("B");
+#endif
 		}
 		else //There are objects after this one
 		{
-//Serial.println("C");
+#ifdef SERIAL_OUTPUT
+Serial.println("C");
+#endif
 			src->destination_list = this->next_dest; //it can't be null so save it
 			src->active = true;
 		}
 	}
 	else
 	{
-//Serial.println("G");
-		//We're in the list, but are not the head
+#ifdef SERIAL_OUTPUT
+Serial.println("G");
+#endif
+		//We may be in the list, but we are not the head
 		while ((p->next_dest != this)&&(p->next_dest != NULL)) //go seek something
 		{
-//Serial.println("H");
+#ifdef SERIAL_OUTPUT
+Serial.println("H");
+#endif
 			p = p->next_dest;
 		}
 		//Now, the ref is either null or this
 		if(p->next_dest == this)
 		{
-//Serial.println("I");
+#ifdef SERIAL_OUTPUT
+Serial.println("I");
+#endif
 			p->next_dest = this->next_dest;
 			dst->active = true;
 		}
 		else
 		{
-//Serial.println("J");
+#ifdef SERIAL_OUTPUT
+Serial.println("J");
+#endif
 			//null -- must not have been connected
 		}
 	}
@@ -258,16 +293,24 @@ void AudioConnection::reconnect(AudioStream * source, unsigned char sourceOutput
 	//connect();
 
 	AudioConnection *p;
-//Serial.println("a");
+#ifdef SERIAL_OUTPUT
+Serial.println("a");
+#endif
+	//Check if dest index in range
 	if (dest_index > dst->num_inputs) return;
+	//Does not check if destination available
 	__disable_irq();
 	p = src->destination_list;
 	if (p == NULL) {
-//Serial.println("b");
+#ifdef SERIAL_OUTPUT
+Serial.println("b");
+#endif
 		src->destination_list = this;
 	} else {
-//Serial.println("c");
-		while (p->next_dest) p = p->next_dest;
+#ifdef SERIAL_OUTPUT
+Serial.println("c");
+#endif
+		while (p->next_dest != NULL) p = p->next_dest;
 		p->next_dest = this;
 	}
 	src->active = true;

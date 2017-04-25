@@ -353,7 +353,7 @@ span.mainfunction {color: #993300; font-weight: bolder}
 		{"type":"AudioOutputI2S","data":{"defaults":{"name":{"value":"new"}},"shortName":"i2s","inputs":2,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioOutputI2SQuad","data":{"defaults":{"name":{"value":"new"}},"shortName":"i2s_quad","inputs":4,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioOutputSPDIF","data":{"defaults":{"name":{"value":"new"}},"shortName":"spdif","inputs":2,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
-		{"type":"AudioOutputPT8211","data":{"defaults":{"name":{"value":"new"}},"shortName":"pt2811","inputs":2,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
+		{"type":"AudioOutputPT8211","data":{"defaults":{"name":{"value":"new"}},"shortName":"pt8211","inputs":2,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioOutputAnalog","data":{"defaults":{"name":{"value":"new"}},"shortName":"dac","inputs":1,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioOutputAnalogStereo","data":{"defaults":{"name":{"value":"new"}},"shortName":"dacs","inputs":2,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
 		{"type":"AudioOutputPWM","data":{"defaults":{"name":{"value":"new"}},"shortName":"pwm","inputs":1,"outputs":0,"category":"output-function","color":"#E6E0F8","icon":"arrow-in.png"}},
@@ -1785,6 +1785,58 @@ The actual packets are taken
 		<tr class=top><th>Port</th><th>Purpose</th></tr>
 		<tr class=odd><td align=center>Out 0</td><td>Waveform Output</td></tr>
 	</table>
+	<h3>Functions</h3>
+	<p class=func><span class=keyword>begin</span>(waveform);</p>
+	<p class=desc>Configure the waveform type to create.
+	</p>
+	<p class=func><span class=keyword>begin</span>(level, frequency, waveform);</p>
+	<p class=desc>Output a waveform, and set the amplitude and frequency.
+	</p>
+	<p class=func><span class=keyword>frequency</span>(freq);</p>
+	<p class=desc>Change the frequency.
+	</p>
+	<p class=func><span class=keyword>amplitude</span>(level);</p>
+	<p class=desc>Change the amplitude.  Set to 0 to turn the signal off.
+	</p>
+	<p class=func><span class=keyword>phase</span>(angle);</p>
+	<p class=desc>
+		Cause the generated waveform to jump to a specific point within
+		its cycle.  Angle is from 0 to 360 degrees.  When multiple objects
+		are configured,
+		<a href="http://www.pjrc.com/teensy/td_libs_AudioProcessorUsage.html" target="_blank">AudioNoInterrupts()</a>
+		should be used to guarantee all new settings take effect together.
+	</p>
+	<p class=func><span class=keyword>pulseWidth</span>(amount);</p>
+	<p class=desc>Change the width (duty cycle) of the pulse.</p>
+	<p class=func><span class=keyword>arbitraryWaveform</span>(array, maxFreq);</p>
+	<p class=desc>
+		Configure the waveform to be used with WAVEFORM_ARBITRARY.  Array
+		must be an array of 256 samples.  Currently, the data is used
+		without any filtering, which can cause aliasing with frequencies
+		above 172 Hz.  For higher frequency output, you must bandwidth
+		limit your waveform data.  Someday, "maxFreq" will be used to
+		do this automatically.
+	</p>
+	<h3>Examples</h3>
+	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; PlaySynthMusic
+	</p>
+	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; pulseWidth
+	</p>
+	<p class=exam>File &gt; Examples &gt; Audio &gt; HardwareTesting &gt; WM8731MikroSine
+	</p>
+	<h3>Notes</h3>
+	<p>Supported Waveforms:<br>
+		<ul>
+		<li><span class=literal>WAVEFORM_SINE</span></li>
+		<li><span class=literal>WAVEFORM_SAWTOOTH</span></li>
+		<li><span class=literal>WAVEFORM_SAWTOOTH_REVERSE</span></li>
+		<li><span class=literal>WAVEFORM_SQUARE</span></li>
+		<li><span class=literal>WAVEFORM_TRIANGLE</span></li>
+		<li><span class=literal>WAVEFORM_ARBITRARY</span></li>
+		<li><span class=literal>WAVEFORM_PULSE</span></li>
+		<li><span class=literal>WAVEFORM_SAMPLE_HOLD</span></li>
+		</ul>
+	</p>
 </script>
 <script type="text/x-red" data-template-name="AudioSynthWaveform">
 	<div class="form-row">
@@ -1792,6 +1844,10 @@ The actual packets are taken
 		<input type="text" id="node-input-name" placeholder="Name">
 	</div>
 </script>
+
+
+
+
 
 <script type="text/x-red" data-help-name="AudioSynthMultiOsc">
 	<h3>Summary</h3>
@@ -1937,75 +1993,8 @@ The actual packets are taken
 	</div>
 </script>
 
-<script type="text/x-red" data-help-name="AudioSynthWaveform">
-	<h3>Summary</h3>
-	<div class=tooltipinfo>
-	<p>Create a waveform: sine, sawtooth, square, triangle, pulse or arbitrary.</p>
-	</div>
-	<h3>Audio Connections</h3>
-	<table class=doc align=center cellpadding=3>
-		<tr class=top><th>Port</th><th>Purpose</th></tr>
-		<tr class=odd><td align=center>Out 0</td><td>Waveform Output</td></tr>
-	</table>
-	<h3>Functions</h3>
-	<p class=func><span class=keyword>begin</span>(waveform);</p>
-	<p class=desc>Configure the waveform type to create.
-	</p>
-	<p class=func><span class=keyword>begin</span>(level, frequency, waveform);</p>
-	<p class=desc>Output a waveform, and set the amplitude and frequency.
-	</p>
-	<p class=func><span class=keyword>frequency</span>(freq);</p>
-	<p class=desc>Change the frequency.
-	</p>
-	<p class=func><span class=keyword>amplitude</span>(level);</p>
-	<p class=desc>Change the amplitude.  Set to 0 to turn the signal off.
-	</p>
-	<p class=func><span class=keyword>phase</span>(angle);</p>
-	<p class=desc>
-		Cause the generated waveform to jump to a specific point within
-		its cycle.  Angle is from 0 to 360 degrees.  When multiple objects
-		are configured,
-		<a href="http://www.pjrc.com/teensy/td_libs_AudioProcessorUsage.html" target="_blank">AudioNoInterrupts()</a>
-		should be used to guarantee all new settings take effect together.
-	</p>
-	<p class=func><span class=keyword>pulseWidth</span>(amount);</p>
-	<p class=desc>Change the width (duty cycle) of the pulse.</p>
-	<p class=func><span class=keyword>arbitraryWaveform</span>(array, maxFreq);</p>
-	<p class=desc>
-		Configure the waveform to be used with WAVEFORM_ARBITRARY.  Array
-		must be an array of 256 samples.  Currently, the data is used
-		without any filtering, which can cause aliasing with frequencies
-		above 172 Hz.  For higher frequency output, you must bandwidth
-		limit your waveform data.  Someday, "maxFreq" will be used to
-		do this automatically.
-	</p>
-	<h3>Examples</h3>
-	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; PlaySynthMusic
-	</p>
-	<p class=exam>File &gt; Examples &gt; Audio &gt; Synthesis &gt; pulseWidth
-	</p>
-	<p class=exam>File &gt; Examples &gt; Audio &gt; HardwareTesting &gt; WM8731MikroSine
-	</p>
-	<h3>Notes</h3>
-	<p>Supported Waveforms:<br>
-		<ul>
-		<li><span class=literal>WAVEFORM_SINE</span></li>
-		<li><span class=literal>WAVEFORM_SAWTOOTH</span></li>
-		<li><span class=literal>WAVEFORM_SAWTOOTH_REVERSE</span></li>
-		<li><span class=literal>WAVEFORM_SQUARE</span></li>
-		<li><span class=literal>WAVEFORM_TRIANGLE</span></li>
-		<li><span class=literal>WAVEFORM_ARBITRARY</span></li>
-		<li><span class=literal>WAVEFORM_PULSE</span></li>
-		<li><span class=literal>WAVEFORM_SAMPLE_HOLD</span></li>
-		</ul>
-	</p>
-</script>
-<script type="text/x-red" data-template-name="AudioSynthWaveform">
-	<div class="form-row">
-		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-		<input type="text" id="node-input-name" placeholder="Name">
-	</div>
-</script>
+
+
 <script type="text/x-red" data-help-name="AudioSynthToneSweep">
 	<h3>Summary</h3>
 	<div class=tooltipinfo>
@@ -2036,8 +2025,6 @@ The actual packets are taken
 		<input type="text" id="node-input-name" placeholder="Name">
 	</div>
 </script>
-
-
 
 <script type="text/x-red" data-help-name="AudioSynthWaveformDc">
 	<h3>Summary</h3>
@@ -2429,7 +2416,37 @@ double s_freq = .0625;</p>
 	</div>
 </script>
 
-<script type="text/x-red" data-help-name="AudioEffectBenvelope">
+<script type="text/x-red" data-template-name="AudioSynthBendvelope">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="AudioSynthBendvelope">
+	<h3>Summary</h3>
+	<div class=tooltipinfo>
+	<p>Aww, man, I don't want to describe this right now.
+	</p>
+	<p align=center><img src="img/dahdsr.png"></p>
+	</div>
+	<h3>Audio Connections</h3>
+	<table class=doc align=center cellpadding=3>
+		<tr class=top><th>Port</th><th>Purpose</th></tr>
+		<tr class=odd><td align=center>Out 0</td><td>Amplitude out</td></tr>
+	</table>
+	<h3>Functions</h3>
+	<p class=func><span class=keyword>someFunction</span>();</p>
+	<p class=desc>Copy this section of code to make function list.
+	</p>
+	<p class=exam>File &gt; Examples &gt; Proto-8_Audio &gt bendvelopeDemo; 
+	</p>
+	<h3>Notes</h3>
+	<p>note.</p>
+</script>
+
+
+<script type="text/x-red" data-help-name="AudioEffectEnvelope">
 	<h3>Summary</h3>
 	<div class=tooltipinfo>
 	<p>Modify a signal with a DAHDSR (Delay Attack Hold Decay Sustain
@@ -2487,34 +2504,6 @@ double s_freq = .0625;</p>
 		accuracy</p>
 </script>
 <script type="text/x-red" data-template-name="AudioEffectEnvelope">
-	<div class="form-row">
-		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-		<input type="text" id="node-input-name" placeholder="Name">
-	</div>
-</script>
-
-<script type="text/x-red" data-help-name="AudioSynthBendvelope">
-	<h3>Summary</h3>
-	<div class=tooltipinfo>
-	<p>Aww, man, I don't want to describe this right now.
-	</p>
-	<p align=center><img src="img/dahdsr.png"></p>
-	</div>
-	<h3>Audio Connections</h3>
-	<table class=doc align=center cellpadding=3>
-		<tr class=top><th>Port</th><th>Purpose</th></tr>
-		<tr class=odd><td align=center>Out 0</td><td>Amplitude out</td></tr>
-	</table>
-	<h3>Functions</h3>
-	<p class=func><span class=keyword>someFunction</span>();</p>
-	<p class=desc>Copy this section of code to make function list.
-	</p>
-	<p class=exam>File &gt; Examples &gt; Proto-8_Audio &gt bendvelopeDemo; 
-	</p>
-	<h3>Notes</h3>
-	<p>note.</p>
-</script>
-<script type="text/x-red" data-template-name="AudioSynthBendvelope">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="Name">
@@ -3499,7 +3488,9 @@ double s_freq = .0625;</p>
 	</p>
 	<p class=func><span class=keyword>adcHighPassFilterDisable</span>();</p>
 	<p class=desc>Completely disable the analog input filter.  DC and sub-audible
-		low frequencies are allowed to enter the digital signal.
+		low frequencies are allowed to enter the digital signal.  This
+		<a href="http://openaudio.blogspot.com/2017/03/teensy-audio-board-self-noise.html">may
+		reduce noise</a> in some cases.
 	</p>
 	<p class=func><span class=keyword>adcHighPassFilterEnable</span>();</p>
 	<p class=desc>Turn the DC-blocking filter back on, if disabled, or
