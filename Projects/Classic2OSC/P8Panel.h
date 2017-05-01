@@ -21,7 +21,8 @@ class P8Panel : public Panel
 {
 public:
 	P8Panel( void );
-
+	void PrintPanelState( void );
+	
 protected:
 	//Bendvelope1
 	FastWindowed10BitKnob bv1Attack;
@@ -51,36 +52,36 @@ public:
 protected:
 
 	//Bus
-	FastWindowed10BitKnob bus1Amp;
-	FastWindowed10BitKnob bus1Offset;
+	Windowed10BitKnob bus1Amp;
+	Windowed10BitKnob bus1Offset;
 	Button bus1SrcPick;
 	Button bus1DestPick;
 	Led bus1SrcLed;
 	Led bus1DestLed;
 	
-	FastWindowed10BitKnob bus2Amp;
-	FastWindowed10BitKnob bus2Offset;
+	Windowed10BitKnob bus2Amp;
+	Windowed10BitKnob bus2Offset;
 	Button bus2SrcPick;
 	Button bus2DestPick;
 	Led bus2SrcLed;
 	Led bus2DestLed;
 
-	FastWindowed10BitKnob bus3Amp;
-	FastWindowed10BitKnob bus3Offset;
+	Windowed10BitKnob bus3Amp;
+	Windowed10BitKnob bus3Offset;
 	Button bus3SrcPick;
 	Button bus3DestPick;
 	Led bus3SrcLed;
 	Led bus3DestLed;
 
-	FastWindowed10BitKnob bus4Amp;
-	FastWindowed10BitKnob bus4Offset;
+	Windowed10BitKnob bus4Amp;
+	Windowed10BitKnob bus4Offset;
 	Button bus4SrcPick;
 	Button bus4DestPick;
 	Led bus4SrcLed;
 	Led bus4DestLed;
 
-	FastWindowed10BitKnob bus5Amp;
-	FastWindowed10BitKnob bus5Offset;
+	Windowed10BitKnob bus5Amp;
+	Windowed10BitKnob bus5Offset;
 	Button bus5SrcPick;
 	Button bus5DestPick;
 	Led bus5SrcLed;
@@ -138,11 +139,11 @@ protected:
 	Led lfo2Led3;	
 	
 	//OSCA
-	FastWindowed10BitKnob oscAPitch;
+	Windowed10BitKnob oscAPitch;
 	Selector oscAOctave;
 	//Led oscASyncLed;
 	Button oscASync;
-	FastWindowed10BitKnob oscACent;
+	Windowed10BitKnob oscACent;
 	Button oscAShape;
 	Led oscALed1;
 	Led oscALed2;
@@ -150,11 +151,11 @@ protected:
 	FastWindowed10BitKnob oscAPreAmp;
 	
 	//OSCB
-	FastWindowed10BitKnob oscBPitch;
+	Windowed10BitKnob oscBPitch;
 	Selector oscBOctave;
 	Led oscBSyncLed;
 	Button oscBSync;
-	FastWindowed10BitKnob oscBCent;
+	Windowed10BitKnob oscBCent;
 	Button oscBShape;
 	Led oscBLed1;
 	Led oscBLed2;

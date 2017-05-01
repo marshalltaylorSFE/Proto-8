@@ -12,14 +12,14 @@ public:
 	Selector( void );
 	~Selector( void );
 	virtual void freshen( uint16_t msTickDelta );
-	uint8_t getState( void );
-	void init( uint8_t, uint8_t, uint8_t);//maxInput, minInput, number of points
+	uint16_t getState( void );
+	void init( uint16_t, uint16_t, uint8_t);//maxInput, minInput, number of points
 
 protected:
 private:
-	uint8_t state;
-	uint8_t lastState;
-	uint8_t * thresholds;
+	uint16_t state;
+	uint16_t lastState;
+	uint16_t * thresholds;
 	uint8_t points;
 };
 

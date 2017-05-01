@@ -149,7 +149,7 @@ TimerClass32 knobsTimer(500);
 
 TimerClass32 envTimer( 200 );
 
-TimerClass32 debugTimer(1000000);
+TimerClass32 debugTimer(5000000);
 
 //tick variable for interrupt driven timer1
 uint32_t usTicks = 0;

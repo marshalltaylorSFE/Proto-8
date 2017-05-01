@@ -82,46 +82,6 @@ extern ModulatorBlock modulator[4];
 
 P8Interface::P8Interface( void )
 {
-//	//Controls
-//	state = PInit;
-//	busState = BInit;
-//	
-//	lfo1WaveSrc = 1;
-//	lfo2WaveSrc = 1;
-//	oscAWaveSrc = 1;
-//	oscBWaveSrc = 1;
-//	oscCWaveSrc = 1;
-//	oscDWaveSrc = 1;
-//	
-//	lastAttack = 10;
-//	lastAttackBend = 127;
-//	lastAttackHold = 10;
-//	lastDecay = 100;
-//	lastDecayBend = 127;
-//	lastSustain = 100;
-//	lastRelease = 100;
-//	lastReleaseBend = 127;
-//	waveShapeParams[0][0] = 255;
-//	waveShapeParams[0][1] = 0;
-//	waveShapeParams[0][2] = 0;
-//	waveShapeParams[0][3] = 45;
-//	waveShapeParams[1][0] = 0;
-//	waveShapeParams[1][1] = 0;
-//	waveShapeParams[1][2] = 0;
-//	waveShapeParams[1][3] = 0;
-//	
-//	srcMapping[1] = 0;
-//	srcMapping[2] = 0;
-//	srcMapping[3] = 0;
-//	srcMapping[4] = 0;
-//
-//	destMapping[1] = 0;
-//	destMapping[2] = 0;
-//	destMapping[3] = 0;
-//	destMapping[4] = 0;
-//	
-//	//freshenComponents(10);
-//
 }
 
 void P8Interface::reset( void )
@@ -146,20 +106,20 @@ Serial.println("WOOOOOOOOOOOOOOOOO");
 	lastSustain = 100;
 	lastRelease = 100;
 	lastReleaseBend = 127;
-	waveShapeParams[0][0] = 255;
-	waveShapeParams[0][1] = 0;
-	waveShapeParams[0][2] = 0;
+	waveShapeParams[0][0] = wave1Ramp.getAsUInt8();
+	waveShapeParams[0][1] = wave1Sine.getAsUInt8();
+	waveShapeParams[0][2] = wave1Pulse.getAsUInt8();
 	waveShapeParams[0][3] = 45;
 
-	waveShapeParams[1][0] = 0;
-	waveShapeParams[1][1] = 255;
-	waveShapeParams[1][2] = 0;
-	waveShapeParams[1][3] = 0;
+	waveShapeParams[1][0] = wave2Ramp.getAsUInt8();
+	waveShapeParams[1][1] = wave2Sine.getAsUInt8();
+	waveShapeParams[1][2] = wave2Pulse.getAsUInt8();
+	waveShapeParams[1][3] = 55;
 
 	waveShapeParams[2][0] = 0;
 	waveShapeParams[2][1] = 0;
-	waveShapeParams[2][2] = 255;
-	waveShapeParams[2][3] = 45;
+	waveShapeParams[2][2] = wave3Pulse.getAsUInt8();
+	waveShapeParams[2][3] = wave3Width.getAsUInt8();
 	
 	srcMapping[1] = 0;
 	srcMapping[2] = 0;
@@ -205,7 +165,11 @@ Serial.println("WOOOOOOOOOOOOOOOOO");
 void P8Interface::processMachine( uint16_t msInput )
 {
 	freshenComponents(msInput);
-
+	//Debug output using bus5SrcPick
+	if( bus5SrcPick.serviceRisingEdge() )
+	{
+		PrintPanelState();
+	}
 	// Handle wave selection variable
 	if( lfo1Shape.serviceRisingEdge() )
 	{
@@ -397,6 +361,7 @@ void P8Interface::processMachine( uint16_t msInput )
 	if( oscAPitch.serviceChanged() || oscAOctave.serviceChanged() )
 	{
 		oscAOctaveState = oscAOctave.getState();
+		Serial.println(oscAOctaveState);
 		dcTuneOffset[0] = (int16_t)oscAOctaveState - 2 + ((float)oscAPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	//if( oscACent.serviceChanged() )
@@ -413,6 +378,7 @@ void P8Interface::processMachine( uint16_t msInput )
 	if( oscBPitch.serviceChanged() || oscBOctave.serviceChanged() )
 	{
 		oscBOctaveState = oscBOctave.getState();
+		Serial.println(oscBOctaveState);
 		dcTuneOffset[1] = (int16_t)oscBOctaveState - 2 + ((float)oscBPitch.getAsUInt8() - 127) / 200; //Use +- 2 octave with no range control for now
 	}	
 	if( oscBCent.serviceChanged() )
@@ -502,7 +468,7 @@ void P8Interface::processMachine( uint16_t msInput )
 	{
 		waveShapeParams[0][0] = wave1Ramp.getAsUInt8();
 		waveShapeParams[0][1] = wave1Sine.getAsUInt8();
-		waveShapeParams[0][2] = wave1Pulse.getAsUInt8();	
+		waveShapeParams[0][2] = wave1Pulse.getAsUInt8();
 		
 		WaveGenerator testWave;
 		testWave.setParameters( 255, waveShapeParams[0][0], waveShapeParams[0][1], waveShapeParams[0][2], waveShapeParams[0][3] );			
@@ -579,41 +545,33 @@ void P8Interface::processMachine( uint16_t msInput )
 	//Bus knobs
 	if( bus1Amp.serviceChanged() || bus1Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus1Amp.getState() - 512) << 8;
-		int16_t offsetCalc = ((int16_t)bus1Offset.getState() - 512) << 8;
-		Serial.print("Amp1: ");
-		Serial.print(ampCalc);
-		Serial.print("  Offset1: ");
-		Serial.println(offsetCalc);
-		modulator[0].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		modulator[0].modOffset.amplitude_int( offsetCalc );
+		Serial.print("amp: ");
+		Serial.print(bus1Amp.getAsInt16());
+		Serial.print(", offset: ");
+		Serial.println(bus1Offset.getAsInt16());
+		if(modulator[0].modPeak.available())
+		{
+			Serial.print("Peak value: ");
+			Serial.println(modulator[0].modPeak.read());
+		}
+
+		modulator[0].modGain.amplitude_int( bus1Amp.getAsInt16() );// -32768 to 32768
+		modulator[0].modOffset.amplitude_int( bus1Offset.getAsInt16() );
 	}	
 	if( bus2Amp.serviceChanged() || bus2Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus2Amp.getAsUInt8() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus2Offset.getAsUInt8() - 128) << 8;
-		Serial.print(ampCalc);
-		Serial.println(offsetCalc);
-		modulator[1].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		modulator[1].modOffset.amplitude_int( offsetCalc );
+		modulator[1].modGain.amplitude_int( bus2Amp.getAsInt16() );// -32768 to 32768
+		modulator[1].modOffset.amplitude_int( bus2Offset.getAsInt16() );
 	}
 	if( bus3Amp.serviceChanged() || bus3Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus3Amp.getAsUInt8() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus3Offset.getAsUInt8() - 128) << 8;
-		Serial.print(ampCalc);
-		Serial.println(offsetCalc);
-		modulator[2].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		modulator[2].modOffset.amplitude_int( offsetCalc );
+		modulator[2].modGain.amplitude_int( bus3Amp.getAsInt16() );// -32768 to 32768
+		modulator[2].modOffset.amplitude_int( bus3Offset.getAsInt16() );
 	}	
 	if( bus4Amp.serviceChanged() || bus4Offset.serviceChanged() )
 	{
-		int16_t ampCalc = ((int16_t)bus4Amp.getAsUInt8() - 128) << 8;
-		int16_t offsetCalc = ((int16_t)bus4Offset.getAsUInt8() - 128) << 8;
-		Serial.print(ampCalc);
-		Serial.println(offsetCalc);
-		modulator[3].modGain.amplitude_int( ampCalc );// 0 to 255 for length, -128 to 127
-		modulator[3].modOffset.amplitude_int( offsetCalc );
+		modulator[3].modGain.amplitude_int( bus4Amp.getAsInt16() );// -32768 to 32768
+		modulator[3].modOffset.amplitude_int( bus4Offset.getAsInt16() );
 	}	
 
 	//Misc knobs

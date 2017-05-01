@@ -15,6 +15,7 @@
 #include "proto-8PanelComponents.h"
 #include "HardwareInterfaces.h"
 #include "flagMessaging.h"
+#include <typeinfo>   // operator typeid
 
 
 //This is where PanelComponents are joined to form the custom panel
@@ -70,8 +71,10 @@ P8Panel::P8Panel( void )
 	
 	//Bus
 	bus1Amp.setHardware(new Proto8AnalogIn( 13 ));
+	bus1Amp.setWindow( 10 );
 	add( &bus1Amp );
 	bus1Offset.setHardware(new Proto8AnalogIn( 14 ));
+	bus1Offset.setWindow( 10 );
 	add( &bus1Offset );
 	bus1SrcPick.setHardware(new Proto8DigitalIn( 5,1 ), 0);
 	add( &bus1SrcPick );
@@ -230,15 +233,17 @@ P8Panel::P8Panel( void )
 	
 	//OSCA
 	oscAPitch.setHardware(new Proto8AnalogIn( 56 ));
+	oscAPitch.setWindow( 10 );
 	add( &oscAPitch );
 	oscAOctave.setHardware(new Proto8AnalogIn( 57 ));
-	oscAOctave.init(185, 71, 4); //With max, min, points
+	oscAOctave.init(673, 373, 4); //With max, min, points
 	add( &oscAOctave );
 	//oscASyncLed.setHardware(new Proto8DigitalOut( xxx ), 0);
 //	add( &oscASyncLed );
 	oscASync.setHardware(new Proto8DigitalIn( 3,1 ), 0);
 	add( &oscASync );
 	oscACent.setHardware(new Proto8AnalogIn( 58 ));
+	oscACent.setWindow( 10 );
 	add( &oscACent );
 	oscAShape.setHardware(new Proto8DigitalIn( 2,1 ), 0);
 	add( &oscAShape );
@@ -253,15 +258,17 @@ P8Panel::P8Panel( void )
 	
 	//OSCB
 	oscBPitch.setHardware(new Proto8AnalogIn( 52 ));
+	oscBPitch.setWindow( 10 );
 	add( &oscBPitch );
 	oscBOctave.setHardware(new Proto8AnalogIn( 53 ));
-	oscBOctave.init(185, 71, 4); //With max, min, points
+	oscBOctave.init(750, 380, 4); //With max, min, points
 	add( &oscBOctave );
 	oscBSyncLed.setHardware(new Proto8DigitalOut( 46 ), 0);
 	add( &oscBSyncLed );
 	oscBSync.setHardware(new Proto8DigitalIn( 3,2 ), 0);
 	add( &oscBSync );
 	oscBCent.setHardware(new Proto8AnalogIn( 54 ));
+	oscBPitch.setWindow( 10 );
 	add( &oscBCent );
 	oscBShape.setHardware(new Proto8DigitalIn( 2,2 ), 0);
 	add( &oscBShape );
@@ -340,6 +347,255 @@ P8Panel::P8Panel( void )
 	
 	//General
 	Select.setHardware(new Proto8AnalogIn( 43 ));
-	Select.init(245, 10, 16); //With max, min, points
+	Select.init(1023, 0, 16); //With max, min, points
 	add( &Select );
+}
+
+//This function walks through the linked list and prints information about it.
+void P8Panel::PrintPanelState( void )
+{
+	ListObject * tempObject = componentList;
+	if( tempObject == NULL )
+	{
+		Serial.println("No objects");
+		 return;
+	}
+	//call all contained objects' freshen
+	while( tempObject != NULL )
+	{
+		Serial.print("ListObject: ");
+		Serial.println((uint32_t)&(*tempObject), HEX);
+		Serial.print("ListObject->component: ");
+		Serial.println((uint32_t)&(*tempObject->component), HEX);
+		//Advance linked list:
+		tempObject = tempObject->next;
+	}
+	//Print synth specific stuff
+	Serial.println();
+	
+	//Bendvelope1
+	Serial.print("AAHDDSRR Envelope 1: ");
+	Serial.print(bv1Attack.getState());
+	Serial.print(", ");
+	Serial.print(bv1AttackBend.getState());
+	Serial.print(", ");
+	Serial.print(bv1Hold.getState());
+	Serial.print(", ");
+	Serial.print(bv1Decay.getState());
+	Serial.print(", ");
+	Serial.print(bv1DecayBend.getState());
+	Serial.print(", ");
+	Serial.print(bv1Sustain.getState());
+	Serial.print(", ");
+	Serial.print(bv1Release.getState());
+	Serial.print(", ");
+	Serial.print(bv1ReleaseBend.getState());
+	Serial.print(", ");
+	Serial.print(bv1Select.getState());
+	Serial.println();
+
+	Serial.print("Trig LED state: ");
+	Serial.println(bv1Trigger.getState());
+
+	//Bendvelope2
+	Serial.print("AAHDDSRR Envelope 2: ");
+	Serial.print(bv2Attack.getState());
+	Serial.print(", ");
+	Serial.print(bv2AttackBend.getState());
+	Serial.print(", ");
+	Serial.print(bv2Hold.getState());
+	Serial.print(", ");
+	Serial.print(bv2Decay.getState());
+	Serial.print(", ");
+	Serial.print(bv2DecayBend.getState());
+	Serial.print(", ");
+	Serial.print(bv2Sustain.getState());
+	Serial.print(", ");
+	Serial.print(bv2Release.getState());
+	Serial.print(", ");
+	Serial.print(bv2ReleaseBend.getState());
+	Serial.print(", ");
+	Serial.print(bv2Select.getState());
+	Serial.println();
+
+	Serial.print("Trig LED state: ");
+	Serial.println(bv2Trigger.getState());
+	Serial.println();
+
+	//Bus
+	Serial.print("Bus1Amp: ");
+	Serial.print(bus1Amp.getState());
+	Serial.print(", Bus1Offset: ");
+	Serial.print(bus1Offset.getState());
+	Serial.println();
+
+	Serial.print("LEDs, Src: ");
+	Serial.print(bus1SrcLed.getState());
+	Serial.print(", Dst: ");
+	Serial.print(bus1DestLed.getState());
+	Serial.println();
+
+	Serial.print("Bus2Amp: ");
+	Serial.print(bus2Amp.getState());
+	Serial.print(", Bus2Offset: ");
+	Serial.print(bus2Offset.getState());
+	Serial.println();
+
+	Serial.print("LEDs, Src: ");
+	Serial.print(bus2SrcLed.getState());
+	Serial.print(", Dst: ");
+	Serial.print(bus2DestLed.getState());
+	Serial.println();
+
+	Serial.print("Bus3Amp: ");
+	Serial.print(bus3Amp.getState());
+	Serial.print(", Bus3Offset: ");
+	Serial.print(bus3Offset.getState());
+	Serial.println();
+
+	Serial.print("LEDs, Src: ");
+	Serial.print(bus3SrcLed.getState());
+	Serial.print(", Dst: ");
+	Serial.print(bus3DestLed.getState());
+	Serial.println();
+
+	Serial.print("Bus4Amp: ");
+	Serial.print(bus4Amp.getState());
+	Serial.print(", Bus4Offset: ");
+	Serial.print(bus4Offset.getState());
+	Serial.println();
+
+	Serial.print("LEDs, Src: ");
+	Serial.print(bus4SrcLed.getState());
+	Serial.print(", Dst: ");
+	Serial.print(bus4DestLed.getState());
+	Serial.println();
+
+	Serial.print("Bus5Amp: ");
+	Serial.print(bus5Amp.getState());
+	Serial.print(", Bus5Offset: ");
+	Serial.print(bus5Offset.getState());
+	Serial.println();
+
+	Serial.print("LEDs, Src: ");
+	Serial.print(bus5SrcLed.getState());
+	Serial.print(", Dst: ");
+	Serial.print(bus5DestLed.getState());
+	Serial.println();
+
+	Serial.print("MOD LEDs, Src: ");
+	Serial.print(modSrcLed0.getState());	Serial.print(", ");
+	Serial.print(modSrcLed1.getState());	Serial.print(", ");
+	Serial.print(modSrcLed2.getState());	Serial.print(", ");
+	Serial.print(modSrcLed3.getState());	Serial.print(", ");
+	Serial.print(modSrcLed4.getState());	Serial.print(", ");
+	Serial.print(modSrcLed5.getState());	Serial.print(", ");
+	Serial.print(modSrcLed6.getState());	Serial.print(", ");
+	Serial.print(modSrcLed7.getState());	Serial.print(", ");
+	Serial.print(modSrcLed8.getState());	Serial.print(", ");
+	Serial.print(modSrcLed9.getState());	Serial.print(", ");
+	Serial.print(modSrcLed10.getState());	Serial.print(", ");
+	Serial.print(modSrcLed11.getState());	Serial.print(", ");
+	Serial.print(modSrcLed12.getState());	Serial.print(", ");
+	Serial.print(modSrcLed13.getState());	Serial.print(", ");
+	Serial.print(modSrcLed14.getState());
+	Serial.println();
+	
+	Serial.print("MOD LEDs, Dst: ");
+	Serial.print(modDestLed0.getState());	Serial.print(", ");
+	Serial.print(modDestLed1.getState());	Serial.print(", ");
+	Serial.print(modDestLed2.getState());	Serial.print(", ");
+	Serial.print(modDestLed3.getState());	Serial.print(", ");
+	Serial.print(modDestLed4.getState());	Serial.print(", ");
+	Serial.print(modDestLed5.getState());	Serial.print(", ");
+	Serial.print(modDestLed6.getState());	Serial.print(", ");
+	Serial.print(modDestLed7.getState());	Serial.print(", ");
+	Serial.print(modDestLed8.getState());	Serial.print(", ");
+	Serial.print(modDestLed9.getState());	Serial.print(", ");
+	Serial.print(modDestLed10.getState());	Serial.print(", ");
+	Serial.print(modDestLed11.getState());	Serial.print(", ");
+	Serial.print(modDestLed12.getState());	Serial.print(", ");
+	Serial.print(modDestLed13.getState());	Serial.print(", ");
+	Serial.print(modDestLed14.getState());
+	Serial.println();
+	
+	//Master
+	Serial.print("Master: ");
+	Serial.print(masterCoarseTune.getState());	Serial.print(", ");
+	Serial.print(masterFineTune.getState());	Serial.print(", ");
+	Serial.print(masterVolume.getState());
+	Serial.println();
+	
+	//LFO1
+	Serial.print("LFO1: ");
+	Serial.print(lfo1Freq.getState());	Serial.print(", ");
+	Serial.print(lfo1Led1.getState());	Serial.print(", ");
+	Serial.print(lfo1Led2.getState());	Serial.print(", ");
+	Serial.print(lfo1Led3.getState());
+	Serial.println();
+	
+	//LFO2
+	Serial.print("LFO2: ");
+	Serial.print(lfo2Freq.getState());	Serial.print(", ");
+	Serial.print(lfo2Led1.getState());	Serial.print(", ");
+	Serial.print(lfo2Led2.getState());	Serial.print(", ");
+	Serial.print(lfo2Led3.getState());
+	Serial.println();
+	
+	//OSCA
+	Serial.print("OSCA, Pitch: ");	Serial.print(oscAPitch.getState());
+	Serial.print(", Octave: ");	Serial.print(oscAOctave.getState());
+	Serial.print(", Cent: ");	Serial.print(oscACent.getState());
+	Serial.print(", Shape: ");	Serial.print(oscALed1.getState());
+	Serial.print(", ");	Serial.print(oscALed2.getState());
+	Serial.print(", ");	Serial.print(oscALed3.getState());
+	Serial.print(", Amp: ");	Serial.print(oscAPreAmp.getState());
+	Serial.println();
+	
+	Serial.print("OSCB, Pitch: ");	Serial.print(oscBPitch.getState());
+	Serial.print(", Octave: ");	Serial.print(oscBOctave.getState());
+	Serial.print(", Cent: ");	Serial.print(oscBCent.getState());
+	Serial.print(", Shape: ");	Serial.print(oscBLed1.getState());
+	Serial.print(", ");	Serial.print(oscBLed2.getState());
+	Serial.print(", ");	Serial.print(oscBLed3.getState());
+	Serial.print(", Amp: ");	Serial.print(oscBPreAmp.getState());
+	Serial.println();
+
+	Serial.print("OSCC, Pitch: ");	Serial.print(oscCPitch.getState());
+	Serial.print(", Octave: ");	Serial.print(oscCOctave.getState());
+	Serial.print(", Cent: ");	Serial.print(oscCCent.getState());
+	Serial.print(", Shape: ");	Serial.print(oscCLed1.getState());
+	Serial.print(", ");	Serial.print(oscCLed2.getState());
+	Serial.print(", ");	Serial.print(oscCLed3.getState());
+	Serial.print(", Amp: ");	Serial.print(oscCPreAmp.getState());
+	Serial.println();
+
+	Serial.print("OSCD, Pitch: ");	Serial.print(oscDPitch.getState());
+	Serial.print(", Octave: ");	Serial.print(oscDOctave.getState());
+	Serial.print(", Cent: ");	Serial.print(oscDCent.getState());
+	Serial.print(", Shape: ");	Serial.print(oscDLed1.getState());
+	Serial.print(", ");	Serial.print(oscDLed2.getState());
+	Serial.print(", ");	Serial.print(oscDLed3.getState());
+	Serial.print(", Amp: ");	Serial.print(oscDPreAmp.getState());
+	Serial.println();
+	
+	//Wave Shape
+	Serial.println("Waveshapes: ");
+	Serial.print(" R1: ");	Serial.print(wave1Ramp.getState());
+	Serial.print(" S1: ");	Serial.print(wave1Sine.getState());
+	Serial.print(" PA1: ");	Serial.print(wave1Pulse.getState());
+	Serial.println();
+	Serial.print(" R2: ");	Serial.print(wave2Ramp.getState());
+	Serial.print(" S2: ");	Serial.print(wave2Sine.getState());
+	Serial.print(" PA2: ");	Serial.print(wave2Pulse.getState());
+	Serial.println();
+	Serial.print(" PA3: ");	Serial.print(wave3Pulse.getState());
+	Serial.print(" PW3: ");	Serial.print(wave3Width.getState());
+	Serial.println();
+	Serial.println();
+
+	//General
+	Serial.print("Selector: ");	Serial.print(Select.getState());
+	Serial.println();
+
 }

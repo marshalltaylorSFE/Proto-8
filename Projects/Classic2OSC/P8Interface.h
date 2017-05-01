@@ -98,6 +98,7 @@ public:
 		patchCord1.reconnect(&modGain, 0, &modAmp, 1);
 		patchCord2.reconnect(&modAmp, 0, &effectMixer, 2);
 		patchCord3.reconnect(&modOffset, 0, &effectMixer, 3);
+		patchCord4.reconnect(&modAmp, 0, &modPeak, 0);
 	}
 	void insert( EffectPathItem * path, AudioStream * modSourceObject, uint8_t modSourceIndex)
 	{
@@ -133,6 +134,10 @@ private:
 	AudioConnection          patchCord3;
 	AudioConnection modSourcePatchCord;
 	AudioConnection modulatedOutputPatchCord;
+public:	
+	AudioAnalyzePeak         modPeak;          //xy=1396,593
+private:
+	AudioConnection          patchCord4;
 };
 //// GUItool: begin automatically generated code
 //AudioSynthWaveformDcBinary modGain;        //xy=397,1203
