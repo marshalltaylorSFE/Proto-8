@@ -43,9 +43,10 @@
 3. Install [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html) and all libraries to the Arduino installation.  
 2. Download [the Audio GUI](https://github.com/PaulStoffregen/Audio/tree/master/gui) and place in a directory of your computer.  Test that you can view "index.html" in a browser and that the system functions like [the online version](https://www.pjrc.com/teensy/gui/).
 3. Replace the modified files from this repo into the local audio gui's folder (described in [Proto-8/Platform/GUI_mods/readme.md](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/GUI_mods)).  Refresh the index.html file in your browser and the new modules should appear in a pinker color.
-4. Replace AudioStream.cpp and AudioStream.h in _Arduino_\hardware\teensy\avr\cores\teensy3 with those from [Proto-8/Platform/core_mods/](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/core_mods), where _Arduino_ is the path of the 1.6.12 installation.
+4. Replace AudioStream.cpp and AudioStream.h in _Arduino_\hardware\teensy\avr\cores\teensy3 with those from [Proto-8/Platform/core_mods/](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/core_mods), where _Arduino_ is the path of the specific arduino installation.
 5.  Install the following libraries to your arduino libraries directory:
-  * [Proto-8/Platform/library/Proto-8_Audio](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/proto-8_library/Proto-8_Audio)
+  * [Proto-8/Platform/libraries/Proto-8_Audio](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/libraries/Proto-8_Audio)
+  * [Proto-8/Platform/libraries/Proto-8_System](https://github.com/marshalltaylorSFE/Proto-8/tree/master/Platform/libraries/Proto-8_System)
   * [uCModules](https://github.com/marshalltaylorSFE/uCModules)
 
 #### Version compatibility
