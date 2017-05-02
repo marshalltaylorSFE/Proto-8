@@ -153,8 +153,6 @@ void loop()
 			//Serial.print(i);
 		}
 		Serial.println();		
-		Serial.println();
-
 	}
 	
 	

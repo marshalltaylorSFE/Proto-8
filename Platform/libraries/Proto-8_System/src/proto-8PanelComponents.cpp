@@ -15,7 +15,7 @@ Selector::~Selector( void )
 }
 
 // 8 bit resolution on the ADC should be fine.
-void Selector::init( uint8_t maxInput, uint8_t minInput, uint8_t pointsInput )
+void Selector::init( uint16_t maxInput, uint16_t minInput, uint8_t pointsInput )
 {
 	if( pointsInput < 2 )
 	{
@@ -25,10 +25,10 @@ void Selector::init( uint8_t maxInput, uint8_t minInput, uint8_t pointsInput )
 	{
 		points = pointsInput - 1; //( by (n-1) not n )
 	}
-	thresholds = new uint8_t[points];
+	thresholds = new uint16_t[points];
 
 	//Set up the ranges
-	uint8_t stepHeight = ( maxInput - minInput ) / points;
+	uint16_t stepHeight = ( maxInput - minInput ) / points;
 	thresholds[0] = minInput + ( stepHeight / 2 );
 	int i;
 	for( i = 1; i < points; i++ )
@@ -48,7 +48,7 @@ void Selector::freshen( uint16_t msTickDelta )
 	KnobDataObject tempObject;
 	hardwareInterface->getData(&tempObject);
 	
-	uint16_t freshData = *(uint16_t *)tempObject.data >> 2;
+	uint16_t freshData = *(uint16_t *)tempObject.data;
 
 	state = 0;
 	//Seek the position
@@ -69,7 +69,7 @@ void Selector::freshen( uint16_t msTickDelta )
 
 }
 
-uint8_t Selector::getState( void )
+uint16_t Selector::getState( void )
 {
    return state;
 }

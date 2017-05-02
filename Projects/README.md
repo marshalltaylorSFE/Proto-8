@@ -19,4 +19,5 @@ Also requires core_mods applied to AudioStream source and header files within \h
 * ClassicTemplate -- The hardware layer with panel components matching to the locations of the "big panel".
 * PatchCordChanger -- Swaps outputs between 4 waveforms
 * PatchCordChangerTwo -- Swaps filter taps and chooses L/R output combinations
+* SynthBassMini -- Uses 3 osc, 1 bend, 1 envelope, and a few modulators.  This works like the Classic2OSC but with a simpler interface.
 * README.md -- This file

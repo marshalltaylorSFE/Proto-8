@@ -12,7 +12,7 @@
 #include "Arduino.h"
 #include "P8Panel.h"
 #include "panelComponents.h"
-#include "PCSelector.h"
+#include "proto-8PanelComponents.h"
 #include "HardwareInterfaces.h"
 #include "flagMessaging.h"
 
@@ -21,7 +21,7 @@
 P8Panel::P8Panel( void )
 {
 	fixtureKnob.setHardware(new Proto8AnalogIn( FIXTUREKNOBPOS ));
-	fixtureKnob.init( 255, 0, 10 );
+	fixtureKnob.init( 1023, 0, 10 );
 	add( &fixtureKnob );
 	
 	state = PInit;

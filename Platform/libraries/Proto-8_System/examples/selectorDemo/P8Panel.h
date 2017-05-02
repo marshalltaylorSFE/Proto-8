@@ -14,7 +14,7 @@
 
 #include "Panel.h"
 #include "PanelComponents.h"
-#include "PCSelector.h"
+#include "proto-8PanelComponents.h"
 #include "proto-8HardwareInterfaces.h"
 
 enum PStates

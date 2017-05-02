@@ -1,0 +1,48 @@
+Bend:
+Knobs: 27, 32, 31, 30, 26, 29, 28, 25
+Tone - 10
+Effect - 9
+
+OSC:
+Freq - 17
+Octave - 18
+Amp - 19
+Shape Btn - 9, 3
+Other Btn - 9, 4
+LEDs: 33, 34, 35, 36, 37
+
+Extra:
+Knobs: 16, 15, 14, 13
+
+
+
+
+AAHDDSRR Envelope 1: 19, 465, 37, 201, 309, 1, 42, 129, 0
+Trig LED state: 1
+AAHDDSRR Envelope 2: 0, 517, 1, 180, 42, 1, 162, 350, 0
+Trig LED state: 1
+
+Bus1Amp: 679, Bus1Offset: 531
+LEDs, Src: 1, Dst: 1
+Bus2Amp: 544, Bus2Offset: 469
+LEDs, Src: 1, Dst: 1
+Bus3Amp: 1, Bus3Offset: 1
+LEDs, Src: 1, Dst: 1
+Bus4Amp: 267, Bus4Offset: 1
+LEDs, Src: 1, Dst: 1
+Bus5Amp: 243, Bus5Offset: 26
+LEDs, Src: 1, Dst: 1
+MOD LEDs, Src: 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+MOD LEDs, Dst: 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+Master: 499, 421, 789
+LFO1: 1022, 0, 1, 1
+LFO2: 574, 1, 1, 1
+OSCA, Pitch: 571, Octave: 0, Cent: 474, Shape: 0, 1, 1, Amp: 1022
+OSCB, Pitch: 568, Octave: 1, Cent: 442, Shape: 0, 1, 1, Amp: 394
+OSCC, Pitch: 543, Octave: 2, Cent: 476, Shape: 1, 1, 1, Amp: 1022
+OSCD, Pitch: 483, Octave: 3, Cent: 567, Shape: 1, 1, 1, Amp: 1022
+Waveshapes: 
+ R1: 353 S1: 1022 PA1: 1
+ R2: 603 S2: 1 PA2: 1
+ PA3: 503 PW3: 349
+
