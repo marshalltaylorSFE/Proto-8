@@ -330,8 +330,9 @@ void setup()
 	midiA.setHandleNoteOff(HandleNoteOff);
 	midiA.setHandleControlChange(HandleControlChange);
 	midiA.setHandleSystemReset(handleSystemReset);
-	// Initiate MIDI communications, listen to all channels
-	midiA.begin(MIDI_CHANNEL_OMNI);
+	// Initiate MIDI communications
+	//midiA.begin(2);
+  midiA.begin(MIDI_CHANNEL_OMNI);
 	//midiA.turnThruOn();
 	midiA.turnThruOff();
 	

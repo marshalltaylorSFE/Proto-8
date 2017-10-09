@@ -1,18 +1,18 @@
 Bend:
-Knobs: 27, 32, 31, 30, 26, 29, 28, 25
-Tone - 10
-Effect - 9
+Knobs: 46, 41, 42, 43, 47, 44, 45, 49
+Tone - 25
+Effect - 26
 
 OSC:
-Freq - 17
-Octave - 18
-Amp - 19
-Shape Btn - 9, 3
-Other Btn - 9, 4
-LEDs: 33, 34, 35, 36, 37
+Freq - 33
+Octave - 34
+Amp - 35
+Shape Btn - 9, 4
+Other Btn - 9, 1
+LEDs: 16, 15, 14, 13, 12
 
 Extra:
-Knobs: 16, 15, 14, 13
+Knobs: 29, 30, 31, 32
 
 
 

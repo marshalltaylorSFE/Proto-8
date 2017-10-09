@@ -31,7 +31,7 @@ protected:
 	FastWindowed10BitKnob bv1Decay;
 	FastWindowed10BitKnob bv1DecayBend;
 	FastWindowed10BitKnob bv1Sustain;
-	FastWindowed10BitKnob bv1Release;
+	Windowed10BitKnob bv1Release;
 	FastWindowed10BitKnob bv1ReleaseBend;
 	FastWindowed10BitKnob bv1Select;
 public:
@@ -42,6 +42,7 @@ protected:
 	Windowed10BitKnob oscPitch;
 	Selector oscOctave;
 	Led oscOptionLed;
+	Led miscLed;
 	Button oscOption;
 	Button oscShape;
 	Led oscLed1;

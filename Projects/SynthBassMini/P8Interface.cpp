@@ -137,6 +137,7 @@ void P8Interface::reset( void )
 	modSources[1].set( &envelope1, 0 );
 	modSources[2].set( &lfo1, 0 );
 	
+
 }
 
 //---------------------------------------------------------------------------//
@@ -425,7 +426,9 @@ void P8Interface::tickStateMachine()
 		dc1CentC.amplitude_int(-500);
 
 		envelope1.sustain(0);
-		
+
+		miscLed.setState(LEDOFF);
+
 		nextState = PIdle;
 		break;
 	case PIdle:
